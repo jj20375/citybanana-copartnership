@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="31.009" height="38.95" viewBox="0 0 31.009 38.95">
+  <g id="圖層_3" transform="translate(-71.091 -52.6)">
+    <g id="Group_16122" transform="translate(71.1 53.55)">
+      <g id="Group_16117" transform="translate(0)">
+        <g id="Rectangle_3144" transform="translate(0 1.418)">
+          <path id="Path_27670" data-name="Path 27670" d="M73.882,52.6H99.318a2.841,2.841,0,0,1,2.782,3.007V86.175a2.9,2.9,0,0,1-2.782,3.007H73.882A2.841,2.841,0,0,1,71.1,86.175V55.607A2.841,2.841,0,0,1,73.882,52.6Z" transform="translate(-71.1 -52.6)" fill="none"/>
+          <path id="Path_27671" data-name="Path 27671" d="M73.886,53.4H98.814a2.117,2.117,0,0,1,1.986,2.205V86.177a2.117,2.117,0,0,1-1.986,2.205H73.886A2.117,2.117,0,0,1,71.9,86.177V55.605A2,2,0,0,1,73.886,53.4Z" transform="translate(-71.1 -52.6)" fill="none" stroke="#040000" stroke-width="1.6"/>
+        </g>
+        <path id="Path_27623" d="M79.8,52.6v5" transform="translate(-71.157 -52.6)" fill="none" stroke="#040000" stroke-linecap="round" stroke-width="1.9"/>
+        <path id="Path_27624" d="M86.7,52.6v5" transform="translate(-71.201 -52.6)" fill="none" stroke="#040000" stroke-linecap="round" stroke-width="1.9"/>
+        <path id="Path_27625" d="M93.7,52.6v5" transform="translate(-71.246 -52.6)" fill="none" stroke="#040000" stroke-linecap="round" stroke-width="1.9"/>
+      </g>
+      <path id="Path_27642" d="M147.5,456.4H159" transform="translate(-137.744 -440.53)" fill="none" stroke="#ea5839" stroke-linecap="round" stroke-width="1.8"/>
+      <path id="Path_27643" d="M147.5,463.8H159" transform="translate(-137.744 -440.514)" fill="none" stroke="#ea5839" stroke-linecap="round" stroke-width="1.8"/>
+    </g>
+  </g>
+</svg>

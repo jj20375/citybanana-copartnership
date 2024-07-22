@@ -1,0 +1,12 @@
+.datepicker {
+    @apply border-2 border-blue-500;
+    padding: 0.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+}
+
+.datepicker__input {
+    border: none;
+    outline: none;
+    width: 100%;
+}

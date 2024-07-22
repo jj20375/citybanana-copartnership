@@ -1,0 +1,6 @@
+.blue {
+    @apply bg-blue-500 text-red-500;
+}
+.red {
+    @apply bg-opacity-0 bg-red-500 text-5xl font-bold border border-white rounded-full;
+}
