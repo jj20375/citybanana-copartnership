@@ -7,6 +7,7 @@ import { useDispatch, TypedUseSelectorHook, useSelector } from "react-redux";
 import { authReducer } from "@/store-toolkit/stores/authStore";
 import { userReducer } from "@/store-toolkit/stores/userStore";
 import { apiReducer } from "@/store-toolkit/stores/apiStore";
+import { orderReducer } from "@/store-toolkit/stores/orderStore";
 import { createWrapper } from "next-redux-wrapper";
 
 const persistConfig = {
@@ -17,6 +18,7 @@ const rootReducer = combineReducers({
     authStore: authReducer,
     userStore: userReducer,
     apiStore: apiReducer,
+    orderStore: orderReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

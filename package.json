@@ -29,6 +29,7 @@
         "i18next-browser-languagedetector": "^8.0.0",
         "i18next-resources-to-backend": "^1.2.1",
         "js-cookie": "^3.0.5",
+        "lodash": "^4.17.21",
         "lucide-react": "^0.412.0",
         "mysql2": "^3.10.3",
         "next": "14.2.5",
@@ -53,6 +54,7 @@
         "zustand": "^4.5.4"
     },
     "devDependencies": {
+        "@types/lodash": "^4.17.7",
         "@types/node": "^20.14.11",
         "@types/react": "^18.3.3",
         "@types/react-dom": "^18.3.0",

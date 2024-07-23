@@ -1,0 +1,11 @@
+{
+    "title": "en work",
+    "index": {
+        "title": "海底撈火鍋-京站店(en)"
+    },
+    "validation": {
+        "rightNowActivityOrder": {
+            "price": "請輸入大於 {{price}} 以上的數值(en)"
+        }
+    }
+}

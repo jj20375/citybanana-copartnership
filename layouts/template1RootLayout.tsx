@@ -22,7 +22,6 @@ export default function Tmp1RootLayout({ children, lang }: { children: React.Rea
         >
             <body className={notoSansTc.className}>
                 <Suspense fallback={<p>Loading feed...</p>}>
-                    layout1
                     <ReduxProvider>
                         <Header />
                         <AuthLayoutServerProvider>{children}</AuthLayoutServerProvider>

@@ -4,6 +4,7 @@ import { useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { UserProfileInterface } from "@/interface/user";
 import useUserStore from "@/store-zustand/userStore";
 import { setUserProfile, fetchGetFirebaseCustomToken, fetchFirebaseLogin } from "@/store-toolkit/stores/userStore";
+import { setRightNowActivityConfiguration } from "@/store-toolkit/stores/orderStore";
 import { useEffect, useState } from "react";
 import { refreshToken, refreshFirebaseToken } from "@/service/actions";
 import { getCookie } from "cookies-next";
@@ -28,12 +29,13 @@ function IntervalCount() {
     return null;
 }
 
-export default function DefaultLayoutClient({ user, children }: { user: UserProfileInterface; children: React.ReactNode }) {
+export default function DefaultLayoutClient({ user, configurationSettingsData, children }: { user: UserProfileInterface; configurationSettingsData: any; children: React.ReactNode }) {
     console.log("rerender client layout");
     const dispatch = useAppDispatch();
     const setUser = useUserStore((state) => state.setUser);
     setUser(user);
     dispatch(setUserProfile(user));
+    dispatch(setRightNowActivityConfiguration(configurationSettingsData));
     // 判斷有 token 在執行 取得 firebase token
 
     if (getCookie("accessToken")) {

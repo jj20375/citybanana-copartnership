@@ -1,7 +1,7 @@
 const colors = require("tailwindcss/colors");
 import type { Config } from "tailwindcss";
 const config: Config = {
-    content: ["./layouts/**/*.{js,ts,jsx,tsx,mdx}", "./pages/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}", "./app/**/*.{js,ts,jsx,tsx,mdx}"],
+    content: ["./layouts/**/*.{js,ts,jsx,tsx,mdx}", "./pages/**/*.{js,ts,jsx,tsx,mdx}", "./views/**/*.{js,ts,jsx,tsx,mdx}", "./components/**/*.{js,ts,jsx,tsx,mdx}", "./app/**/*.{js,ts,jsx,tsx,mdx}"],
     theme: {
         extend: {
             backgroundImage: {
@@ -109,7 +109,6 @@ const config: Config = {
                 500: "#FB3C9C",
             },
             indigo: colors.indigo,
-            pink: colors.pink,
         },
         spacing: {
             px: "1px",
@@ -147,6 +146,21 @@ const config: Config = {
             72: "18rem",
             80: "20rem",
             96: "24rem",
+        },
+        fontSize: {
+            sm: "0.8rem",
+            base: "1rem",
+            xl: "1.25rem",
+            "2xl": "1.563rem",
+            "3xl": "1.953rem",
+            "4xl": "2.441rem",
+            "5xl": "3.052rem",
+            "lg-title": "32px", // 標題字大小
+            "sm-title": "18px", // 副標題字大小
+            "lg-content": "16px", // 大常規字大小
+            "base-content": "14px", // 一般的常規字大小
+            "sm-content": "13px", // 更小的常規字
+            "xs-content": "10px", // 最小的常規字
         },
     },
     plugins: [],

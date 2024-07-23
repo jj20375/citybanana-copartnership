@@ -14,17 +14,7 @@ export default function HeaderMenu({ menus }: any) {
     // const { device } = useContext(WindowResizeContext);
     const isMobile = useWidowResizeStore((state) => state.isMobile);
     if (isMobile) {
-        return (
-            <HeaderMobileMenu
-                menus={menus}
-                SubscriptionComponent={() => <SubscriptionComponent />}
-            />
-        );
+        return <HeaderMobileMenu menus={menus} />;
     }
-    return (
-        <HeaderDesktopMenu
-            menus={menus}
-            SubscriptionComponent={() => <SubscriptionComponent />}
-        />
-    );
+    return <HeaderDesktopMenu menus={menus} />;
 }

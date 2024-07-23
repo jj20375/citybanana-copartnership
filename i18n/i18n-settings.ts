@@ -1,5 +1,5 @@
 export const fallbackLang = "en";
-export const languages = [fallbackLang, "zh-Hant"];
+export const languages = [fallbackLang, "zh-TW"];
 export const cookieName = "i18next";
 // 預設語系檔 檔名
 export const defaultNS = "main";
