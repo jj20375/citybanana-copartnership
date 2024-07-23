@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 import type { Viewport } from "next";
 import { languages } from "@/i18n/i18n-settings";
 
-import "./globals.css";
+import "./globals.scss";
 
 export const viewport: Viewport = {
     width: "device-width",

@@ -1,11 +1,26 @@
 {
     "title": "中文 ok",
+    "global": {
+        "price": "$ {{val, formatMillion}}",
+        "priceUnit": {
+            "hour": "時",
+            "day": "天"
+        }
+    },
     "index": {
         "title": "海底撈火鍋-京站店"
     },
     "validation": {
         "rightNowActivityOrder": {
             "price": "請輸入大於 {{price}} 以上的數值"
+        }
+    },
+    "rightNowActivityOrder": {
+        "price-0": "服務商報價",
+        "price": "{{val, formatMillionByRightNowActivityPrice}}",
+        "priceInput": {
+            "label": "活動出席費",
+            "unit": "元 / {{unit}}"
         }
     }
 }

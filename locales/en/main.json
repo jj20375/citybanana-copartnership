@@ -1,5 +1,8 @@
 {
     "title": "en work",
+    "global": {
+        "price": "$ {{val, number}}"
+    },
     "index": {
         "title": "海底撈火鍋-京站店(en)"
     },
@@ -7,5 +10,9 @@
         "rightNowActivityOrder": {
             "price": "請輸入大於 {{price}} 以上的數值(en)"
         }
+    },
+    "rightNowActivityOrder": {
+        "price-0": "服務商報價(en)",
+        "price": "{{val, formatMillionByRightNowActivityPrice}}"
     }
 }

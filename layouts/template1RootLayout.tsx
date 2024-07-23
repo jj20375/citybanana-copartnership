@@ -5,12 +5,19 @@ import ReduxProvider from "@/providers/reduxProvider";
 import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { dir } from "i18next";
-import { Noto_Sans_TC } from "next/font/google";
+import { Noto_Sans_TC, Open_Sans } from "next/font/google";
 
 const notoSansTc = Noto_Sans_TC({
     weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
     style: ["normal"],
     subsets: ["latin"],
+    display: "swap",
+});
+const openSans = Open_Sans({
+    weight: ["300", "400", "500", "600", "700", "800"],
+    style: ["normal"],
+    subsets: ["latin"],
+    variable: "--font-open-sans",
     display: "swap",
 });
 
@@ -20,7 +27,7 @@ export default function Tmp1RootLayout({ children, lang }: { children: React.Rea
             lang={lang}
             dir={dir(lang)}
         >
-            <body className={notoSansTc.className}>
+            <body className={`${notoSansTc.className} ${openSans.variable}`}>
                 <Suspense fallback={<p>Loading feed...</p>}>
                     <ReduxProvider>
                         <Header />

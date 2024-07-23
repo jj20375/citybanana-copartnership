@@ -6,11 +6,12 @@ import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityDefaultHourDurationSelector, rightNowActivityHourMinPriceSelector } from "@/store-toolkit/stores/orderStore";
 import * as yup from "yup";
 import { useEffect, useState } from "react";
-import OrderByPriceInput from "../components/order/OrderByPriceInput";
 import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { RightNowActivityOrderFormInterface } from "../components/order/orderInterface";
+import OrderByPriceInput from "../components/order/OrderByPriceInput";
+import OrderByDurationSelect from "../components/order/OrderByDurationSelect";
 
 function IndexCreateOrder({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -52,6 +53,7 @@ function IndexCreateOrder({ lng }: { lng: string }) {
     });
 
     const priceValue = watch("order.price");
+    const durationValue = watch("order.duration");
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log("success form =>", data);
@@ -63,13 +65,27 @@ function IndexCreateOrder({ lng }: { lng: string }) {
     };
 
     return (
-        <form onSubmit={handleSubmit(onSubmit, onError)}>
+        <form
+            className="mt-[40px]"
+            onSubmit={handleSubmit(onSubmit, onError)}
+        >
             <OrderByPriceInput
+                lng={lng}
                 register={register}
                 label="order.price"
                 value={priceValue}
                 setValue={setValue}
+                required={true}
             />
+            <OrderByDurationSelect
+                lng={lng}
+                register={register}
+                label="order.duration"
+                value={durationValue}
+                setValue={setValue}
+                required={true}
+            />
+            {durationValue}小時
         </form>
     );
 }

@@ -7,6 +7,7 @@ import { useCookies } from "react-cookie";
 import resourcesToBackend from "i18next-resources-to-backend";
 import LanguageDetector from "i18next-browser-languagedetector";
 import { getI18nOptions, languages, cookieName } from "./i18n-settings";
+import { formatMillion } from "@/service/utils";
 
 const runsOnServerSide = typeof window === "undefined";
 
@@ -24,6 +25,14 @@ i18next
         preload: runsOnServerSide ? languages : [],
     });
 
+// 新增千位數逗號 以及千位數轉成k方式顯示 formatter
+i18next.services.formatter!.add("formatMillionByRightNowActivityPrice", (value, lng, options): any => {
+    // 判斷有傳入此 key 時代表服務商報價 要用 服務商報價語系回傳
+    if (options.customPrice === 0) {
+        return i18next.t("rightNowActivityOrder.price-0");
+    }
+    return `$ ${formatMillion(value)}`;
+});
 // lang = 選擇的語言, ns = 檔案名稱(name space)
 export function useTranslation(lng: string, ns: string, options?: {}) {
     const [cookies, setCookie] = useCookies([cookieName]);
