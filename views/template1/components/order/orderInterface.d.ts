@@ -5,6 +5,8 @@ export interface RightNowActivityOrderFormInterface {
         price: number;
         // 時常或天數
         duration: number;
+        // 選擇開始時間 是否現在或指定時間
+        timeType: string;
         // 活動計價單位 hour = 小時 day = 天數
         unit: "hour" | "day";
         // 開始日期

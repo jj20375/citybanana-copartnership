@@ -1,0 +1,11 @@
+.datepicker {
+    @apply border pl-5 border-gray-secondary w-full h-[40px] rounded-md;
+}
+
+.datepicker__input {
+    @apply h-[40px] w-full;
+}
+
+.datepicker_calender {
+    @apply w-full;
+}

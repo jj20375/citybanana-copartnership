@@ -12,6 +12,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { RightNowActivityOrderFormInterface } from "../components/order/orderInterface";
 import OrderByPriceInput from "../components/order/OrderByPriceInput";
 import OrderByDurationSelect from "../components/order/OrderByDurationSelect";
+import OrderByRadioTimeType from "../components/order/OrderByRadioTimeType";
+import OrderByStartDayDatePicker from "../components/order/OrderByStartDayDatePicker";
 
 function IndexCreateOrder({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -48,12 +50,15 @@ function IndexCreateOrder({ lng }: { lng: string }) {
                 price: 0,
                 duration: 3,
                 requiredNumber: 2,
+                timeType: "now",
             },
         },
     });
 
     const priceValue = watch("order.price");
     const durationValue = watch("order.duration");
+    const timeTypeValue = watch("order.timeType");
+    const order = watch("order");
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log("success form =>", data);
@@ -65,28 +70,46 @@ function IndexCreateOrder({ lng }: { lng: string }) {
     };
 
     return (
-        <form
-            className="mt-[40px]"
-            onSubmit={handleSubmit(onSubmit, onError)}
-        >
-            <OrderByPriceInput
-                lng={lng}
-                register={register}
-                label="order.price"
-                value={priceValue}
-                setValue={setValue}
-                required={true}
-            />
-            <OrderByDurationSelect
-                lng={lng}
-                register={register}
-                label="order.duration"
-                value={durationValue}
-                setValue={setValue}
-                required={true}
-            />
-            {durationValue}小時
-        </form>
+        <div className="mx-auto max-w-[320px]">
+            <form
+                className="mt-[40px]"
+                onSubmit={handleSubmit(onSubmit, onError)}
+            >
+                <OrderByPriceInput
+                    lng={lng}
+                    register={register}
+                    label="order.price"
+                    value={priceValue}
+                    setValue={setValue}
+                    required={true}
+                />
+                <OrderByDurationSelect
+                    lng={lng}
+                    register={register}
+                    label="order.duration"
+                    value={durationValue}
+                    setValue={setValue}
+                    required={true}
+                />
+                <OrderByRadioTimeType
+                    lng={lng}
+                    register={register}
+                    label="order.timeType"
+                    value={timeTypeValue}
+                    setValue={setValue}
+                    required={true}
+                />
+                <OrderByStartDayDatePicker
+                    lng={lng}
+                    register={register}
+                    label="order.startDate"
+                    value={null}
+                    setValue={setValue}
+                    required={true}
+                />
+                {JSON.stringify(order, null, 4)}
+            </form>
+        </div>
     );
 }
 
@@ -102,7 +125,6 @@ export default function IndexView({ lng }: { lng: string }) {
         <>
             <TitleCompoent title={title} />
             <IndexCreateOrder lng={lng} />
-            {JSON.stringify(rightNowActivityDefaultHourDuration, null, 4)}
         </>
     );
 }

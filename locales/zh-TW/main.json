@@ -21,6 +21,17 @@
         "priceInput": {
             "label": "活動出席費",
             "unit": "元 / {{unit}}"
+        },
+        "durationSelect": {
+            "label": "活動時長"
+        },
+        "radioTimeType": {
+            "label": "活動時間",
+            "label_now": "現在",
+            "label_chooseTime": "指定時間"
+        },
+        "startDateDatePicker": {
+            "placeholder": "請選擇開始日期"
         }
     }
 }

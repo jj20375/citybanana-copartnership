@@ -10,6 +10,8 @@ import { refreshToken, refreshFirebaseToken } from "@/service/actions";
 import { getCookie } from "cookies-next";
 import { isOnAuthStateChange } from "@/lib/firebase/firebase-hooks";
 import WindowResizeContext from "@/context/windowResizeContext";
+import { ThemeProvider } from "@material-tailwind/react";
+
 
 function IntervalCount() {
     let [count, setCount] = useState(0);
@@ -47,7 +49,9 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
     return (
         <>
             <WindowResizeContext>
+                <ThemeProvider>
                 <section>{children}</section>
+                </ThemeProvider>
             </WindowResizeContext>
             {/* <IntervalCount /> */}
         </>

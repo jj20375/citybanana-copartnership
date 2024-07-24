@@ -32,7 +32,6 @@ export function middleware(req: NextRequest) {
             return NextResponse.redirect(new URL(`/${lang}${req.nextUrl.pathname}`, req.url));
         }
     }
-    console.log("lang not found =>", lang);
     if (req.headers.has("referer")) {
         const refererUrl = new URL(req.headers.get("referer")!);
         const lngInReferer = languages.find((l) => refererUrl.pathname.startsWith(`/${l}`));

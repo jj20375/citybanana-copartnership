@@ -11,6 +11,7 @@ import type { UseFormRegister, Path } from "react-hook-form";
  * 活動出席費輸入框
  */
 const OrderByPriceInput = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: number; setValue: Function; required: boolean }) => {
+    console.log("OrderByPriceInput render");
     const { t } = useTranslation(lng, "main");
 
     const state = useAppSelector((state) => state);
@@ -43,7 +44,7 @@ const OrderByPriceInput = memo(({ lng, register, label, value, setValue, require
 
     return (
         <>
-            <div className="max-w-[320px] mx-auto">
+            <div>
                 <label
                     form={label}
                     className="text-gray-primary"
@@ -63,10 +64,10 @@ const OrderByPriceInput = memo(({ lng, register, label, value, setValue, require
                 </label>
                 {pricesHourButtons}
             </div>
-            <div>{t("rightNowActivityOrder.price", { val: 1000 })}</div>
+            {/* <div>{t("rightNowActivityOrder.price", { val: 1000 })}</div>
             <div className="text-red-500">{value}</div>
             <button onClick={() => changeValue(100)}>測試更改價格</button>
-            {JSON.stringify(hourPriceOptions)}
+            {JSON.stringify(hourPriceOptions)} */}
         </>
     );
 });
