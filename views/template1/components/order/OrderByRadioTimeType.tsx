@@ -1,11 +1,8 @@
 "use client";
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { rightNowActivityDefaultHourPriceSelector } from "@/store-toolkit/stores/orderStore";
 import { RightNowActivityOrderFormInterface } from "./orderInterface";
 import type { UseFormRegister, Path } from "react-hook-form";
-import { Radio } from "@material-tailwind/react";
 
 const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
@@ -43,23 +40,6 @@ const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, requ
                         key={type.value}
                         className={index === 0 ? "mr-[20px]" : ""}
                     >
-                        {/* <Radio
-                            {...register(label)}
-                            name={label}
-                            ripple={value === type.value}
-                            label={<div className={`${value === type.value ? "text-primary" : ""} ml-[15px]`}>{type.label}</div>}
-                            containerProps={{
-                                className: "p-0",
-                            }}
-                            value={type.value}
-                            onChange={handleFormChagne}
-                            defaultChecked={value === type.value}
-                            color="red"
-                            className="
-                            p-0
-                            transition-all
-                            duration-500"
-                        /> */}
                         <input
                             {...register(label)}
                             id={type.value}

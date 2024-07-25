@@ -32,6 +32,12 @@
         },
         "startDateDatePicker": {
             "placeholder": "請選擇開始日期"
+        },
+        "startTimeTimePicker": {
+            "placeholder": "請選擇開始時間"
+        },
+        "dueDateDatePicker": {
+            "placeholder": "請選擇招募截止日期"
         }
     }
 }

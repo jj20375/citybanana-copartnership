@@ -1,3 +1,4 @@
+"use client";
 import { useForm, Controller, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DatePicker from "react-datepicker";
@@ -5,19 +6,24 @@ import "react-datepicker/dist/react-datepicker.css";
 import styles from "./styles/HeaderLoginInputDatepicker.module.scss";
 import * as yup from "yup";
 import dayjs from "dayjs";
-import { addYears } from "date-fns";
+import { addYears, subDays, addDays } from "date-fns";
+import { useState } from "react";
 
-type FormValues = {
-    startDate: Date;
-    user: {
-        name: string;
-        birthdate: Date;
+// 設置最小日期為 18 年前
+const eighteenYearsAgo = addYears(new Date(), -18);
+
+export default function FormSample() {
+    type FormValues = {
+        startDate: Date;
+        user: {
+            name: string;
+            birthdate: Date;
+            // 招募截止日期
+            dueAt: Date;
+        };
     };
-};
 
-const schema = yup
-    .object()
-    .shape({
+    const formSchema = {
         startDate: yup.date().required("日期為必填"),
         user: yup.object().shape({
             name: yup.string().required("姓名為必填").max(10, "姓名最多10個字"),
@@ -28,22 +34,29 @@ const schema = yup
                     console.log("is 18 =>", value);
                     return value ? addYears(value, 18) <= new Date() : false;
                 }), // 限制必須至少 18 歲
+            dueAt: yup
+                .date()
+                .required("招募截止日期為必填")
+                .test("is-afater-start-date", "招募截止日期須跟開始日期一樣或更早", function (value) {
+                    console.log("is-afater-start-date =>", value);
+                    return value ? value <= new Date() : false;
+                }), // 限制必須比開始日期更早或同一天
         }),
-    })
-    .required();
+    };
 
-// 設置最小日期為 18 年前
-const eighteenYearsAgo = addYears(new Date(), -18);
+    const [schema, setSchema]: any = useState(yup.object().shape(formSchema).required());
 
-export default function HeaderLoginInput() {
     const {
         register,
         control,
         handleSubmit,
+        watch,
         formState: { errors },
     } = useForm<FormValues>({
         resolver: yupResolver(schema),
     });
+
+    const startDate = watch("startDate");
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log(data);
@@ -79,7 +92,6 @@ export default function HeaderLoginInput() {
                         calendarClassName={styles.datepicker}
                         placeholderText="請選擇開始日期"
                         wrapperClassName={styles.datepicker__input}
-                        maxDate={eighteenYearsAgo}
                     />
                 )}
             />
@@ -102,6 +114,25 @@ export default function HeaderLoginInput() {
                         calendarClassName={styles.datepicker}
                         placeholderText="請選擇生日"
                         wrapperClassName={styles.datepicker__input}
+                        maxDate={eighteenYearsAgo}
+                    />
+                )}
+            />
+            {errors.user?.birthdate && <p className="text-red-500">{errors.user?.birthdate.message}</p>}
+            <Controller
+                control={control}
+                name="user.dueAt"
+                render={({ field }) => (
+                    <DatePicker
+                        selected={field.value}
+                        onChange={field.onChange}
+                        className={styles.datepicker}
+                        calendarClassName={styles.datepicker}
+                        placeholderText="請選擇招募截止日期"
+                        dateFormat="YYYY-MMM-dd"
+                        wrapperClassName={styles.datepicker__input}
+                        minDate={subDays(new Date(), 10)}
+                        excludeDateIntervals={[{ start: subDays(new Date(), 5), end: addDays(new Date(), 5) }]}
                     />
                 )}
             />

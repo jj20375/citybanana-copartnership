@@ -2,7 +2,6 @@
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { rightNowActivityDefaultHourPriceSelector } from "@/store-toolkit/stores/orderStore";
 import { RightNowActivityOrderFormInterface } from "./orderInterface";
 import type { UseFormRegister, Path } from "react-hook-form";
 import DatePicker from "react-datepicker";
@@ -10,15 +9,20 @@ import "react-datepicker/dist/react-datepicker.css";
 import { zhTW } from "date-fns/locale/zh-TW";
 import { enUS } from "date-fns/locale/en-US";
 import { registerLocale, setDefaultLocale } from "react-datepicker";
+import { rightNowActivityWaitHourSelector } from "@/store-toolkit/stores/orderStore";
 
 import styles from "./styles/OrderByDatePicker.module.scss";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-tw"; // 引入繁體中文
 import "dayjs/locale/en"; // 引入西班牙文
 
-import { addYears, addDays, getYear, getMonth } from "date-fns";
+import { addDays, getYear, getMonth, subDays, addHours } from "date-fns";
 
-const OrderByStartDayDatePicker = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean }) => {
+/**
+ * 招募日期
+ */
+const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean }) => {
+    const state = useAppSelector((state) => state);
     const { t } = useTranslation(lng, "main");
     // 設定日期套件語系
     switch (lng) {
@@ -46,7 +50,8 @@ const OrderByStartDayDatePicker = memo(({ lng, register, label, value, setValue,
             // dayjs 語系設定
             dayjs.locale("zh-tw");
     }
-
+    // 即刻快閃緩衝時間
+    const rightNowActivityWaitHour = rightNowActivityWaitHourSelector(state);
     // 開始日期只能選到30天之內
     const thirtyDaysAgo = addDays(new Date(), 30);
     // datePicker 客製化標題時需要的 年份選擇
@@ -61,12 +66,10 @@ const OrderByStartDayDatePicker = memo(({ lng, register, label, value, setValue,
     }
     // datePicker 客製化標題時需要的 月份選擇
     const monthOptions = createMonthArray();
-
     // 自定義 datePicker 日期選擇樣式
     const renderDayContents = (day: any, date: any) => {
         return <span>{day}</span>;
     };
-
     // 自定義 datePicker 頂部選擇月份與年份樣式
     const renderDatePickerHeader = ({ date, changeYear, changeMonth, decreaseMonth, increaseMonth, prevMonthButtonDisabled, nextMonthButtonDisabled }: any) => (
         <div
@@ -133,27 +136,24 @@ const OrderByStartDayDatePicker = memo(({ lng, register, label, value, setValue,
     );
 
     return (
-        <>
-            <div>{JSON.stringify(form)}</div>
-
-            <DatePicker
-                {...register(label)}
-                selected={form}
-                onChange={handleFormChagne}
-                className={styles.datepicker}
-                calendarClassName={styles.datepicker_calender}
-                placeholderText={t("rightNowActivityOrder.startDateDatePicker.placeholder")}
-                wrapperClassName={styles.datepicker__input}
-                maxDate={thirtyDaysAgo}
-                renderDayContents={renderDayContents}
-                dayClassName={(date) => {
-                    return dayjs(date).format("YYYY-MM-DD") === dayjs(form).format("YYYY-MM-DD") ? "!bg-red-500 !text-white !rounded-full" : "!bg-white";
-                }}
-                renderCustomHeader={renderDatePickerHeader}
-                dateFormat="YYYY-MM-dd"
-            />
-        </>
+        <DatePicker
+            {...register(label)}
+            selected={form}
+            onChange={handleFormChagne}
+            className={styles.datepicker}
+            calendarClassName={styles.datepicker_calender}
+            placeholderText={t("rightNowActivityOrder.startDateDatePicker.placeholder")}
+            wrapperClassName={styles.datepicker__input}
+            maxDate={thirtyDaysAgo}
+            minDate={subDays(addHours(new Date(), rightNowActivityWaitHour), 1)}
+            renderDayContents={renderDayContents}
+            dayClassName={(date) => {
+                return dayjs(date).format("YYYY-MM-DD") === dayjs(form).format("YYYY-MM-DD") ? "!bg-red-500 !text-white !rounded-full" : "!bg-white";
+            }}
+            renderCustomHeader={renderDatePickerHeader}
+            dateFormat="YYYY MMM dd"
+        />
     );
 });
 
-export default OrderByStartDayDatePicker;
+export default OrderByStartDateDatePicker;

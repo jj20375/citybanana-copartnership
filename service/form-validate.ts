@@ -1,4 +1,5 @@
 import * as yup from "yup";
+import { addDays, addHours } from "date-fns";
 // 手機格式驗證
 export const formPhoneValiation = yup
     .string()
@@ -36,4 +37,32 @@ export const formCheckCountryCodeResetPhoneValidation = ({ countryCode, formSche
         return newSchema;
     }
     return formSchema;
+};
+
+// 判斷招募截止日期是否超過活動開始日期
+export const formDueAtCheckHaveAfterStartDateValidation = ({ startDate, formSchema }: { startDate: Date; formSchema: any }) => {
+    return {
+        ...formSchema,
+        dueAt: yup
+            .date()
+            .required("招募截止日期為必填")
+            .test("is-afater-start-date", "招募截止日期須跟開始日期一樣或更早", function (value) {
+                console.log("is-afater-start-date =>", value);
+                return value ? value <= startDate : false;
+            }), // 限制必須比開始日期更早或同一天
+    };
+};
+
+// 判斷即刻快閃開始日期加上自定義緩衝時間後不可大於 30 天後
+export const formStartDateCheckHaveAfterThirtyDaysValidation = ({ waitHour, formSchema }: { waitHour: number; formSchema: any }) => {
+    return {
+        ...formSchema,
+        dueAt: yup
+            .date()
+            .required("活動開始不可超過30天後")
+            .test("is-start-date-after-thirtydays", "活動開始不可超過30天後", function (value) {
+                console.log("is-start-date-after-thirtydays =>", value);
+                return value ? value <= addDays(addHours(new Date(), waitHour), 29) : false;
+            }), // 限制活動開始日期加上緩衝時間不可大於 30 天後
+    };
 };

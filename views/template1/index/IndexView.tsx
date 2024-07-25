@@ -13,7 +13,10 @@ import { RightNowActivityOrderFormInterface } from "../components/order/orderInt
 import OrderByPriceInput from "../components/order/OrderByPriceInput";
 import OrderByDurationSelect from "../components/order/OrderByDurationSelect";
 import OrderByRadioTimeType from "../components/order/OrderByRadioTimeType";
-import OrderByStartDayDatePicker from "../components/order/OrderByStartDayDatePicker";
+import OrderByStartDateDatePicker from "../components/order/OrderByStartDateDatePicker";
+import OrderByDueDateDatePicker from "../components/order/OrderByDueDateDatePicker";
+import OrderByStartTimeTimePicker from "../components/order/OrderByStartTimeTimePicker";
+import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
 
 function IndexCreateOrder({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -58,6 +61,7 @@ function IndexCreateOrder({ lng }: { lng: string }) {
     const priceValue = watch("order.price");
     const durationValue = watch("order.duration");
     const timeTypeValue = watch("order.timeType");
+    const startDateValue = watch("order.startDate");
     const order = watch("order");
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
@@ -99,7 +103,7 @@ function IndexCreateOrder({ lng }: { lng: string }) {
                     setValue={setValue}
                     required={true}
                 />
-                <OrderByStartDayDatePicker
+                <OrderByStartDateDatePicker
                     lng={lng}
                     register={register}
                     label="order.startDate"
@@ -107,8 +111,31 @@ function IndexCreateOrder({ lng }: { lng: string }) {
                     setValue={setValue}
                     required={true}
                 />
+                {startDateValue && (
+                    <OrderByStartTimeTimePicker
+                        lng={lng}
+                        register={register}
+                        label="order.startTime"
+                        value={null}
+                        setValue={setValue}
+                        required={true}
+                        startDate={startDateValue}
+                    />
+                )}
+                {startDateValue && (
+                    <OrderByDueDateDatePicker
+                        lng={lng}
+                        register={register}
+                        label="order.dueDate"
+                        value={null}
+                        setValue={setValue}
+                        required={true}
+                        startDate={startDateValue}
+                    />
+                )}
                 {JSON.stringify(order, null, 4)}
             </form>
+            <FormSample />
         </div>
     );
 }

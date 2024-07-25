@@ -17,6 +17,10 @@ export interface RightNowActivityOrderFormInterface {
         endDate?: Date | null;
         // 結束時間
         endTime?: string | null;
+        // 招募服務商截止日期
+        dueDate?: Date | null;
+        // 招募服務商截止 時間
+        dueTime?: string | null;
         // 需求人數
         requiredNumber: number;
         // 需求備註
