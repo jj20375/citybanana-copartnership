@@ -145,7 +145,7 @@ const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue
             placeholderText={t("rightNowActivityOrder.startDateDatePicker.placeholder")}
             wrapperClassName={styles.datepicker__input}
             maxDate={thirtyDaysAgo}
-            minDate={subDays(addHours(new Date(), rightNowActivityWaitHour), 1)}
+            minDate={addHours(new Date(), rightNowActivityWaitHour)}
             renderDayContents={renderDayContents}
             dayClassName={(date) => {
                 return dayjs(date).format("YYYY-MM-DD") === dayjs(form).format("YYYY-MM-DD") ? "!bg-red-500 !text-white !rounded-full" : "!bg-white";

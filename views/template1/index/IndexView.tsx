@@ -16,6 +16,7 @@ import OrderByRadioTimeType from "../components/order/OrderByRadioTimeType";
 import OrderByStartDateDatePicker from "../components/order/OrderByStartDateDatePicker";
 import OrderByDueDateDatePicker from "../components/order/OrderByDueDateDatePicker";
 import OrderByStartTimeTimePicker from "../components/order/OrderByStartTimeTimePicker";
+import OrderByDueDateTimeTimePicker from "../components/order/OrderByDueDateTimeTimePicker";
 import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
 
 function IndexCreateOrder({ lng }: { lng: string }) {
@@ -62,6 +63,8 @@ function IndexCreateOrder({ lng }: { lng: string }) {
     const durationValue = watch("order.duration");
     const timeTypeValue = watch("order.timeType");
     const startDateValue = watch("order.startDate");
+    const startTimeValue = watch("order.startTime");
+    const dueDateValue = watch("order.dueDate");
     const order = watch("order");
 
     const onSubmit: SubmitHandler<FormValues> = (data) => {
@@ -133,6 +136,19 @@ function IndexCreateOrder({ lng }: { lng: string }) {
                         startDate={startDateValue}
                     />
                 )}
+                {startDateValue && startTimeValue && dueDateValue ? (
+                    <OrderByDueDateTimeTimePicker
+                        lng={lng}
+                        register={register}
+                        label="order.dueTime"
+                        value={null}
+                        setValue={setValue}
+                        required={true}
+                        startDate={startDateValue}
+                        startTime={startTimeValue}
+                        dueDate={dueDateValue}
+                    />
+                ) : null}
                 {JSON.stringify(order, null, 4)}
             </form>
             <FormSample />

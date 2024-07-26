@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useEffect, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { RightNowActivityOrderFormInterface } from "./orderInterface";
@@ -21,8 +21,28 @@ import { addDays, getYear, getMonth, subDays, addHours, setHours, setMinutes } f
 /**
  * 招募日期
  */
-const OrderByStartTimeTimePicker = memo(
-    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean; startDate: Date }) => {
+const OrderByDueDateTimeTimePicker = memo(
+    ({
+        lng,
+        register,
+        label,
+        value,
+        setValue,
+        required,
+        startDate,
+        startTime,
+        dueDate,
+    }: {
+        lng: string;
+        register: UseFormRegister<RightNowActivityOrderFormInterface>;
+        label: Path<RightNowActivityOrderFormInterface>;
+        value: Date | null;
+        setValue: Function;
+        required: boolean;
+        startDate: Date;
+        startTime: string;
+        dueDate: Date;
+    }) => {
         const { t } = useTranslation(lng, "main");
         // 設定日期套件語系
         switch (lng) {
@@ -51,7 +71,7 @@ const OrderByStartTimeTimePicker = memo(
                 dayjs.locale("zh-tw");
         }
 
-        const [form, setForm] = useState(value);
+        const [form, setForm] = useState(dayjs(dueDate).toDate());
 
         const handleFormChagne = useCallback(
             (val: any) => {
@@ -62,20 +82,30 @@ const OrderByStartTimeTimePicker = memo(
             [form]
         );
 
+        useEffect(() => {
+            setForm(new Date(dueDate));
+        }, [dueDate]);
+
         const filterPassedTime = (time: Date) => {
             const currentDate = new Date();
-            const startDateSelect = new Date(dayjs(startDate).add(dayjs().hour(), "hours").toDate());
-            const selectedDate = new Date(time);
-            if (startDateSelect.getTime() >= currentDate.getTime()) {
-                return true;
+            let dueDateSelect = new Date(dayjs(dueDate).toDate());
+            // 判斷開始時間等於現在時間需加上現在的時辰時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
+            if (dayjs(dueDateSelect).format("YYYY-MM-DD") === dayjs(currentDate).format("YYYY-MM-DD")) {
+                dueDateSelect = new Date(dayjs(dueDateSelect).add(dayjs().hour(), "hours").toDate());
             }
-
-            return startDateSelect.getTime() < selectedDate.getTime();
+            // 活動開始日期 加上 選擇的活動開始時辰
+            const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
+            // 時間選擇器的日期時間
+            const selectedDate = new Date(time);
+            // 判斷當活動開始時間 > 招募截止時間 時觸發
+            if (startDateTimeSelect.getTime() > dueDateSelect.getTime()) {
+                // 當活動日期 與招募截止日期同一天時觸發
+                if (startDate === dueDate) {
+                    return startDateTimeSelect.getTime() > selectedDate.getTime();
+                }
+            }
+            return dueDateSelect.getTime() < selectedDate.getTime();
         };
-
-        useEffect(() => {
-            setForm(new Date(startDate));
-        }, [startDate]);
 
         return (
             <DatePicker
@@ -86,9 +116,9 @@ const OrderByStartTimeTimePicker = memo(
                 placeholderText={t("rightNowActivityOrder.startTimeTimePicker.placeholder")}
                 showTimeSelect
                 showTimeSelectOnly
+                timeIntervals={60}
                 minTime={setHours(setMinutes(new Date(), 0), 0)}
                 maxTime={setHours(setMinutes(new Date(startDate), 60), 23)}
-                timeIntervals={60}
                 timeCaption="Time"
                 dateFormat="YYYY-MM-dd h:mm aa"
                 filterTime={filterPassedTime}
@@ -97,4 +127,4 @@ const OrderByStartTimeTimePicker = memo(
     }
 );
 
-export default OrderByStartTimeTimePicker;
+export default OrderByDueDateTimeTimePicker;

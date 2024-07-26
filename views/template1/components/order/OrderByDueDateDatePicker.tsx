@@ -131,8 +131,6 @@ const OrderByDueDateDatePicker = memo(
 
         return (
             <>
-                <div>{JSON.stringify(startDate)}</div>
-
                 <DatePicker
                     {...register(label)}
                     selected={form}
@@ -141,7 +139,8 @@ const OrderByDueDateDatePicker = memo(
                     calendarClassName={styles.datepicker_calender}
                     placeholderText={t("rightNowActivityOrder.dueDateDatePicker.placeholder")}
                     wrapperClassName={styles.datepicker__input}
-                    includeDates={[new Date(), startDate]}
+                    minDate={new Date()}
+                    maxDate={startDate}
                     renderDayContents={renderDayContents}
                     dayClassName={(date) => {
                         return dayjs(date).format("YYYY-MM-DD") === dayjs(form).format("YYYY-MM-DD") ? "!bg-red-500 !text-white !rounded-full" : "!bg-white";
