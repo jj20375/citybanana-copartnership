@@ -4,6 +4,9 @@ import { useTranslation } from "@/i18n/i18n-client";
 import { RightNowActivityOrderFormInterface } from "./orderInterface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
+/**
+ * 活動開始時間 為 現在 或者 指定時間 ui
+ */
 const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
@@ -15,6 +18,14 @@ const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, requ
             console.log("work =>", value, name);
             setForm(value);
             setValue(label, value);
+        },
+        [form]
+    );
+
+    const onChange = useCallback(
+        (val: any) => {
+            setForm(val);
+            setValue(label, val);
         },
         [form]
     );
@@ -34,13 +45,20 @@ const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, requ
                 {t("rightNowActivityOrder.radioTimeType.label")} {required && <span className="text-primary">*</span>}
             </label>
 
-            <div className="flex mt-[15px]">
+            <div className="flex my-[15px]">
                 {timeTypes.map((type, index) => (
                     <div
                         key={type.value}
-                        className={index === 0 ? "mr-[20px]" : ""}
+                        className={`flex items-center justify-center ${index === 0 ? "mr-[20px]" : ""}`}
                     >
-                        <input
+                        <div
+                            id={type.value}
+                            onClick={() => onChange(type.value)}
+                            className={`w-[18px] relative h-[18px] inline-block rounded-full cursor-pointer ${value !== type.value ? "border gray-primary" : "PrimaryGradient"}`}
+                        >
+                            <div className="object-cover absolute w-full h-full flex items-center justify-center">{value === type.value && <div className="bg-white w-[5px] h-[5px] absolte  rounded-full"></div>}</div>
+                        </div>
+                        {/* <input
                             {...register(label)}
                             id={type.value}
                             type="radio"
@@ -48,10 +66,11 @@ const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, requ
                             className="checked:text-red-500 text-red-500  form-radio "
                             onChange={handleFormChagne}
                             checked={value === type.value}
-                        />
+                        /> */}
                         <label
                             htmlFor={type.value}
-                            className={`${value === type.value ? "text-primary" : ""} ml-[15px]`}
+                            onClick={() => onChange(type.value)}
+                            className={`cursor-pointer ${value === type.value ? "text-primary" : ""} ml-[15px]`}
                         >
                             {type.label}
                         </label>

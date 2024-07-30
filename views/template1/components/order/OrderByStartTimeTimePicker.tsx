@@ -1,4 +1,5 @@
 "use client";
+
 import { memo, useState, useEffect, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
@@ -19,10 +20,11 @@ import "dayjs/locale/en"; // 引入西班牙文
 import { addDays, getYear, getMonth, subDays, addHours, setHours, setMinutes } from "date-fns";
 
 /**
- * 招募日期
+ * 活動開始時間 ui
  */
 const OrderByStartTimeTimePicker = memo(
-    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean; startDate: Date }) => {
+    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null | undefined; setValue: Function; required: boolean; startDate: Date | null }) => {
+        console.log("OrderByStartTimeTimePicker redner =>", value);
         const { t } = useTranslation(lng, "main");
         // 設定日期套件語系
         switch (lng) {
@@ -55,16 +57,16 @@ const OrderByStartTimeTimePicker = memo(
 
         const handleFormChagne = useCallback(
             (val: any) => {
-                console.log("work =>", val);
                 setForm(val);
-                setValue(label, dayjs(val).format("HH:mm"));
+                setValue(label, val);
             },
             [form]
         );
 
         const filterPassedTime = (time: Date) => {
             const currentDate = new Date();
-            const startDateSelect = new Date(dayjs(startDate).add(dayjs().hour(), "hours").toDate());
+            // 設定開始時間為選擇的日期加上當下時間的 時:分 這樣才能確保剩下的的可選時段為哪些
+            const startDateSelect = new Date(dayjs(startDate).add(dayjs().hour(), "hour").add(dayjs().minute(), "minute").toDate());
             const selectedDate = new Date(time);
             if (startDateSelect.getTime() >= currentDate.getTime()) {
                 return true;
@@ -74,25 +76,28 @@ const OrderByStartTimeTimePicker = memo(
         };
 
         useEffect(() => {
-            setForm(new Date(startDate));
-        }, [startDate]);
+            return setForm(value as Date);
+        }, [value]);
 
         return (
-            <DatePicker
-                {...register(label)}
-                selected={form}
-                onChange={handleFormChagne}
-                className={styles.datepicker}
-                placeholderText={t("rightNowActivityOrder.startTimeTimePicker.placeholder")}
-                showTimeSelect
-                showTimeSelectOnly
-                minTime={setHours(setMinutes(new Date(), 0), 0)}
-                maxTime={setHours(setMinutes(new Date(startDate), 60), 23)}
-                timeIntervals={60}
-                timeCaption="時間"
-                dateFormat="YYYY-MM-dd h:mm aa"
-                filterTime={filterPassedTime}
-            />
+            <>
+                {dayjs(value).format("YYYY-MM-DD HH:mm:ss")}
+                <DatePicker
+                    {...register(label)}
+                    selected={form}
+                    onChange={handleFormChagne}
+                    className={styles.datepicker}
+                    placeholderText={t("rightNowActivityOrder.startTimeTimePicker.placeholder")}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    minTime={setHours(setMinutes(new Date(), 0), 0)}
+                    maxTime={setHours(setMinutes(new Date(startDate as Date), 60), 23)}
+                    timeIntervals={60}
+                    timeCaption={t("global.time")}
+                    dateFormat="h:mm aa"
+                    filterTime={filterPassedTime}
+                />
+            </>
         );
     }
 );

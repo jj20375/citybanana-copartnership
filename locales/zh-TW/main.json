@@ -5,14 +5,19 @@
         "priceUnit": {
             "hour": "時",
             "day": "天"
-        }
+        },
+        "time": "時間",
+        "nextStep": "下一步"
     },
     "index": {
-        "title": "海底撈火鍋-京站店"
+        "title": "超級約妹引擎",
+        "second-title": "煥然一新的社交體驗",
+        "start": "立即開始"
     },
     "validation": {
         "rightNowActivityOrder": {
-            "price": "請輸入大於 {{price}} 以上的數值"
+            "price": "請輸入大於 {{price}} 以上的數值",
+            "timeType": "請選擇活動時間為指定時間或現在"
         }
     },
     "rightNowActivityOrder": {
@@ -23,12 +28,19 @@
             "unit": "元 / {{unit}}"
         },
         "durationSelect": {
-            "label": "活動時長"
+            "label": "活動時長",
+            "hour": "{{hour}} 小時",
+            "requirdCount": "{{count}} 人數"
         },
         "radioTimeType": {
             "label": "活動時間",
             "label_now": "現在",
-            "label_chooseTime": "指定時間"
+            "label_chooseTime": "指定時間",
+            "description_start": "招募時間",
+            "description_end": "分鐘"
+        },
+        "startDateTime": {
+            "label": "活動開始時間"
         },
         "startDateDatePicker": {
             "placeholder": "請選擇開始日期"
@@ -36,8 +48,25 @@
         "startTimeTimePicker": {
             "placeholder": "請選擇開始時間"
         },
+        "dueDateTime": {
+            "label": "招募截止時間"
+        },
         "dueDateDatePicker": {
             "placeholder": "請選擇招募截止日期"
-        }
+        },
+        "requiredProviderCount": {
+            "label": "活動需求人數"
+        },
+        "noteTextarea": {
+            "label": "其他需求備註",
+            "placeholder": "如對服務商的服裝、個性或其他方面有特別要求，可於此註明(例 : 個性活潑外向、穿著休閒)"
+        },
+        "accept": {
+            "label": "我同意服務條款、社群政策、其他相關規範，活動不可違反法律及社會風俗。"
+        },
+        "total": {
+            "label": "預付款金額"
+        },
+        "contact": "如使用過程遇到問題，請聯繫我們"
     }
 }

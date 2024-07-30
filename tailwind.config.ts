@@ -27,6 +27,7 @@ const config: Config = {
             "gradient-secondary": "#EF4B8A",
             "gray-primary": "#404040",
             "gray-secondary": "#7C7C7C",
+            "gray-third": "#848484",
             "gray-light": "#DEDEDE",
             red: {
                 50: "#ead7d7",
@@ -163,7 +164,8 @@ const config: Config = {
             "4xl": "2.441rem",
             "5xl": "3.052rem",
             "lg-title": "32px", // 標題字大小
-            "sm-title": "18px", // 副標題字大小
+            "md-title": "24px", // 副標題字大小
+            "sm-title": "18px", // 小副標題字大小
             "lg-content": "16px", // 大常規字大小
             "base-content": "14px", // 一般的常規字大小
             "sm-content": "13px", // 更小的常規字

@@ -36,11 +36,11 @@ const OrderByDueDateTimeTimePicker = memo(
         lng: string;
         register: UseFormRegister<RightNowActivityOrderFormInterface>;
         label: Path<RightNowActivityOrderFormInterface>;
-        value: Date | null;
+        value: Date | null | undefined;
         setValue: Function;
         required: boolean;
         startDate: Date;
-        startTime: string;
+        startTime: Date;
         dueDate: Date;
     }) => {
         const { t } = useTranslation(lng, "main");
@@ -75,23 +75,18 @@ const OrderByDueDateTimeTimePicker = memo(
 
         const handleFormChagne = useCallback(
             (val: any) => {
-                console.log("work =>", val);
                 setForm(val);
-                setValue(label, dayjs(val).format("HH:mm"));
+                setValue(label, val);
             },
             [form]
         );
 
-        useEffect(() => {
-            setForm(new Date(dueDate));
-        }, [dueDate]);
-
         const filterPassedTime = (time: Date) => {
             const currentDate = new Date();
             let dueDateSelect = new Date(dayjs(dueDate).toDate());
-            // 判斷開始時間等於現在時間需加上現在的時辰時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
+            // 判斷開始時間等於現在時間需加上現在的時辰與分鐘時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
             if (dayjs(dueDateSelect).format("YYYY-MM-DD") === dayjs(currentDate).format("YYYY-MM-DD")) {
-                dueDateSelect = new Date(dayjs(dueDateSelect).add(dayjs().hour(), "hours").toDate());
+                dueDateSelect = new Date(dayjs(dueDateSelect).add(dayjs().hour(), "hour").add(dayjs().minute(), "minute").toDate());
             }
             // 活動開始日期 加上 選擇的活動開始時辰
             const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
@@ -107,22 +102,29 @@ const OrderByDueDateTimeTimePicker = memo(
             return dueDateSelect.getTime() < selectedDate.getTime();
         };
 
+        useEffect(() => {
+            return setForm(value as Date);
+        }, [value]);
+
         return (
-            <DatePicker
-                {...register(label)}
-                selected={form}
-                onChange={handleFormChagne}
-                className={styles.datepicker}
-                placeholderText={t("rightNowActivityOrder.startTimeTimePicker.placeholder")}
-                showTimeSelect
-                showTimeSelectOnly
-                timeIntervals={60}
-                minTime={setHours(setMinutes(new Date(), 0), 0)}
-                maxTime={setHours(setMinutes(new Date(startDate), 60), 23)}
-                timeCaption="時間"
-                dateFormat="YYYY-MM-dd h:mm aa"
-                filterTime={filterPassedTime}
-            />
+            <>
+                {dayjs(value).format("YYYY-MM-DD HH:mm:ss")}
+                <DatePicker
+                    {...register(label)}
+                    selected={form}
+                    onChange={handleFormChagne}
+                    className={styles.datepicker}
+                    placeholderText={t("rightNowActivityOrder.startTimeTimePicker.placeholder")}
+                    showTimeSelect
+                    showTimeSelectOnly
+                    timeIntervals={60}
+                    minTime={setHours(setMinutes(new Date(), 0), 0)}
+                    maxTime={setHours(setMinutes(new Date(startDate), 60), 23)}
+                    timeCaption={t("global.time")}
+                    dateFormat="h:mm aa"
+                    filterTime={filterPassedTime}
+                />
+            </>
         );
     }
 );

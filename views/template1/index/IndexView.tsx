@@ -1,173 +1,18 @@
-"use client";
-
-import { useTranslation } from "@/i18n/i18n-client";
-import TitleCompoent from "@/views/template1/components/TitleComponent";
-import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
-import { rightNowActivityDefaultHourDurationSelector, rightNowActivityHourMinPriceSelector } from "@/store-toolkit/stores/orderStore";
-import * as yup from "yup";
-import { useEffect, useState } from "react";
-import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
-import { useForm, Controller } from "react-hook-form";
-import { yupResolver } from "@hookform/resolvers/yup";
-import { RightNowActivityOrderFormInterface } from "../components/order/orderInterface";
-import OrderByPriceInput from "../components/order/OrderByPriceInput";
-import OrderByDurationSelect from "../components/order/OrderByDurationSelect";
-import OrderByRadioTimeType from "../components/order/OrderByRadioTimeType";
-import OrderByStartDateDatePicker from "../components/order/OrderByStartDateDatePicker";
-import OrderByDueDateDatePicker from "../components/order/OrderByDueDateDatePicker";
-import OrderByStartTimeTimePicker from "../components/order/OrderByStartTimeTimePicker";
-import OrderByDueDateTimeTimePicker from "../components/order/OrderByDueDateTimeTimePicker";
-import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
-
-function IndexCreateOrder({ lng }: { lng: string }) {
-    const { t } = useTranslation(lng, "main");
-    const state = useAppSelector((state) => {
-        return state;
-    });
-    type FormValues = RightNowActivityOrderFormInterface;
-    const rightNowActivityHourMinPrice = rightNowActivityHourMinPriceSelector(state);
-
-    const formSchema = {
-        price: yup.number().required(t("validation.rightNowActivityOrder.price", { price: rightNowActivityHourMinPrice })),
-    };
-    const [schema, setSchema]: any = useState(
-        yup
-            .object()
-            .shape({
-                order: yup.object().shape(formSchema),
-            })
-            .required()
-    );
-
-    const {
-        register,
-        control,
-        handleSubmit,
-        watch,
-        getValues,
-        setValue,
-        formState: { errors },
-    } = useForm<FormValues>({
-        resolver: yupResolver(schema),
-        defaultValues: {
-            order: {
-                price: 0,
-                duration: 3,
-                requiredNumber: 2,
-                timeType: "now",
-            },
-        },
-    });
-
-    const priceValue = watch("order.price");
-    const durationValue = watch("order.duration");
-    const timeTypeValue = watch("order.timeType");
-    const startDateValue = watch("order.startDate");
-    const startTimeValue = watch("order.startTime");
-    const dueDateValue = watch("order.dueDate");
-    const order = watch("order");
-
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
-        console.log("success form =>", data);
-    };
-
-    const onError: SubmitErrorHandler<FormValues> = (errors) => {
-        console.log("error form =>", errors);
-        // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
-    };
+import { useTranslation } from "@/i18n";
+import Link from "next/link";
+export default async function IndexView({ lng }: { lng: string }) {
+    const { t } = await useTranslation(lng, "main");
 
     return (
-        <div className="mx-auto max-w-[320px]">
-            <form
-                className="mt-[40px]"
-                onSubmit={handleSubmit(onSubmit, onError)}
+        <div className="text-white mx-auto max-w-[400px] text-center flex flex-col justify-end h-screen bg-gradient-to-t from-black to-white">
+            <h1 className="text-lg-title">{t("index.title")}</h1>
+            <h2 className="text-lg-title">{t("index.second-title")}</h2>
+            <Link
+                href="/create-rightnowactivity-order"
+                className="mx-auto"
             >
-                <OrderByPriceInput
-                    lng={lng}
-                    register={register}
-                    label="order.price"
-                    value={priceValue}
-                    setValue={setValue}
-                    required={true}
-                />
-                <OrderByDurationSelect
-                    lng={lng}
-                    register={register}
-                    label="order.duration"
-                    value={durationValue}
-                    setValue={setValue}
-                    required={true}
-                />
-                <OrderByRadioTimeType
-                    lng={lng}
-                    register={register}
-                    label="order.timeType"
-                    value={timeTypeValue}
-                    setValue={setValue}
-                    required={true}
-                />
-                <OrderByStartDateDatePicker
-                    lng={lng}
-                    register={register}
-                    label="order.startDate"
-                    value={null}
-                    setValue={setValue}
-                    required={true}
-                />
-                {startDateValue && (
-                    <OrderByStartTimeTimePicker
-                        lng={lng}
-                        register={register}
-                        label="order.startTime"
-                        value={null}
-                        setValue={setValue}
-                        required={true}
-                        startDate={startDateValue}
-                    />
-                )}
-                {startDateValue && (
-                    <OrderByDueDateDatePicker
-                        lng={lng}
-                        register={register}
-                        label="order.dueDate"
-                        value={null}
-                        setValue={setValue}
-                        required={true}
-                        startDate={startDateValue}
-                    />
-                )}
-                {startDateValue && startTimeValue && dueDateValue ? (
-                    <OrderByDueDateTimeTimePicker
-                        lng={lng}
-                        register={register}
-                        label="order.dueTime"
-                        value={null}
-                        setValue={setValue}
-                        required={true}
-                        startDate={startDateValue}
-                        startTime={startTimeValue}
-                        dueDate={dueDateValue}
-                    />
-                ) : null}
-                {JSON.stringify(order, null, 4)}
-            </form>
-            <FormSample />
+                <button className="rounded-md PrimaryGradient h-[45px] w-[271px] flex items-center justify-center mt-[40px] mb-[64px]">{t("index.start")}</button>
+            </Link>
         </div>
-    );
-}
-
-export default function IndexView({ lng }: { lng: string }) {
-    const { t } = useTranslation(lng, "main");
-    const title = t("index.title");
-    const rightNowActivityConfiguration = useAppSelector((state) => state.orderStore.rightNowActivityConfiguration);
-    const state = useAppSelector((state) => {
-        return state;
-    });
-    const rightNowActivityDefaultHourDuration = rightNowActivityDefaultHourDurationSelector(state);
-    return (
-        <>
-            <TitleCompoent title={title} />
-            <IndexCreateOrder lng={lng} />
-        </>
     );
 }

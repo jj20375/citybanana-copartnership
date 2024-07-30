@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { RightNowActivityOrderFormInterface } from "./orderInterface";
@@ -19,7 +19,7 @@ import "dayjs/locale/en"; // 引入西班牙文
 import { addDays, getYear, getMonth, subDays, addHours } from "date-fns";
 
 const OrderByDueDateDatePicker = memo(
-    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean; startDate: Date }) => {
+    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null | undefined; setValue: Function; required: boolean; startDate: Date }) => {
         const state = useAppSelector((state) => state);
         const { t } = useTranslation(lng, "main");
         // 設定日期套件語系
@@ -122,12 +122,15 @@ const OrderByDueDateDatePicker = memo(
 
         const handleFormChagne = useCallback(
             (val: any) => {
-                console.log("work =>", val);
                 setForm(val);
                 setValue(label, dayjs(val).format("YYYY-MM-DD"));
             },
             [form]
         );
+
+        useEffect(() => {
+            setForm(value);
+        }, [value]);
 
         return (
             <>

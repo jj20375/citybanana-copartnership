@@ -19,7 +19,7 @@ import "dayjs/locale/en"; // 引入西班牙文
 import { addDays, getYear, getMonth, subDays, addHours } from "date-fns";
 
 /**
- * 招募日期
+ * 招募截止日期 ui
  */
 const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean }) => {
     const state = useAppSelector((state) => state);
@@ -128,7 +128,6 @@ const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue
 
     const handleFormChagne = useCallback(
         (val: any) => {
-            console.log("work =>", val);
             setForm(val);
             setValue(label, dayjs(val).format("YYYY-MM-DD"));
         },

@@ -12,7 +12,7 @@ export interface RightNowActivityOrderFormInterface {
         // 開始日期
         startDate?: Date | null;
         // 開始時間
-        startTime?: string | null;
+        startTime?: Date | null;
         // 結束日期
         endDate?: Date | null;
         // 結束時間
@@ -20,10 +20,12 @@ export interface RightNowActivityOrderFormInterface {
         // 招募服務商截止日期
         dueDate?: Date | null;
         // 招募服務商截止 時間
-        dueTime?: string | null;
+        dueTime?: Date | null;
         // 需求人數
         requiredNumber: number;
         // 需求備註
         note?: string | null;
+        // 同意條款
+        accept: boolean;
     };
 }

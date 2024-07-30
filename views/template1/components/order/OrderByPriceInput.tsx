@@ -8,7 +8,7 @@ import { RightNowActivityOrderFormInterface } from "./orderInterface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**
- * 活動出席費輸入框
+ * 活動出席費輸入框與按鈕 ui
  */
 const OrderByPriceInput = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: number; setValue: Function; required: boolean }) => {
     console.log("OrderByPriceInput render");

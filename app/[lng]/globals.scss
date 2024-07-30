@@ -35,3 +35,7 @@ body {
 .OpenSans {
     font-family: var(--font-open-sans);
 }
+
+.PrimaryGradient {
+    @apply bg-gradient-to-r from-primary to-secondary;
+}
