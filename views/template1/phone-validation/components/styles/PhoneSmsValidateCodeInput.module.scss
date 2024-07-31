@@ -1,0 +1,7 @@
+.phone-sms-validate-code-input {
+    :global {
+        .ant-input {
+            @apply h-[40px] border-gray-secondary border-b border-t-0 border-r-0 border-l-0 rounded-none text-gray-primary;
+        }
+    }
+}

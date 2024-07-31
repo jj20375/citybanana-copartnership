@@ -21,6 +21,7 @@ module.exports = {
         firebase_measurementId: process.env.FIREBASE_MEASUREMENT_ID,
         firebase_databaseURL: process.env.FIREBASE_DATABASEURL,
         firebase_messagingKey: process.env.FIREBASE_MESSAGING_KEY,
+        google_recaptcha2Key: process.env.GOOGLE_RECAPTCHA2_KEY,
     },
     experimental: {
         serverActions: true,

@@ -1,7 +1,7 @@
 "use client";
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { RightNowActivityOrderFormInterface } from "./orderInterface";
+import { RightNowActivityOrderFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**

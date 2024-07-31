@@ -4,7 +4,7 @@ import { memo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityDefaultHourPriceSelector } from "@/store-toolkit/stores/orderStore";
-import { RightNowActivityOrderFormInterface } from "./orderInterface";
+import { RightNowActivityOrderFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**

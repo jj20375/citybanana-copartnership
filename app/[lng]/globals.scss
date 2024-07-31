@@ -39,3 +39,7 @@ body {
 .PrimaryGradient {
     @apply bg-gradient-to-r from-primary to-secondary;
 }
+
+.DisabledGradient {
+    @apply bg-gradient-to-r disabled:from-gray-light disabled:to-gray-light disabled:cursor-not-allowed;
+}

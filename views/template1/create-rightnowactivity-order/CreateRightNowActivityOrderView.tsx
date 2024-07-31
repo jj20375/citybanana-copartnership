@@ -1,15 +1,15 @@
 "use client";
 
 import { useTranslation } from "@/i18n/i18n-client";
-import TitleCompoent from "@/views/template1/create-rightnowactivity-order/components/TitleComponent";
+import TitleCompoent from "@/views/template1/components/TitleComponent";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityDefaultHourDurationSelector, rightNowActivityHourMinPriceSelector, rightNowActivityProviderMinRequiredSelector } from "@/store-toolkit/stores/orderStore";
 import * as yup from "yup";
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { RightNowActivityOrderFormInterface } from "./components/order/orderInterface";
+import { RightNowActivityOrderFormInterface } from "./components/order/order-interface";
 import OrderByPriceInput from "./components/order/OrderByPriceInput";
 import OrderByDurationSelect from "./components/order/OrderByDurationSelect";
 import OrderByRadioTimeType from "./components/order/OrderByRadioTimeType";
@@ -17,11 +17,13 @@ import OrderByStartDateDatePicker from "./components/order/OrderByStartDateDateP
 import OrderByDueDateDatePicker from "./components/order/OrderByDueDateDatePicker";
 import OrderByStartTimeTimePicker from "./components/order/OrderByStartTimeTimePicker";
 import OrderByDueDateTimeTimePicker from "./components/order/OrderByDueDateTimeTimePicker";
-import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
-import dayjs from "dayjs";
 import OrderByRequiredProviderCountSelect from "./components/order/OrderByRequiredProviderCountSelect";
 import OrderByNoteTextarea from "./components/order/OrderByNoteTextarea";
+import dayjs from "dayjs";
 import Link from "next/link";
+import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
+import ContactWe from "@/views/template1/components/ContactWe";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -74,6 +76,8 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const dueDateValue = watch("order.dueDate");
     const dueTimeValue = watch("order.dueTime");
     const order = watch("order");
+
+    const paramsObj = { foo: "bar", baz: "bar" };
 
     useEffect(() => {
         /**
@@ -138,6 +142,36 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         return setValue("order.dueTime", dayjs(dueDateValue).add(12, "hours").toDate());
     }, [dueDateValue]);
 
+    /**
+     * 下一步按鈕帶上 網址參數 START
+     */
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
+    const createQueryString = useCallback(
+        (orderData: any) => {
+            if (searchParams) {
+                const params = new URLSearchParams(searchParams.toString());
+                // params.set(name, value);
+                Object.keys(orderData).forEach((key: string) => {
+                    params.set(key, orderData[key]);
+                });
+                return params.toString();
+            }
+            return null;
+        },
+        [searchParams]
+    );
+
+    const onNextStepButtonClick = () => {
+        const origin = window.location.origin;
+        const host = `${origin}/${lng}/phone-validation`;
+        router.push(`${host}?${createQueryString(order)}`);
+    };
+    /**
+     * 下一步按鈕帶上 網址參數 END
+     */
+
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log("success form =>", data);
     };
@@ -155,7 +189,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 
     return (
         <div className="flex">
-            <div className="mx-auto max-w-[320px]">
+            <div className="mx-auto max-w-[400px]">
                 <form
                     className="mt-[40px]"
                     onSubmit={handleSubmit(onSubmit, onError)}
@@ -291,10 +325,17 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                     <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
                     <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
                 </div>
-                <Link href="/phone-validation">
+                {/* <Link href={"/phone-validation?" + "a=2"}>
                     <button className="PrimaryGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center">{t("global.nextStep")}</button>
-                </Link>
-                <button className="text-primary text-lg-content underline flex justify-center w-full mt-[40px]">{t("rightNowActivityOrder.contact")}</button>
+                </Link> */}
+                <button
+                    onClick={onNextStepButtonClick}
+                    className="PrimaryGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center"
+                >
+                    {t("global.nextStep")}
+                </button>
+                {JSON.stringify(searchParams)}
+                <ContactWe lng={lng} />
                 <div className="h-[123px] w-full"></div>
             </div>
             <pre className="flex">{JSON.stringify(order, null, 4)}</pre>

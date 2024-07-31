@@ -1,10 +1,12 @@
 import * as yup from "yup";
 import { addDays, addHours } from "date-fns";
 // 手機格式驗證
-export const formPhoneValiation = yup
-    .string()
-    .required("手機為必填")
-    .matches(/^[1-9]\d{8}$/, "請輸入正確手機號碼格式");
+export const formPhoneValiation = ({ requiredMessage, matchMessage }: { requiredMessage: string; matchMessage: string }) => {
+    return yup
+        .string()
+        .required(requiredMessage)
+        .matches(/^[1-9]\d{8}$/, requiredMessage);
+};
 // 密碼格式驗證
 export const formPasswordValiation = yup
     .string()

@@ -7,7 +7,8 @@
             "day": "天"
         },
         "time": "時間",
-        "nextStep": "下一步"
+        "nextStep": "下一步",
+        "prevStep": "上一步"
     },
     "index": {
         "title": "超級約妹引擎",
@@ -68,5 +69,18 @@
             "label": "預付款金額"
         },
         "contact": "如使用過程遇到問題，請聯繫我們"
+    },
+    "phoneValidation": {
+        "title": "驗證手機號碼",
+        "phoneInput": {
+            "label": "聯絡人手機號碼",
+            "phone_requiredMessage": "請輸入手機號碼",
+            "phone_matchMessage": "請輸入正確手機號碼格式",
+            "countryCode_requiredMessage": "請選擇國家代碼"
+        },
+        "validateCode": {
+            "requiredMessage": "請輸入驗證碼",
+            "buttonText": "發送驗證碼"
+        }
     }
 }

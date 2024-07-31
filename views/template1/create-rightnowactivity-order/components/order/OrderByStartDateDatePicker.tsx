@@ -2,7 +2,7 @@
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { RightNowActivityOrderFormInterface } from "./orderInterface";
+import { RightNowActivityOrderFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";

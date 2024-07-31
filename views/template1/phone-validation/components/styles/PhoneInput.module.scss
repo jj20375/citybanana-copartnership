@@ -1,0 +1,10 @@
+.phone-input {
+    :global {
+        .ant-input-group-addon {
+            @apply border-gray-secondary bg-white;
+        }
+        .ant-input {
+            @apply h-[40px] border-gray-secondary rounded-md text-gray-primary;
+        }
+    }
+}
