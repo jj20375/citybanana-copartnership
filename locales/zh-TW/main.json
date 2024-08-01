@@ -48,20 +48,30 @@
                 "timeType_reqiredErrMessage": "請選擇活動時間為指定時間或現在"
             }
         },
-        "startDateTime": {
-            "label": "活動開始時間"
-        },
         "startDateDatePicker": {
-            "placeholder": "請選擇開始日期"
+            "placeholder": "請選擇開始日期",
+            "validation": {
+                "startDate_reqiredErrMessage": "請選擇活動開始日期"
+            }
         },
         "startTimeTimePicker": {
-            "placeholder": "請選擇開始時間"
+            "label": "活動開始時間",
+            "placeholder": "請選擇開始時間",
+            "validation": {
+                "startTime_reqiredErrMessage": "請選擇活動開始時間"
+            }
         },
         "dueDateTime": {
-            "label": "招募截止時間"
+            "label": "招募截止時間",
+            "validation": {
+                "dueTime_reqiredErrMessage": "請選擇招募截止時間"
+            }
         },
         "dueDateDatePicker": {
-            "placeholder": "請選擇招募截止日期"
+            "placeholder": "請選擇招募截止日期",
+            "validation": {
+                "dueDate_reqiredErrMessage": "請選擇招募截止日期"
+            }
         },
         "requiredProviderCount": {
             "label": "活動需求人數",

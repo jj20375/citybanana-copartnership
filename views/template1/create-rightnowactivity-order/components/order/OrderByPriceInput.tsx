@@ -32,6 +32,7 @@ const OrderByPriceInput = memo(({ lng, register, label, value, setValue, require
                     className="flex justify-center w-full"
                 >
                     <button
+                        type="button"
                         className={`${index % 4 === 3 ? "" : "mr-1"} OpenSans rounded-md border text-primary  flex-1 text-xs-content border-primary px-[10px] py-[5px]`}
                         onClick={() => changeValue(price)}
                     >

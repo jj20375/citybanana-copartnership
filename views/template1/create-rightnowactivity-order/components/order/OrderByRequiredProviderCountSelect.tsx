@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityProviderMinRequiredSelector, rightNowActivityProviderMaxRequiredSelector } from "@/store-toolkit/stores/orderStore";
@@ -38,6 +38,10 @@ const OrderByRequiredProviderCountSelect = memo(({ lng, register, label, value, 
      * 生成可選擇人數範圍
      */
     const requiredRangeSelect = Array.from({ length: maxRequiredSelector }, (_, i) => i + minRequiredSelector);
+
+    useEffect(() => {
+        setForm(value);
+    }, [value]);
 
     return (
         <div className="mt-[40px]">

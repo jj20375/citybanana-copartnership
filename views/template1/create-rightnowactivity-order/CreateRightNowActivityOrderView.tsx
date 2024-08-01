@@ -31,8 +31,9 @@ import dayjs from "dayjs";
 import Link from "next/link";
 import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
 import ContactWe from "@/views/template1/components/ContactWe";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { addDays, getYear, getMonth, subDays, addHours, startOfHour } from "date-fns";
+import { isEmpty } from "@/service/utils";
 
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -75,11 +76,11 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         // 活動時數驗證
         duration: yup
             .number()
-            .required("rightNowActivityOrder.durationSelect.validation.durationSelect_reqiredErrMessage")
+            .required(t("rightNowActivityOrder.durationSelect.validation.durationSelect_reqiredErrMessage"))
             .min(rightNowActivityHourMinDuration, t("rightNowActivityOrder.durationSelect.validation.durationSelect_minErrMessage", { val: rightNowActivityHourMinDuration }))
             .max(rightNowActivityHourMaxDuration, t("rightNowActivityOrder.durationSelect.validation.durationSelect_maxErrMessage", { val: rightNowActivityHourMaxDuration })),
         // 招募人數驗證
-        requiredNumber: yup
+        requiredProviderCount: yup
             .number()
             .required("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_reqiredErrMessage")
             .min(rightNowActivityProviderMinRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_minErrMessage", { val: rightNowActivityProviderMinRequired }))
@@ -101,17 +102,12 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         watch,
         getValues,
         setValue,
+        clearErrors,
         formState: { errors },
     } = useForm<FormValues>({
         resolver: yupResolver(schema),
         defaultValues: {
-            order: {
-                price: 0,
-                duration: rightNowActivityDefaultHourDurationSelector(state),
-                requiredProviderCount: rightNowActivityProviderMinRequiredSelector(state),
-                timeType: "now",
-                accept: true,
-            },
+            order: { price: 0, duration: rightNowActivityDefaultHourDurationSelector(state), requiredProviderCount: rightNowActivityProviderMinRequired, timeType: "now", accept: true },
         },
     });
 
@@ -123,9 +119,48 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const startTimeValue = watch("order.startTime");
     const dueDateValue = watch("order.dueDate");
     const dueTimeValue = watch("order.dueTime");
+    const noteValue = watch("order.note");
     const order = watch("order");
 
+    // 網址參數
+    const searchParams: any = useSearchParams();
+
     useEffect(() => {
+        if (timeTypeValue === "chooseTime") {
+            const newSchema = {
+                ...formSchema,
+                startDate: yup.date().required(t("rightNowActivityOrder.startDateDatePicker.validation.startDate_reqiredErrMessage")),
+                startTime: yup.date().required(t("rightNowActivityOrder.startTimeTimePicker.validation.startTime_reqiredErrMessage")),
+                dueDate: yup.date().required(t("rightNowActivityOrder.dueDateDatePicker.validation.dueDate_reqiredErrMessage")),
+                dueTime: yup.date().required(t("rightNowActivityOrder.dueDateTime.validation.dueTime_reqiredErrMessage")),
+            };
+            setSchema(
+                yup
+                    .object()
+                    .shape({
+                        order: yup.object().shape(newSchema),
+                    })
+                    .required()
+            );
+        } else {
+            setSchema(
+                yup
+                    .object()
+                    .shape({
+                        order: yup.object().shape(formSchema),
+                    })
+                    .required()
+            );
+        }
+    }, [timeTypeValue]);
+
+    useEffect(() => {
+        // 清空表單驗證 否則假設 有選擇了 日期資料後 會無法改變 按鈕 disabled 狀態
+        clearErrors();
+        // 判斷有網址參數時 不往下執行
+        if (searchParams.size > 0) {
+            return;
+        }
         /**
          * 當活東開始日期等於當天時
          * 1. 設定 活動開始時間為當下時間往後推1小時為預設值
@@ -159,6 +194,11 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     }, [startDateValue]);
 
     useEffect(() => {
+        // 判斷有網址參數時 不往下執行
+        if (searchParams.size > 0) {
+            return;
+        }
+
         // 當活動開始時間 有變動時 招募截止日期跟著變動
         if (startTimeValue! > addHours(new Date(), 24)) {
             return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
@@ -171,6 +211,12 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         if (dueDateValue === null) {
             return;
         }
+        // 判斷有網址參數時 不往下執行
+        if (searchParams.size > 0) {
+            console.log("searchParams =>", searchParams.size);
+            return;
+        }
+
         /**
          * 當招募日期等於當天時
          * 1. 設定 招募截止時間為當下時間往後推1小時為預設值
@@ -191,11 +237,50 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
     }, [dueDateValue]);
 
+    const pathname = usePathname();
+    useEffect(() => {
+        // 判斷有網址參數時 需給表單填上預設值
+        if (searchParams) {
+            const params: FormValues | any = {};
+            for (const [key, value] of searchParams?.entries()) {
+                if (!isEmpty(value)) {
+                    console.log(key);
+                    if (key === "duration") {
+                        params[key] = Number(value);
+                    } else if (key === "requiredProviderCount") {
+                        params[key] = Number(value);
+                    } else if (key === "price") {
+                        params[key] = Number(value);
+                    } else if (key === "startDate") {
+                        params[key] = dayjs(value).toDate();
+                    } else if (key === "startTime") {
+                        params[key] = dayjs(value).toDate();
+                    } else if (key === "dueDate") {
+                        params[key] = dayjs(value).toDate();
+                    } else if (key === "dueTime") {
+                        params[key] = dayjs(value).toDate();
+                    } else {
+                        params[key] = value;
+                    }
+                }
+            }
+            // delete params["startDate"];
+            // delete params["startTime"];
+            // delete params["dueDate"];
+            // delete params["dueTime"];
+            // setDefaultValue(params);
+            if (Object.keys(params).length > 0) {
+                setValue("order", params);
+            }
+            // 需清空網址參數 才可讓其他的 監聽值 startDate or dueDate ...做觸發
+            history.pushState(null, "", pathname);
+        }
+    }, [searchParams]);
+
     /**
      * 下一步按鈕帶上 網址參數 START
      */
     const router = useRouter();
-
     const onNextStepButtonClick = () => {
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
@@ -206,8 +291,13 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
      * 下一步按鈕帶上 網址參數 END
      */
 
+    /**
+     * submit 成功時往下一步
+     * @param data
+     */
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log("success form =>", data);
+        onNextStepButtonClick();
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {
@@ -261,14 +351,14 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                         <>
                             <div>
                                 <label className="text-gray-secondary mb-[15px] block">
-                                    {t("rightNowActivityOrder.startDateTime.label")} {true && <span className="text-primary">*</span>}
+                                    {t("rightNowActivityOrder.startTimeTimePicker.label")} {true && <span className="text-primary">*</span>}
                                 </label>
                                 <div className="flex">
                                     <OrderByStartDateDatePicker
                                         lng={lng}
                                         register={register}
                                         label="order.startDate"
-                                        value={null}
+                                        value={startDateValue}
                                         setValue={setValue}
                                         required={true}
                                     />
@@ -286,6 +376,8 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                                         )}
                                     </div>
                                 </div>
+                                {errors.order?.startDate && <p className="text-red-600 OpenSans">{errors.order?.startDate.message}</p>}
+                                {errors.order?.startTime && <p className="text-red-600 OpenSans">{errors.order?.startTime.message}</p>}
                             </div>
                             <div className="mt-[15px]">
                                 <label className="text-gray-secondary mb-[15px] block">
@@ -319,6 +411,8 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                                         </div>
                                     ) : null}
                                 </div>
+                                {errors.order?.dueDate && <p className="text-red-600 OpenSans">{errors.order?.dueDate.message}</p>}
+                                {errors.order?.dueTime && <p className="text-red-600 OpenSans">{errors.order?.dueTime.message}</p>}
                                 {startDateValue && startTimeValue && dueDateValue && dueTimeValue ? <p className="text-gray-secondary text-xs-content mt-[15px]">最晚招募截止時間: {JSON.stringify(dayjs(dueTimeValue).format("YYYY-MM-DD a hh:mm"))}</p> : null}
                             </div>
                         </>
@@ -335,7 +429,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                         lng={lng}
                         register={register}
                         label="order.note"
-                        value={null}
+                        value={noteValue}
                         setValue={setValue}
                         required={false}
                     />
@@ -382,11 +476,6 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 export default function CreateRightNowActivityOrderView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = "海底撈火鍋-京站店";
-    const rightNowActivityConfiguration = useAppSelector((state) => state.orderStore.rightNowActivityConfiguration);
-    const state = useAppSelector((state) => {
-        return state;
-    });
-    const rightNowActivityDefaultHourDuration = rightNowActivityDefaultHourDurationSelector(state);
     return (
         <>
             <TitleCompoent title={title} />

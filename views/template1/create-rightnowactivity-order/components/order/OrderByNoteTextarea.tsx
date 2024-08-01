@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityProviderMinRequiredSelector, rightNowActivityProviderMaxRequiredSelector } from "@/store-toolkit/stores/orderStore";
@@ -12,7 +12,7 @@ const { TextArea } = Input;
 /**
  * 訂單需求備註
  */
-const OrderByNoteTextarea = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string | null; setValue: Function; required: boolean }) => {
+const OrderByNoteTextarea = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string | null | undefined; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
     const state = useAppSelector((state) => state);
@@ -31,6 +31,10 @@ const OrderByNoteTextarea = memo(({ lng, register, label, value, setValue, requi
     const onChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         console.log("Change:", e.target.value);
     };
+
+    useEffect(() => {
+        setForm(value);
+    }, [value]);
 
     return (
         <div className="mt-[40px]">

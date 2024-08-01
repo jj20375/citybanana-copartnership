@@ -10,7 +10,7 @@ import type { UseFormRegister, Path } from "react-hook-form";
 const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
-    const [form, setForm] = useState(value[0]);
+    const [form, setForm] = useState(value);
 
     const handleFormChagne = useCallback(
         (event: any) => {

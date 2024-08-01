@@ -126,7 +126,7 @@ const OrderByDueDateDatePicker = memo(
         const handleFormChagne = useCallback(
             (val: any) => {
                 setForm(val);
-                setValue(label, dayjs(val).format("YYYY-MM-DD"));
+                setValue(label, val);
             },
             [form]
         );

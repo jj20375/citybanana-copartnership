@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useCallback } from "react";
+import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { RightNowActivityOrderFormInterface } from "./order-interface";
@@ -21,7 +21,7 @@ import { addDays, getYear, getMonth, subDays, addHours } from "date-fns";
 /**
  * 招募截止日期 ui
  */
-const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null; setValue: Function; required: boolean }) => {
+const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null | undefined; setValue: Function; required: boolean }) => {
     const state = useAppSelector((state) => state);
     const { t } = useTranslation(lng, "main");
     // 設定日期套件語系
@@ -129,10 +129,14 @@ const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue
     const handleFormChagne = useCallback(
         (val: any) => {
             setForm(val);
-            setValue(label, dayjs(val).format("YYYY-MM-DD"));
+            setValue(label, val);
         },
         [form]
     );
+
+    useEffect(() => {
+        setForm(value);
+    }, [value]);
 
     return (
         <DatePicker
