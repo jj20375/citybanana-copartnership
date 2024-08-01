@@ -47,6 +47,7 @@ const OrderByRequiredProviderCountSelect = memo(({ lng, register, label, value, 
             >
                 {t("rightNowActivityOrder.requiredProviderCount.label")} {required && <span className="text-primary">*</span>}
                 <select
+                    {...register(label)}
                     className="border border-gray-secondary h-[40px] w-full rounded-md pl-5 mt-[15px]"
                     name={label}
                     value={form}
@@ -57,7 +58,7 @@ const OrderByRequiredProviderCountSelect = memo(({ lng, register, label, value, 
                             key={count}
                             value={count}
                         >
-                            {t("rightNowActivityOrder.durationSelect.requirdCount", { count: count })}
+                            {t("rightNowActivityOrder.durationSelect.requiredCount", { count: count })}
                         </option>
                     ))}
                 </select>

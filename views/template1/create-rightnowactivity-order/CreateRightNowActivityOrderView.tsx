@@ -3,7 +3,15 @@
 import { useTranslation } from "@/i18n/i18n-client";
 import TitleCompoent from "@/views/template1/components/TitleComponent";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
-import { rightNowActivityDefaultHourDurationSelector, rightNowActivityHourMinPriceSelector, rightNowActivityProviderMinRequiredSelector } from "@/store-toolkit/stores/orderStore";
+import {
+    rightNowActivityDefaultHourDurationSelector,
+    rightNowActivityHourMaxDurationSelector,
+    rightNowActivityHourMaxPriceSelector,
+    rightNowActivityHourMinDurationSelector,
+    rightNowActivityHourMinPriceSelector,
+    rightNowActivityProviderMaxRequiredSelector,
+    rightNowActivityProviderMinRequiredSelector,
+} from "@/store-toolkit/stores/orderStore";
 import * as yup from "yup";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
@@ -24,6 +32,7 @@ import Link from "next/link";
 import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
 import ContactWe from "@/views/template1/components/ContactWe";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { addDays, getYear, getMonth, subDays, addHours, startOfHour } from "date-fns";
 
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -31,11 +40,50 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         return state;
     });
     type FormValues = RightNowActivityOrderFormInterface;
+    // 即刻快閃最少每小時單價
     const rightNowActivityHourMinPrice = rightNowActivityHourMinPriceSelector(state);
+    // 即刻快閃最多每小時單價
+    const rightNowActivityHourMaxPrice = rightNowActivityHourMaxPriceSelector(state);
+    // 即刻快閃最少招募人數
+    const rightNowActivityProviderMinRequired = rightNowActivityProviderMinRequiredSelector(state);
+    // 即刻快閃最多招募人數
+    const rightNowActivityProviderMaxRequired = rightNowActivityProviderMaxRequiredSelector(state);
+    // 即刻快閃最少預訂時數
+    const rightNowActivityHourMinDuration = rightNowActivityHourMinDurationSelector(state);
+    // 即刻快閃最多預訂時數
+    const rightNowActivityHourMaxDuration = rightNowActivityHourMaxDurationSelector(state);
 
     const formSchema = {
-        price: yup.number().required(t("validation.rightNowActivityOrder.price", { price: rightNowActivityHourMinPrice })),
-        timeType: yup.string().required(t("validation.rightNowActivityOrder.timeType")),
+        // 每小時單價驗證
+        price: yup
+            .number()
+            .required(t("rightNowActivityOrder.priceInput.validation.price_reqiredErrMessage", { price: rightNowActivityHourMinPrice }))
+            .test("price-min", t("rightNowActivityOrder.priceInput.validation.price_minErrorMessage", { val: rightNowActivityHourMinPrice }), function (val) {
+                if (val > 0 && val < rightNowActivityHourMinPrice) {
+                    return false;
+                }
+                return true;
+            })
+            .test("price-max", t("rightNowActivityOrder.priceInput.validation.price_maxErrorMessage", { val: rightNowActivityHourMaxPrice }), function (val) {
+                if (val > 0 && val > rightNowActivityHourMaxPrice) {
+                    return false;
+                }
+                return true;
+            }),
+        // 選擇現在或指定時間驗證
+        timeType: yup.string().required(t("rightNowActivityOrder.radioTimeType.validation.timeType_reqiredErrMessage")),
+        // 活動時數驗證
+        duration: yup
+            .number()
+            .required("rightNowActivityOrder.durationSelect.validation.durationSelect_reqiredErrMessage")
+            .min(rightNowActivityHourMinDuration, t("rightNowActivityOrder.durationSelect.validation.durationSelect_minErrMessage", { val: rightNowActivityHourMinDuration }))
+            .max(rightNowActivityHourMaxDuration, t("rightNowActivityOrder.durationSelect.validation.durationSelect_maxErrMessage", { val: rightNowActivityHourMaxDuration })),
+        // 招募人數驗證
+        requiredNumber: yup
+            .number()
+            .required("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_reqiredErrMessage")
+            .min(rightNowActivityProviderMinRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_minErrMessage", { val: rightNowActivityProviderMinRequired }))
+            .max(rightNowActivityProviderMaxRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_maxErrMessage", { val: rightNowActivityProviderMaxRequired })),
     };
     const [schema, setSchema]: any = useState(
         yup
@@ -60,7 +108,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             order: {
                 price: 0,
                 duration: rightNowActivityDefaultHourDurationSelector(state),
-                requiredNumber: rightNowActivityProviderMinRequiredSelector(state),
+                requiredProviderCount: rightNowActivityProviderMinRequiredSelector(state),
                 timeType: "now",
                 accept: true,
             },
@@ -69,15 +117,13 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 
     const priceValue = watch("order.price");
     const durationValue = watch("order.duration");
-    const requiredNumberValue = watch("order.requiredNumber");
+    const requiredProviderCountValue = watch("order.requiredProviderCount");
     const timeTypeValue = watch("order.timeType");
     const startDateValue = watch("order.startDate");
     const startTimeValue = watch("order.startTime");
     const dueDateValue = watch("order.dueDate");
     const dueTimeValue = watch("order.dueTime");
     const order = watch("order");
-
-    const paramsObj = { foo: "bar", baz: "bar" };
 
     useEffect(() => {
         /**
@@ -107,14 +153,17 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 3. 招募截止時間為活動開始時間
          */
         setValue("order.startTime", dayjs(startDateValue).add(12, "hours").toDate());
-        setValue("order.dueDate", startDateValue);
-        setValue("order.dueTime", startTimeValue);
+        setValue("order.dueDate", addDays(new Date(), 1));
+        setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
         return;
     }, [startDateValue]);
 
     useEffect(() => {
         // 當活動開始時間 有變動時 招募截止日期跟著變動
-        setValue("order.dueTime", startTimeValue);
+        if (startTimeValue! > addHours(new Date(), 24)) {
+            return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
+        }
+        return setValue("order.dueTime", startTimeValue);
     }, [startTimeValue]);
 
     useEffect(() => {
@@ -139,34 +188,19 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 當招募截止日期大於當天時間時
          * 1. 招募截止時間為招募截止日期當天的中午12點整
          */
-        return setValue("order.dueTime", dayjs(dueDateValue).add(12, "hours").toDate());
+        return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
     }, [dueDateValue]);
 
     /**
      * 下一步按鈕帶上 網址參數 START
      */
     const router = useRouter();
-    const searchParams = useSearchParams();
-
-    const createQueryString = useCallback(
-        (orderData: any) => {
-            if (searchParams) {
-                const params = new URLSearchParams(searchParams.toString());
-                // params.set(name, value);
-                Object.keys(orderData).forEach((key: string) => {
-                    params.set(key, orderData[key]);
-                });
-                return params.toString();
-            }
-            return null;
-        },
-        [searchParams]
-    );
 
     const onNextStepButtonClick = () => {
         const origin = window.location.origin;
+        const params = new URLSearchParams(order as any).toString();
         const host = `${origin}/${lng}/phone-validation`;
-        router.push(`${host}?${createQueryString(order)}`);
+        router.push(`${host}?${params}`);
     };
     /**
      * 下一步按鈕帶上 網址參數 END
@@ -182,8 +216,6 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     };
 
     const total = useMemo(() => {
-        console.log("priceValue =>", priceValue);
-        console.log("durationValeu =>", durationValue);
         return priceValue * durationValue;
     }, [priceValue, durationValue]);
 
@@ -202,6 +234,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                         setValue={setValue}
                         required={true}
                     />
+                    {errors.order?.price && <p className="text-red-600 OpenSans">{errors.order?.price.message}</p>}
                     <OrderByDurationSelect
                         lng={lng}
                         register={register}
@@ -286,14 +319,15 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                                         </div>
                                     ) : null}
                                 </div>
+                                {startDateValue && startTimeValue && dueDateValue && dueTimeValue ? <p className="text-gray-secondary text-xs-content mt-[15px]">最晚招募截止時間: {JSON.stringify(dayjs(dueTimeValue).format("YYYY-MM-DD a hh:mm"))}</p> : null}
                             </div>
                         </>
                     )}
                     <OrderByRequiredProviderCountSelect
                         lng={lng}
                         register={register}
-                        label="order.requiredNumber"
-                        value={requiredNumberValue}
+                        label="order.requiredProviderCount"
+                        value={requiredProviderCountValue}
                         setValue={setValue}
                         required={true}
                     />
@@ -319,22 +353,24 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                             {t("rightNowActivityOrder.accept.label")}
                         </label>
                     </div>
+                    <div className="border-b border-gray-primary mt-[40px] flex items-end">
+                        <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
+                        <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
+                    </div>
+
+                    <button
+                        type="submit"
+                        className="PrimaryGradient DisabledGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center"
+                        disabled={errors.order ? true : false}
+                    >
+                        {t("global.nextStep")}
+                    </button>
                 </form>
                 {/* <FormSample /> */}
-                <div className="border-b border-gray-primary mt-[40px] flex items-end">
-                    <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
-                    <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
-                </div>
                 {/* <Link href={"/phone-validation?" + "a=2"}>
                     <button className="PrimaryGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center">{t("global.nextStep")}</button>
                 </Link> */}
-                <button
-                    onClick={onNextStepButtonClick}
-                    className="PrimaryGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center"
-                >
-                    {t("global.nextStep")}
-                </button>
-                {JSON.stringify(searchParams)}
+
                 <ContactWe lng={lng} />
                 <div className="h-[123px] w-full"></div>
             </div>

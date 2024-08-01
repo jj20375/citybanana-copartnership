@@ -15,6 +15,8 @@ import TitleCompoent from "../components/TitleComponent";
 import ContactWe from "@/views/template1/components/ContactWe";
 import { useRouter, useSearchParams } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
+import dayjs from "dayjs";
+import { isEmpty } from "@/service/utils";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -23,9 +25,9 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
     const title = t("phoneValidation.title");
     type FormValues = PhoneValidationInterface;
     const formSchema = {
-        phone: formPhoneValiation({ requiredMessage: t("phoneValidation.phoneInput.phone_requiredMessage"), matchMessage: t("phoneValidation.phoneInput.phone_matchMessage") }),
-        countryCode: yup.string().required(t("phoneValidation.phoneInput.countryCode_requiredMessage")),
-        validateCode: yup.string().required(t("valdateCode.requiredMessage")),
+        phone: formPhoneValiation({ requiredMessage: t("phoneValidation.phoneInput.validation.phone_requiredErrMessage"), matchMessage: t("phoneValidation.phoneInput.validation.phone_matchErrMessage") }),
+        countryCode: yup.string().required(t("phoneValidation.phoneInput.validation.countryCode_requiredErrMessage")),
+        validateCode: yup.string().required(t("valdateCode.validation.requiredErrMessage")),
     };
 
     const [schema, setSchema]: any = useState(
@@ -71,9 +73,21 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         countdownButtonRef.current.cancelCountdown();
     };
 
+    const searchParams: any = useSearchParams();
+
+    //   // 显示键/值对
+    // for (const [key, value] of searchParams?.entries()) {
+    //     if (!isEmpty(value)) {
+    //         console.log(key, value);
+    //     }
+    // }
+
     // 上一步按鈕事件
     const onPrevStepButtonClick = () => {
-        router.push("/create-rightnowactivity-order");
+        const origin = window.location.origin;
+        const host = `${origin}/${lng}/create-rightnowactivity-order`;
+
+        router.push(`${host}?${searchParams.toString()}`);
         return;
     };
 
@@ -91,8 +105,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
     };
     const recaptcha2Key = process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA2_KEY;
 
-    const searchParams = useSearchParams();
-    console.log("searchParams =>", searchParams?.get("startTime"));
+    console.log("searchParams =>", dayjs(searchParams?.get("startTime")).format("YYYY-MM-DD HH:mm:ss"), searchParams?.toString());
     return (
         <>
             <TitleCompoent title={title} />

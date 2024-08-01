@@ -47,6 +47,7 @@ const OrderByDurationSelect = memo(({ lng, register, label, value, setValue, req
             >
                 {t("rightNowActivityOrder.durationSelect.label")} {required && <span className="text-primary">*</span>}
                 <select
+                    {...register(label)}
                     className="border border-gray-secondary h-[40px] w-full rounded-md pl-5 mt-[15px]"
                     name={label}
                     value={form}

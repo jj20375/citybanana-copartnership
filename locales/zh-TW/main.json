@@ -15,30 +15,38 @@
         "second-title": "煥然一新的社交體驗",
         "start": "立即開始"
     },
-    "validation": {
-        "rightNowActivityOrder": {
-            "price": "請輸入大於 {{price}} 以上的數值",
-            "timeType": "請選擇活動時間為指定時間或現在"
-        }
-    },
+
     "rightNowActivityOrder": {
         "price-0": "服務商報價",
         "price": "{{val, formatMillionByRightNowActivityPrice}}",
         "priceInput": {
             "label": "活動出席費",
-            "unit": "元 / {{unit}}"
+            "unit": "元 / {{unit}}",
+            "validation": {
+                "price_reqiredErrMessage": "請輸入大於 {{price}} 以上的數值",
+                "price_minErrorMessage": "金額不得小於此 {{val, formatMillionByRightNowActivityPrice}} 額度",
+                "price_maxErrorMessage": "金額不得大於此 {{val, formatMillionByRightNowActivityPrice}} 額度"
+            }
         },
         "durationSelect": {
             "label": "活動時長",
             "hour": "{{hour}} 小時",
-            "requirdCount": "{{count}} 人數"
+            "requiredCount": "{{count}} 人數",
+            "validation": {
+                "durationSelect_reqiredErrMessage": "需選擇活動時長",
+                "durationSelect_minErrMessage": "最少需求 {{val}} 時數",
+                "durationSelect_maxErrMessage": "最多 {{val}} 時數"
+            }
         },
         "radioTimeType": {
             "label": "活動時間",
             "label_now": "現在",
             "label_chooseTime": "指定時間",
             "description_start": "招募時間",
-            "description_end": "分鐘"
+            "description_end": "分鐘",
+            "validation": {
+                "timeType_reqiredErrMessage": "請選擇活動時間為指定時間或現在"
+            }
         },
         "startDateTime": {
             "label": "活動開始時間"
@@ -56,7 +64,12 @@
             "placeholder": "請選擇招募截止日期"
         },
         "requiredProviderCount": {
-            "label": "活動需求人數"
+            "label": "活動需求人數",
+            "validation": {
+                "requiredProviderCount_reqiredErrMessage": "需選擇活動需求人數",
+                "requiredProviderCount_minErrMessage": "最少招募 {{val}} 人數",
+                "requiredProviderCount_maxErrMessage": "最多招募 {{val}} 人數"
+            }
         },
         "noteTextarea": {
             "label": "其他需求備註",
@@ -74,12 +87,16 @@
         "title": "驗證手機號碼",
         "phoneInput": {
             "label": "聯絡人手機號碼",
-            "phone_requiredMessage": "請輸入手機號碼",
-            "phone_matchMessage": "請輸入正確手機號碼格式",
-            "countryCode_requiredMessage": "請選擇國家代碼"
+            "validation": {
+                "phone_requiredErrMessage": "請輸入手機號碼",
+                "phone_matchErrMessage": "請輸入正確手機號碼格式",
+                "countryCode_requiredErrMessage": "請選擇國家代碼"
+            }
         },
         "validateCode": {
-            "requiredMessage": "請輸入驗證碼",
+            "validation": {
+                "requiredErrMessage": "請輸入驗證碼"
+            },
             "buttonText": "發送驗證碼"
         }
     }

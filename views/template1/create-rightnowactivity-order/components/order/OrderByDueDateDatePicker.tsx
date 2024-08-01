@@ -118,6 +118,9 @@ const OrderByDueDateDatePicker = memo(
             </div>
         );
 
+        // 最大招募截止時間日期
+        const [maxDate, setMaxDate] = useState(addHours(new Date(), 24));
+
         const [form, setForm] = useState(value);
 
         const handleFormChagne = useCallback(
@@ -132,6 +135,13 @@ const OrderByDueDateDatePicker = memo(
             setForm(value);
         }, [value]);
 
+        useEffect(() => {
+            if (dayjs(startDate).date() === dayjs().date()) {
+                return setMaxDate(startDate);
+            }
+            return setMaxDate(addHours(new Date(), 24));
+        }, [startDate]);
+
         return (
             <>
                 <DatePicker
@@ -143,7 +153,7 @@ const OrderByDueDateDatePicker = memo(
                     placeholderText={t("rightNowActivityOrder.dueDateDatePicker.placeholder")}
                     wrapperClassName={styles.datepicker__input}
                     minDate={new Date()}
-                    maxDate={startDate}
+                    maxDate={maxDate}
                     renderDayContents={renderDayContents}
                     dayClassName={(date) => {
                         return dayjs(date).format("YYYY-MM-DD") === dayjs(form).format("YYYY-MM-DD") ? "!bg-red-500 !text-white !rounded-full" : "!bg-white";

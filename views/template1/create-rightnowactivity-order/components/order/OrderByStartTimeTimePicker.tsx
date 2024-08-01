@@ -81,7 +81,6 @@ const OrderByStartTimeTimePicker = memo(
 
         return (
             <>
-                {dayjs(value).format("YYYY-MM-DD HH:mm:ss")}
                 <DatePicker
                     {...register(label)}
                     selected={form}

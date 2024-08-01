@@ -17,7 +17,7 @@ const OrderByPriceInput = memo(({ lng, register, label, value, setValue, require
     const state = useAppSelector((state) => state);
 
     function changeValue(newValue: number) {
-        setValue(label, newValue);
+        setValue(label, Number(newValue));
     }
 
     // 每小時預設金額選項

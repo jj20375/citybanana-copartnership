@@ -10,7 +10,7 @@ import { zhTW } from "date-fns/locale/zh-TW";
 import { enUS } from "date-fns/locale/en-US";
 import { registerLocale, setDefaultLocale } from "react-datepicker";
 import { rightNowActivityWaitHourSelector } from "@/store-toolkit/stores/orderStore";
-
+import { startOfHour } from "date-fns";
 import styles from "./styles/OrderByDatePicker.module.scss";
 import dayjs from "dayjs";
 import "dayjs/locale/zh-tw"; // 引入繁體中文
@@ -71,7 +71,7 @@ const OrderByDueDateTimeTimePicker = memo(
                 dayjs.locale("zh-tw");
         }
 
-        const [form, setForm] = useState(dayjs(dueDate).toDate());
+        const [form, setForm] = useState(value);
 
         const handleFormChagne = useCallback(
             (val: any) => {
@@ -86,7 +86,12 @@ const OrderByDueDateTimeTimePicker = memo(
             let dueDateSelect = new Date(dayjs(dueDate).toDate());
             // 判斷開始時間等於現在時間需加上現在的時辰與分鐘時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
             if (dayjs(dueDateSelect).format("YYYY-MM-DD") === dayjs(currentDate).format("YYYY-MM-DD")) {
-                dueDateSelect = new Date(dayjs(dueDateSelect).add(dayjs().hour(), "hour").add(dayjs().minute(), "minute").toDate());
+                dueDateSelect = new Date(
+                    dayjs(dueDateSelect)
+                        .add(dayjs().hour() + 1, "hour")
+                        .add(dayjs().minute(), "minute")
+                        .toDate()
+                );
             }
             // 活動開始日期 加上 選擇的活動開始時辰
             const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
@@ -96,19 +101,18 @@ const OrderByDueDateTimeTimePicker = memo(
             if (startDateTimeSelect.getTime() > dueDateSelect.getTime()) {
                 // 當活動日期 與招募截止日期同一天時觸發
                 if (startDate === dueDate) {
-                    return startDateTimeSelect.getTime() > selectedDate.getTime();
+                    return startDateTimeSelect.getTime() >= selectedDate.getTime();
                 }
             }
-            return dueDateSelect.getTime() < selectedDate.getTime();
+            return dueDateSelect.getTime() >= selectedDate.getTime();
         };
 
         useEffect(() => {
-            return setForm(value as Date);
+            return setForm(value);
         }, [value]);
 
         return (
             <>
-                {dayjs(value).format("YYYY-MM-DD HH:mm:ss")}
                 <DatePicker
                     {...register(label)}
                     selected={form}
