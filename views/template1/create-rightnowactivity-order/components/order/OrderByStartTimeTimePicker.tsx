@@ -93,7 +93,7 @@ const OrderByStartTimeTimePicker = memo(
                     maxTime={setHours(setMinutes(new Date(startDate as Date), 60), 23)}
                     timeIntervals={60}
                     timeCaption={t("global.time")}
-                    dateFormat="h:mm aa"
+                    dateFormat="MM-dd h:mm aa"
                     filterTime={filterPassedTime}
                 />
             </>

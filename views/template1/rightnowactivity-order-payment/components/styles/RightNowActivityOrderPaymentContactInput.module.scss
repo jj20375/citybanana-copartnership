@@ -1,0 +1,7 @@
+.rightnowactivity-order-payment-contact-input {
+    :global {
+        .ant-input {
+            @apply h-[40px] border-gray-secondary rounded-md text-gray-primary;
+        }
+    }
+}

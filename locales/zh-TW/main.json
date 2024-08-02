@@ -6,9 +6,13 @@
             "hour": "時",
             "day": "天"
         },
+        "hour": "{{hour}}小時",
         "time": "時間",
+        "people": "人",
         "nextStep": "下一步",
-        "prevStep": "上一步"
+        "prevStep": "上一步",
+        "gender-male": "先生",
+        "gender-female": "女士"
     },
     "index": {
         "title": "超級約妹引擎",
@@ -109,5 +113,17 @@
             },
             "buttonText": "發送驗證碼"
         }
+    },
+    "rightNowActivityOrderPayment": {
+        "title": "確認付款及聯絡資訊",
+        "contactName": "聯絡人姓名",
+        "startTime-now": "服務商到場時間",
+        "dueTime-now": "{{minute}} 分鐘後",
+        "price-0": "依照服務商報價",
+        "column-startDate": "活動開始",
+        "column-dueDate": "結束招募",
+        "column-duration": "活動時長",
+        "column-price": "活動費用",
+        "column-requiredProviderCount": "活動人數"
     }
 }

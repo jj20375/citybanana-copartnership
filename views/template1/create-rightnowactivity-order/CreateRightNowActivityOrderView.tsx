@@ -34,6 +34,7 @@ import ContactWe from "@/views/template1/components/ContactWe";
 import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import { addDays, getYear, getMonth, subDays, addHours, startOfHour } from "date-fns";
 import { isEmpty } from "@/service/utils";
+import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActivityOrder-service";
 
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -213,7 +214,6 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         }
         // 判斷有網址參數時 不往下執行
         if (searchParams.size > 0) {
-            console.log("searchParams =>", searchParams.size);
             return;
         }
 
@@ -223,14 +223,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          */
         if (dayjs(dueDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD")) {
             // 設定 招募截止時間為當下時間往後推1小時為預設值
-            return setValue(
-                "order.dueTime",
-                startOfHour(
-                    dayjs(dueDateValue)
-                        .add(dayjs().hour() + 1, "hours")
-                        .toDate()
-                )
-            );
+            return setValue("order.dueTime", startOfHour(addHours(new Date(dueDateValue as Date), 1)));
         }
         /**
          * 當招募截止日期大於當天時間時
@@ -243,37 +236,10 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     useEffect(() => {
         // 判斷有網址參數時 需給表單填上預設值
         if (searchParams) {
-            const params: FormValues | any = {};
-            for (const [key, value] of searchParams?.entries()) {
-                if (!isEmpty(value)) {
-                    if (key === "duration") {
-                        params[key] = Number(value);
-                    } else if (key === "requiredProviderCount") {
-                        params[key] = Number(value);
-                    } else if (key === "price") {
-                        params[key] = Number(value);
-                    } else if (key === "startDate" && !isEmpty(value)) {
-                        params[key] = dayjs(value).toDate();
-                    } else if (key === "startTime" && !isEmpty(value)) {
-                        params[key] = dayjs(value).toDate();
-                    } else if (key === "dueDate" && !isEmpty(value)) {
-                        console.log("due date => ", value);
-                        params[key] = dayjs(value).toDate();
-                    } else if (key === "dueTime" && !isEmpty(value)) {
-                        params[key] = dayjs(value).toDate();
-                    } else {
-                        params[key] = value;
-                    }
-                }
-            }
-            // delete params["startDate"];
-            // delete params["startTime"];
-            // delete params["dueDate"];
-            // delete params["dueTime"];
-            // setDefaultValue(params);
+            // 透過網址參數 設定即刻快閃單資料
+            const params = setRightNowActivityDefaultValuesByParams(searchParams);
             if (Object.keys(params).length > 0) {
                 setValue("order", params);
-                console.log("have params =>", params);
             }
             // 需清空網址參數 才可讓其他的 監聽值 startDate or dueDate ...做觸發
             history.pushState(null, "", pathname);
@@ -416,7 +382,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                                 </div>
                                 {errors.order?.dueDate && <p className="text-red-600 OpenSans">{errors.order?.dueDate.message}</p>}
                                 {errors.order?.dueTime && <p className="text-red-600 OpenSans">{errors.order?.dueTime.message}</p>}
-                                {startDateValue && startTimeValue && dueDateValue && dueTimeValue ? <p className="text-gray-secondary text-xs-content mt-[15px]">最晚招募截止時間: {JSON.stringify(dayjs(dueTimeValue).format("YYYY-MM-DD a hh:mm"))}</p> : null}
+                                {startDateValue && startTimeValue && dueDateValue && dueTimeValue ? <p className="text-gray-secondary text-xs-content mt-[15px]">最晚招募截止時間: {JSON.stringify(dayjs().add(24, "hour").format("YYYY-MM-DD a hh:mm"))}</p> : null}
                             </div>
                         </>
                     )}

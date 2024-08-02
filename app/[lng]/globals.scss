@@ -43,3 +43,7 @@ body {
 .DisabledGradient {
     @apply bg-gradient-to-r disabled:from-gray-light disabled:to-gray-light disabled:cursor-not-allowed;
 }
+
+.DisabledGradientByOutlineBtn {
+    @apply bg-gradient-to-r from-gray-light to-gray-light cursor-not-allowed;
+}

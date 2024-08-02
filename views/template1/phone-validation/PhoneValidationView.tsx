@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
+import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { PhoneValidationInterface } from "./phone-validation-interface";
@@ -17,6 +18,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ReCAPTCHA from "react-google-recaptcha";
 import dayjs from "dayjs";
 import { isEmpty } from "@/service/utils";
+import { TWPhoneRegex, SmsValidateCodeRegex } from "@/config/regex.config";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -26,8 +28,9 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
     type FormValues = PhoneValidationInterface;
     const formSchema = {
         phone: formPhoneValiation({ requiredMessage: t("phoneValidation.phoneInput.validation.phone_requiredErrMessage"), matchMessage: t("phoneValidation.phoneInput.validation.phone_matchErrMessage") }),
+
         countryCode: yup.string().required(t("phoneValidation.phoneInput.validation.countryCode_requiredErrMessage")),
-        validateCode: yup.string().required(t("valdateCode.validation.requiredErrMessage")),
+        validateCode: yup.string().required(t("phoneValidation.validateCode.validation.requiredErrMessage")).matches(SmsValidateCodeRegex, "簡訊驗證碼為6位數"),
     };
 
     const [schema, setSchema]: any = useState(
@@ -46,6 +49,9 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         watch,
         getValues,
         setValue,
+        clearErrors,
+        reset,
+        trigger,
         formState: { errors },
     } = useForm<FormValues>({
         resolver: yupResolver(schema),
@@ -75,24 +81,22 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
 
     const searchParams: any = useSearchParams();
 
-    //   // 显示键/值对
-    // for (const [key, value] of searchParams?.entries()) {
-    //     if (!isEmpty(value)) {
-    //         console.log(key, value);
-    //     }
-    // }
-
     // 上一步按鈕事件
     const onPrevStepButtonClick = () => {
+        reset();
         const origin = window.location.origin;
         const host = `${origin}/${lng}/create-rightnowactivity-order`;
-
         router.push(`${host}?${searchParams.toString()}`);
         return;
     };
 
     // 下一步按鈕事件
     const onNextStepButtonClick = () => {
+        reset();
+        const origin = window.location.origin;
+        const host = `${origin}/${lng}/rightnowactivity-order-payment`;
+        router.push(`${host}?${searchParams.toString()}`);
+
         return;
     };
 
@@ -105,7 +109,47 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
     };
     const recaptcha2Key = process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA2_KEY;
 
-    console.log("searchParams =>", dayjs(searchParams?.get("startTime")).format("YYYY-MM-DD HH:mm:ss"), searchParams?.toString());
+    /**
+     * submit 成功時往下一步
+     * @param data
+     */
+    const onSubmit: SubmitHandler<FormValues> = (data) => {
+        console.log("success form =>", data);
+        if (Object.keys(errors).length > 0) {
+            return;
+        }
+        onNextStepButtonClick();
+    };
+
+    const onError: SubmitErrorHandler<FormValues> = (errors) => {
+        console.log("error form =>", errors);
+        // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
+    };
+
+    const [disabled, setDisabled] = useState(false);
+
+    // 手動觸發表單驗證
+    const handleManualValidation = async () => {
+        const result = await trigger();
+        if (result) {
+            console.log("Validation passed");
+        } else {
+            console.log("Validation failed");
+        }
+    };
+
+    useEffect(() => {
+        if (!TWPhoneRegex.test(phoneValue) || !SmsValidateCodeRegex.test(validateCodeValue)) {
+            if (phoneValue.length > 0 && validateCodeValue.length > 0) {
+                handleManualValidation();
+            }
+            setDisabled(true);
+            return;
+        }
+        clearErrors();
+        setDisabled(false);
+    }, [phoneValue, validateCodeValue]);
+
     return (
         <>
             <TitleCompoent title={title} />
@@ -113,77 +157,86 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                 <label className="block mb-[15px] text-gray-primary text-lg-content">
                     {t("phoneValidation.phoneInput.label")} <span className="text-primary">*</span>
                 </label>
-                <PhoneInput
-                    lng={lng}
-                    parentCountryCode={countryCodeValue}
-                    parentPhone={phoneValue}
-                    phoneLabel="form.phone"
-                    countryCodeLabel="form.countryCode"
-                    setParentCountryCode={setValue}
-                    setParentPhone={setValue}
-                    register={register}
-                />
-                <div className="flex mt-[30px]">
-                    <PhoneSmsValidateCodeInput
+                <form onSubmit={handleSubmit(onSubmit, onError)}>
+                    <PhoneInput
                         lng={lng}
-                        label="form.validateCode"
-                        value={validateCodeValue}
-                        setValue={setValue}
+                        parentCountryCode={countryCodeValue}
+                        parentPhone={phoneValue}
+                        phoneLabel="form.phone"
+                        countryCodeLabel="form.countryCode"
+                        setParentCountryCode={setValue}
+                        setParentPhone={setValue}
                         register={register}
-                        className="mr-5 flex-1"
                     />
-                    <CountdownButton
-                        initialSeconds={300}
-                        buttonText={t("phoneValidation.validateCode.buttonText")}
-                        className="text-base-content"
-                        ref={countdownButtonRef}
-                    />
-                </div>
-                <div className="mt-[40px]">
-                    <ReCAPTCHA
-                        sitekey={recaptcha2Key}
-                        onChange={onRecaptchaChange}
-                    />
-                </div>
-                <div className="flex">
-                    <button
-                        className="border p-2"
-                        onClick={startCountdown}
-                    >
-                        Start Countdown
-                    </button>
-                    <button
-                        className="border p-2"
-                        onClick={cancelCountdown}
-                    >
-                        Cancel Countdown
-                    </button>
-                </div>
-                <div className="fixed bottom-0 w-full">
-                    <div className="flex absolute bottom-[105px] max-w-[400px] w-full">
-                        <div className="flex-1">
-                            <ButtonBorderGradient
-                                onClick={onPrevStepButtonClick}
-                                buttonText={t("global.prevStep")}
-                                outsideClassName="PrimaryGradient p-px rounded-md w-full"
-                                insideClassName="rounded-[calc(0.5rem-3px)] p-2 bg-white w-full flex items-center justify-center text-primary h-[45px]"
-                            />
+                    {errors.form?.phone && <p className="text-red-600 OpenSans">{errors.form?.phone.message}</p>}
+
+                    <div className="flex mt-[30px]">
+                        <PhoneSmsValidateCodeInput
+                            lng={lng}
+                            label="form.validateCode"
+                            value={validateCodeValue}
+                            setValue={setValue}
+                            register={register}
+                            className="mr-5 flex-1"
+                        />
+                        <CountdownButton
+                            initialSeconds={300}
+                            buttonText={t("phoneValidation.validateCode.buttonText")}
+                            className="text-base-content"
+                            ref={countdownButtonRef}
+                        />
+                    </div>
+                    {errors.form?.validateCode && <p className="text-red-600 OpenSans">{errors.form?.validateCode.message}</p>}
+
+                    <div className="mt-[40px]">
+                        <ReCAPTCHA
+                            sitekey={recaptcha2Key}
+                            onChange={onRecaptchaChange}
+                        />
+                    </div>
+                    <div className="flex">
+                        <button
+                            className="border p-2"
+                            onClick={startCountdown}
+                        >
+                            Start Countdown
+                        </button>
+                        <button
+                            className="border p-2"
+                            onClick={cancelCountdown}
+                        >
+                            Cancel Countdown
+                        </button>
+                    </div>
+                    <div className="fixed bottom-0 w-full">
+                        <div className="flex absolute bottom-[105px] max-w-[400px] w-full">
+                            <div className="flex-1">
+                                <ButtonBorderGradient
+                                    onClick={onPrevStepButtonClick}
+                                    buttonText={t("global.prevStep")}
+                                    outsideClassName={`PrimaryGradient p-px rounded-md w-full`}
+                                    insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-primary bg-white justify-center h-[45px]`}
+                                    isDisabled={false}
+                                />
+                            </div>
+                            <div className="ml-5 flex-1">
+                                <ButtonBorderGradient
+                                    onClick={handleSubmit(onSubmit, onError)}
+                                    buttonText={t("global.nextStep")}
+                                    outsideClassName={`${!disabled ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"}  p-px rounded-md w-full`}
+                                    insideClassName={`${!disabled ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"} rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px]`}
+                                    isDisabled={disabled}
+                                />
+                            </div>
                         </div>
-                        <div className="ml-5 flex-1">
-                            <ButtonBorderGradient
-                                onClick={onNextStepButtonClick}
-                                buttonText={t("global.nextStep")}
-                                outsideClassName="PrimaryGradient w-full p-px rounded-md"
-                                insideClassName="rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px] PrimaryGradient"
-                            />
+
+                        <div className="flex justify-center w-full max-w-[400px]">
+                            <div className="absolute bottom-[40px]">
+                                <ContactWe lng={lng} />
+                            </div>
                         </div>
                     </div>
-                    <div className="flex justify-center w-full max-w-[400px]">
-                        <div className="absolute bottom-[40px]">
-                            <ContactWe lng={lng} />
-                        </div>
-                    </div>
-                </div>
+                </form>
             </div>
             <pre>{JSON.stringify(form, null, 4)}</pre>
         </>

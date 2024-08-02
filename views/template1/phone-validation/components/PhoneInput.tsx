@@ -6,6 +6,7 @@ import { countryCodes } from "@/config/country-codes.config";
 import { useTranslation } from "@/i18n/i18n-client";
 import type { UseFormRegister, Path } from "react-hook-form";
 import { PhoneValidationInterface } from "../phone-validation-interface";
+import { PhoneFirstZeroRegex } from "@/config/regex.config";
 const { Option } = Select;
 /**
  * 手機號碼輸入框 ui
@@ -34,16 +35,35 @@ const PhoneInput = memo(
         setParentCountryCode: Function;
     }) => {
         const { t } = useTranslation(lng, "main");
+
         const [phone, setPhone] = useState<null | string>(parentPhone);
 
         const handlePhoneChagne = useCallback(
             (event: any) => {
                 const { name, value } = event.target;
-                setPhone(value);
-                setParentPhone(phoneLabel, value);
+                if (PhoneFirstZeroRegex.test(value) && value.length <= 9) {
+                    setPhone(value);
+                    setParentPhone(phoneLabel, value);
+                }
             },
             [phone]
         );
+
+        const handleOnPhoneBlur = useCallback(
+            (event: any) => {
+                const { name, value } = event.target;
+            },
+            [phone]
+        );
+
+        const handleOnPhoneKeyDown = (event: any) => {
+            if (event.key === "Enter") {
+                // 當點擊 enter 時取消按鈕的 click 事件
+                event.preventDefault();
+            }
+            return;
+        };
+
         const [countryCode, setCountryCode] = useState<null | string>(parentCountryCode);
 
         const handleCountryCodeChagne = useCallback(
@@ -74,10 +94,15 @@ const PhoneInput = memo(
         return (
             <Input
                 {...register(phoneLabel)}
+                type="text"
                 name="phone"
+                pattern="[0-9]*"
                 addonBefore={selectBefore}
                 className={styles["phone-input"]}
                 onChange={handlePhoneChagne}
+                onKeyDown={handleOnPhoneKeyDown}
+                onBlur={handleOnPhoneBlur}
+                value={phone!}
             />
         );
     }

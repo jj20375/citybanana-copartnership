@@ -46,6 +46,7 @@ const CountdownButton = forwardRef(({ initialSeconds, buttonText, className }: {
 
     return (
         <button
+            type="button"
             onClick={() => ref.current.startCountdown()}
             className={`${className} PrimaryGradient rounded-md DisabledGradient text-white w-[120px] flex items-center justify-center`}
             disabled={isCounting}

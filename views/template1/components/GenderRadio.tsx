@@ -1,13 +1,12 @@
 "use client";
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**
- * 活動開始時間 為 現在 或者 指定時間 ui
+ * 性別選項 ui
  */
-const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string; setValue: Function; required: boolean }) => {
+const GenderRadio = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<any>; label: Path<any>; value: string; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
     const [form, setForm] = useState(value);
@@ -20,23 +19,16 @@ const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, requ
         [form]
     );
 
-    // 判斷是選擇 現在 或 指定時間
-    const timeTypes = [
-        { label: t("rightNowActivityOrder.radioTimeType.label_now"), value: "now" },
-        { label: t("rightNowActivityOrder.radioTimeType.label_chooseTime"), value: "chooseTime" },
+    // 性別選項
+    const genderOptions = [
+        { label: t("global.gender-male"), value: "male" },
+        { label: t("global.gender-female"), value: "female" },
     ];
 
     return (
         <div className="mt-[40px]">
-            <label
-                form={label}
-                className="text-gray-primary"
-            >
-                {t("rightNowActivityOrder.radioTimeType.label")} {required && <span className="text-primary">*</span>}
-            </label>
-
             <div className="flex my-[15px]">
-                {timeTypes.map((type, index) => (
+                {genderOptions.map((type, index) => (
                     <div
                         key={type.value}
                         className={`flex items-center justify-center ${index === 0 ? "mr-[20px]" : ""}`}
@@ -62,4 +54,4 @@ const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, requ
     );
 });
 
-export default OrderByRadioTimeType;
+export default GenderRadio;

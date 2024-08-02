@@ -95,7 +95,7 @@ const OrderByDueDateTimeTimePicker = memo(
                         .add(dayjs().minute(), "minute")
                         .toDate()
                 );
-                return dueDateSelect.getTime() < selectedDate.getTime();
+                return dueDateSelect.getTime() > selectedDate.getTime();
             }
             // 活動開始日期 加上 選擇的活動開始時辰
             const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
@@ -110,6 +110,7 @@ const OrderByDueDateTimeTimePicker = memo(
         };
 
         useEffect(() => {
+            console.log("due time =>", value);
             return setForm(value);
         }, [value]);
 
@@ -127,7 +128,7 @@ const OrderByDueDateTimeTimePicker = memo(
                     minTime={setHours(setMinutes(new Date(), 0), 0)}
                     maxTime={setHours(setMinutes(new Date(startDate), 60), 23)}
                     timeCaption={t("global.time")}
-                    dateFormat="h:mm aa"
+                    dateFormat="MM-dd h:mm aa"
                     filterTime={filterPassedTime}
                 />
             </>

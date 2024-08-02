@@ -1,11 +1,9 @@
 import * as yup from "yup";
 import { addDays, addHours } from "date-fns";
+import { TWPhoneRegex } from "@/config/regex.config";
 // 手機格式驗證
 export const formPhoneValiation = ({ requiredMessage, matchMessage }: { requiredMessage: string; matchMessage: string }) => {
-    return yup
-        .string()
-        .required(requiredMessage)
-        .matches(/^[1-9]\d{8}$/, requiredMessage);
+    return yup.string().required(requiredMessage).matches(TWPhoneRegex, requiredMessage);
 };
 // 密碼格式驗證
 export const formPasswordValiation = yup
