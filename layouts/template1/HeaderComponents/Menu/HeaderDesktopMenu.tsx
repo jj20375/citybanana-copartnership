@@ -48,6 +48,7 @@ export default function HeaderDesktopMenu({ menus, SubscriptionComponent }: any)
                             alt="logo"
                             width={200}
                             height={150}
+                            style={{ width: "200px", height: "auto" }}
                         />
                     </li>
                 </ul>

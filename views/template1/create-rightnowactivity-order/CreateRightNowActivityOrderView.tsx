@@ -38,7 +38,7 @@ import { isEmpty } from "@/service/utils";
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const state = useAppSelector((state) => {
-        return state;
+        return state.orderStore;
     });
     type FormValues = RightNowActivityOrderFormInterface;
     // 即刻快閃最少每小時單價
@@ -225,9 +225,11 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             // 設定 招募截止時間為當下時間往後推1小時為預設值
             return setValue(
                 "order.dueTime",
-                dayjs(dueDateValue)
-                    .add(dayjs().hour() + 1, "hours")
-                    .toDate()
+                startOfHour(
+                    dayjs(dueDateValue)
+                        .add(dayjs().hour() + 1, "hours")
+                        .toDate()
+                )
             );
         }
         /**
@@ -244,20 +246,20 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             const params: FormValues | any = {};
             for (const [key, value] of searchParams?.entries()) {
                 if (!isEmpty(value)) {
-                    console.log(key);
                     if (key === "duration") {
                         params[key] = Number(value);
                     } else if (key === "requiredProviderCount") {
                         params[key] = Number(value);
                     } else if (key === "price") {
                         params[key] = Number(value);
-                    } else if (key === "startDate") {
+                    } else if (key === "startDate" && !isEmpty(value)) {
                         params[key] = dayjs(value).toDate();
-                    } else if (key === "startTime") {
+                    } else if (key === "startTime" && !isEmpty(value)) {
                         params[key] = dayjs(value).toDate();
-                    } else if (key === "dueDate") {
+                    } else if (key === "dueDate" && !isEmpty(value)) {
+                        console.log("due date => ", value);
                         params[key] = dayjs(value).toDate();
-                    } else if (key === "dueTime") {
+                    } else if (key === "dueTime" && !isEmpty(value)) {
                         params[key] = dayjs(value).toDate();
                     } else {
                         params[key] = value;
@@ -271,6 +273,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             // setDefaultValue(params);
             if (Object.keys(params).length > 0) {
                 setValue("order", params);
+                console.log("have params =>", params);
             }
             // 需清空網址參數 才可讓其他的 監聽值 startDate or dueDate ...做觸發
             history.pushState(null, "", pathname);

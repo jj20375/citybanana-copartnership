@@ -22,7 +22,7 @@ import { addDays, getYear, getMonth, subDays, addHours } from "date-fns";
  * 招募截止日期 ui
  */
 const OrderByStartDateDatePicker = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null | undefined; setValue: Function; required: boolean }) => {
-    const state = useAppSelector((state) => state);
+    const state = useAppSelector((state) => state.orderStore);
     const { t } = useTranslation(lng, "main");
     // 設定日期套件語系
     switch (lng) {

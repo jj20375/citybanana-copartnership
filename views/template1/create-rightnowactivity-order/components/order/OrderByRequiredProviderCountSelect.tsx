@@ -13,7 +13,7 @@ import type { UseFormRegister, Path } from "react-hook-form";
 const OrderByRequiredProviderCountSelect = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: number; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
-    const state = useAppSelector((state) => state);
+    const state = useAppSelector((state) => state.orderStore);
 
     const [form, setForm] = useState(value);
 

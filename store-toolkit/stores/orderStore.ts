@@ -18,8 +18,8 @@ export const orderSlice = createSlice({
     },
 });
 
-const selectRightNowActivityConfiguration = (state: RootState) => state.orderStore.rightNowActivityConfiguration;
-
+const selectRightNowActivityConfiguration = (state: any) => state.rightNowActivityConfiguration;
+// console.log("selectRightNowActivityConfiguration =>", selectRightNowActivityConfiguration());
 // 即刻快閃預設預訂時數
 export const rightNowActivityDefaultHourDurationSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => {
     return Number(_find(state, { key: "demand_hour_default_duration" }) !== undefined ? _find(state, { key: "demand_hour_default_duration" }).value : null);
@@ -77,7 +77,7 @@ export const rightNowActivityDayMinPriceSelector = createDraftSafeSelector(selec
 export const rightNowActivityDayMaxPriceSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => Number(_find(state, { key: "demand_day_max_price" }).value));
 
 // 即刻快閃每小時單價選項
-export const rightNowActivityDefaultHourPriceSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => JSON.parse(_find(state, { key: "demand_default_hour_price" }).value));
+export const rightNowActivityDefaultHourPriceSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => (_find(state, { key: "demand_default_hour_price" }) !== undefined ? JSON.parse(_find(state, { key: "demand_default_hour_price" }).value) : null));
 
 // 即刻快閃每天單價選項
 export const rightNowActivityDefaultDayPriceSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => JSON.parse(_find(state, { key: "demand_default_day_price" }).value));

@@ -2,7 +2,6 @@
 
 import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityProviderMinRequiredSelector, rightNowActivityProviderMaxRequiredSelector } from "@/store-toolkit/stores/orderStore";
 import { RightNowActivityOrderFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
@@ -14,8 +13,6 @@ const { TextArea } = Input;
  */
 const OrderByNoteTextarea = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string | null | undefined; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
-
-    const state = useAppSelector((state) => state);
 
     const [form, setForm] = useState(value);
 

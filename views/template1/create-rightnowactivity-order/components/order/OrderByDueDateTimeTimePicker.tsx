@@ -84,19 +84,21 @@ const OrderByDueDateTimeTimePicker = memo(
         const filterPassedTime = (time: Date) => {
             const currentDate = new Date();
             let dueDateSelect = new Date(dayjs(dueDate).toDate());
+            // 時間選擇器的日期時間
+            const selectedDate = new Date(time);
+
             // 判斷開始時間等於現在時間需加上現在的時辰與分鐘時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
             if (dayjs(dueDateSelect).format("YYYY-MM-DD") === dayjs(currentDate).format("YYYY-MM-DD")) {
                 dueDateSelect = new Date(
                     dayjs(dueDateSelect)
-                        .add(dayjs().hour() + 1, "hour")
+                        .add(dayjs().hour() - 1, "hour")
                         .add(dayjs().minute(), "minute")
                         .toDate()
                 );
+                return dueDateSelect.getTime() < selectedDate.getTime();
             }
             // 活動開始日期 加上 選擇的活動開始時辰
             const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
-            // 時間選擇器的日期時間
-            const selectedDate = new Date(time);
             // 判斷當活動開始時間 > 招募截止時間 時觸發
             if (startDateTimeSelect.getTime() > dueDateSelect.getTime()) {
                 // 當活動日期 與招募截止日期同一天時觸發

@@ -10,7 +10,6 @@ import { WindowResizeContext } from "@/context/windowResizeContext";
 const SubscriptionComponent = dynamic(() => import("@/layouts/template1/HeaderComponents/Menu/HeaderSubscriptionMenu"));
 
 export default function HeaderMenu({ menus }: any) {
-    console.log("menu render =>");
     // const { device } = useContext(WindowResizeContext);
     const isMobile = useWidowResizeStore((state) => state.isMobile);
     if (isMobile) {
