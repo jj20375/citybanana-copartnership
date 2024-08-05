@@ -34,8 +34,10 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
     console.log("rerender client layout");
     const dispatch = useAppDispatch();
     const setUser = useUserStore((state) => state.setUser);
-    setUser(user);
-    dispatch(setUserProfile(user));
+    if (user !== undefined) {
+        setUser(user);
+        dispatch(setUserProfile(user));
+    }
     dispatch(setRightNowActivityConfiguration(configurationSettingsData));
     dispatch(setClientUiSettings(clientUiSettings));
     // 判斷有 token 在執行 取得 firebase token

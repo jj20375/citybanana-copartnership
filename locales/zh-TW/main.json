@@ -124,6 +124,10 @@
         "column-dueDate": "結束招募",
         "column-duration": "活動時長",
         "column-price": "活動費用",
-        "column-requiredProviderCount": "活動人數"
+        "column-requiredProviderCount": "活動人數",
+        "validation": {
+            "contactName_requiredErrMessage": "請輸入姓名",
+            "gender_requiredErrMessage": "請選擇性別"
+        }
     }
 }

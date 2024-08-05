@@ -4,21 +4,104 @@ import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useTranslation } from "@/i18n/i18n-client";
-
+import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import TitleCompoent from "../components/TitleComponent";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActivityOrder-service";
-import { RightNowActivityOrderFormInterface } from "../create-rightnowactivity-order/components/order/order-interface";
+import { RightNowActivityOrderPaymentFormInterface } from "./rightnowactivity-order-payment-interface";
 import { isEmpty } from "@/service/utils";
 import dayjs from "dayjs";
 import { isValid } from "date-fns";
 import Image from "next/image";
-
+import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
+import { userNameSelector, setUserProfile } from "@/store-toolkit/stores/userStore";
+import RightNowActivityOrderPaymentContactInput from "./components/RightNowActivityOrderPaymentContactInput";
+import GenderRadio from "../components/GenderRadio";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderPayment.title");
 
-    type FormValues = RightNowActivityOrderFormInterface;
+    const state = useAppSelector((state) => {
+        return state.userStore;
+    });
+
+    const dispatch = useAppDispatch();
+
+    const userName = userNameSelector(state);
+
+    type FormValues = RightNowActivityOrderPaymentFormInterface;
+
+    const paymentFormSchema = yup.object({
+        // 判斷是否需要輸入名稱
+        needName: yup.boolean(),
+        // 聯絡姓名
+        contactName: yup.string().when("needName", ([needName], schema) => {
+            return needName ? schema.required(t("rightNowActivityOrderPayment.validation.contactName_requiredErrMessage")) : schema.optional();
+        }),
+        // 性別
+        gender: yup.string<"male" | "female">().when("needName", ([needName], schema) => {
+            return needName ? schema.required(t("rightNowActivityOrderPayment.validation.gender_requiredErrMessage")) : schema.optional();
+        }),
+        // 付款方式
+        paymentMethod: yup.string(),
+    });
+
+    const [schema, setSchema]: any = useState(
+        yup
+            .object()
+            .shape({
+                payment: paymentFormSchema,
+            })
+            .required()
+    );
+
+    const {
+        register,
+        control,
+        handleSubmit,
+        watch,
+        getValues,
+        setValue,
+        clearErrors,
+        trigger,
+        formState: { errors },
+    } = useForm<FormValues>({
+        resolver: yupResolver(schema),
+        defaultValues: {
+            payment: {
+                needName: isEmpty(userName),
+                contactName: "",
+                gender: "male",
+                paymentMethod: "",
+            },
+        },
+    });
+
+    const contactNameValue = watch("payment.contactName");
+    const genderValue = watch("payment.gender");
+
+    /**
+     * submit 成功時往下一步
+     * @param data
+     */
+    const onSubmit: SubmitHandler<FormValues> = (data) => {
+        console.log("success form =>", data);
+        // onNextStepButtonClick();
+    };
+
+    const onError: SubmitErrorHandler<FormValues> = (errors) => {
+        console.log("error form =>", errors);
+        // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
+    };
+
+    const router = useRouter();
+    const onNextStepButtonClick = () => {
+        const origin = window.location.origin;
+        const params = new URLSearchParams(order as any).toString();
+        const host = `${origin}/${lng}/phone-validation`;
+        router.push(`${host}?${params}`);
+    };
+
     type DisplayOrder = {
         title: string;
         datas: {
@@ -99,6 +182,34 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         })}
                     </ul>
                 </div>
+                <form
+                    className="mt-[40px]"
+                    onSubmit={handleSubmit(onSubmit, onError)}
+                >
+                    <RightNowActivityOrderPaymentContactInput
+                        lng={lng}
+                        register={register}
+                        label="payment.contactName"
+                        value={contactNameValue}
+                        setValue={setValue}
+                        required={true}
+                    />
+                    <GenderRadio
+                        lng={lng}
+                        label="payment.gender"
+                        value={genderValue}
+                        setValue={setValue}
+                        register={register}
+                        required={true}
+                    />
+                    {errors.payment?.contactName && <p className="text-red-600 OpenSans">{errors.payment?.contactName.message}</p>}
+                    <button
+                        type="submit"
+                        className="border bg-blue-500 text-white p-2 border-blue-500 rounded-md"
+                    >
+                        測試 submit
+                    </button>
+                </form>
             </div>
             <pre>{JSON.stringify(displayOrder, null, 4)}</pre>
             <div className="h-[50px]"></div>

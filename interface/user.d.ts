@@ -130,8 +130,8 @@ export interface UserProfileInterface {
         custom_skills?: string[];
     };
     avatar?: string;
-    cover: string;
-    photos: {
+    cover?: string;
+    photos?: {
         id: string;
         url: null | string;
         sorting: number;
@@ -142,7 +142,7 @@ export interface UserProfileInterface {
         cover: null | string;
         sorting: number;
     }[];
-    thumbnails: {
+    thumbnails?: {
         avatar: {
             "360x360": string;
             "720x720": string;
@@ -161,13 +161,13 @@ export interface UserProfileInterface {
         };
     };
     // 是否開啟現金付款
-    enablePayByCash: 0 | 1;
-    matrices: {
+    enablePayByCash?: 0 | 1;
+    matrices?: {
         response_time: string;
         response_rate: string;
         num_of_cancel: number;
     };
-    categories: {
+    categories?: {
         id: number;
         name: string;
         pivot: {
@@ -182,12 +182,12 @@ export interface UserProfileInterface {
             updated_at: string;
         };
     }[];
-    facebook_user: null | any;
-    google_user: null | any;
-    line_user: null | any;
-    apple_user: null | any;
+    facebook_user?: null | any;
+    google_user?: null | any;
+    line_user?: null | any;
+    apple_user?: null | any;
     // 標籤名稱
-    badges: {
+    badges?: {
         id: number;
         name: string;
         pivot: {
@@ -196,7 +196,7 @@ export interface UserProfileInterface {
         };
     }[];
     // 可參與活動
-    activities: {
+    activities?: {
         id: number;
         name: string;
         icons: {
@@ -213,7 +213,7 @@ export interface UserProfileInterface {
             activity_id: number;
         };
     }[];
-    skills: {
+    skills?: {
         id: number;
         name: string;
         icons: {
@@ -229,7 +229,7 @@ export interface UserProfileInterface {
             skill_id: number;
         };
     }[];
-    languages: any[];
+    languages?: any[];
     // 服務商經紀
-    broker: null | any;
+    broker?: null | any;
 }

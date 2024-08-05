@@ -23,9 +23,9 @@ export default function Page({ params: { id } }: { params: { id: string } }) {
         return state.authStore.authState;
     });
     const state = useAppSelector((state) => {
-        return state;
+        return state.userStore;
     });
-    const userProfile = useAppSelector((state) => state.userStore.user);
+    const userProfile = useAppSelector((state) => state);
     const dispatch = useAppDispatch();
     const userName = userNameSelector(state);
     const userBananaId = userBananaIdSelector(state);

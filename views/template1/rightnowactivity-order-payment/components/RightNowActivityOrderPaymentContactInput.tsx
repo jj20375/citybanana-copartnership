@@ -11,17 +11,17 @@ import { useTranslation } from "@/i18n/i18n-client";
  */
 
 const RightNowActivityOrderPaymentContactInput = memo(
-    ({ lng, register, nameLabel, parentName, setParentName }: { lng: string; register: UseFormRegister<RightNowActivityOrderPaymentFormInterface>; nameLabel: Path<RightNowActivityOrderPaymentFormInterface>; parentName: string; setParentName: Function }) => {
+    ({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderPaymentFormInterface>; label: Path<RightNowActivityOrderPaymentFormInterface>; value: string | undefined; setValue: Function; required: boolean }) => {
         const { t } = useTranslation(lng, "main");
 
-        const [name, setName] = useState<null | string>(parentName);
+        const [name, setName] = useState<null | string | undefined>(value);
 
         const handleNameChange = useCallback(
             (event: any) => {
                 const { name, value } = event.target;
                 if (value.length <= 10) {
                     setName(value);
-                    setParentName(nameLabel, value);
+                    setValue(label, value);
                 }
             },
             [name]
@@ -40,13 +40,14 @@ const RightNowActivityOrderPaymentContactInput = memo(
                 <div className={styles["rightnowactivity-order-payment-contact-input"]}>
                     <label
                         className="block mb-[15px]"
-                        htmlFor={nameLabel}
+                        htmlFor={label}
                     >
                         {t("rightNowActivityOrderPayment.contactName")}
+                        {required && <span className="text-primary">*</span>}
                     </label>
                     <Input
-                        id={nameLabel}
-                        {...register(nameLabel)}
+                        id={label}
+                        {...register(label)}
                         type="text"
                         name="name"
                         onChange={handleNameChange}

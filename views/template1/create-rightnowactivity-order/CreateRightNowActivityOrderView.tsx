@@ -55,7 +55,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     // 即刻快閃最多預訂時數
     const rightNowActivityHourMaxDuration = rightNowActivityHourMaxDurationSelector(state);
 
-    const formSchema = {
+    const formSchema = yup.object({
         // 每小時單價驗證
         price: yup
             .number()
@@ -86,12 +86,25 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             .required("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_reqiredErrMessage")
             .min(rightNowActivityProviderMinRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_minErrMessage", { val: rightNowActivityProviderMinRequired }))
             .max(rightNowActivityProviderMaxRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_maxErrMessage", { val: rightNowActivityProviderMaxRequired })),
-    };
+
+        startDate: yup.date().when("timeType", ([timeType], schema) => {
+            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.startDateDatePicker.validation.startDate_reqiredErrMessage")) : schema.optional();
+        }),
+        startTime: yup.date().when("timeType", ([timeType], schema) => {
+            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.startTimeTimePicker.validation.startTime_reqiredErrMessage")) : schema.optional();
+        }),
+        dueDate: yup.date().when("timeType", ([timeType], schema) => {
+            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.dueDateDatePicker.validation.dueDate_reqiredErrMessage")) : schema.optional();
+        }),
+        dueTime: yup.date().when("timeType", ([timeType], schema) => {
+            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.dueDateTime.validation.dueTime_reqiredErrMessage")) : schema.optional();
+        }),
+    });
     const [schema, setSchema]: any = useState(
         yup
             .object()
             .shape({
-                order: yup.object().shape(formSchema),
+                order: formSchema,
             })
             .required()
     );
@@ -125,35 +138,6 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 
     // 網址參數
     const searchParams: any = useSearchParams();
-
-    useEffect(() => {
-        if (timeTypeValue === "chooseTime") {
-            const newSchema = {
-                ...formSchema,
-                startDate: yup.date().required(t("rightNowActivityOrder.startDateDatePicker.validation.startDate_reqiredErrMessage")),
-                startTime: yup.date().required(t("rightNowActivityOrder.startTimeTimePicker.validation.startTime_reqiredErrMessage")),
-                dueDate: yup.date().required(t("rightNowActivityOrder.dueDateDatePicker.validation.dueDate_reqiredErrMessage")),
-                dueTime: yup.date().required(t("rightNowActivityOrder.dueDateTime.validation.dueTime_reqiredErrMessage")),
-            };
-            setSchema(
-                yup
-                    .object()
-                    .shape({
-                        order: yup.object().shape(newSchema),
-                    })
-                    .required()
-            );
-        } else {
-            setSchema(
-                yup
-                    .object()
-                    .shape({
-                        order: yup.object().shape(formSchema),
-                    })
-                    .required()
-            );
-        }
-    }, [timeTypeValue]);
 
     useEffect(() => {
         // 清空表單驗證 否則假設 有選擇了 日期資料後 會無法改變 按鈕 disabled 狀態

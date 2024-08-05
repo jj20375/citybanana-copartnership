@@ -18,7 +18,7 @@ export interface UserStore {
 
 const initialState: UserStore | any = {
     user: {
-        name: "",
+        name: "123",
         banana_id: "",
         wallet: {},
     },
@@ -112,13 +112,13 @@ export const userSlice = createSlice({
     },
 });
 
-const selectSelf = (state: RootState) => state.userStore.user;
+const selectSelf = (state: any) => state.user;
 
 export const userNameSelector = createDraftSafeSelector(selectSelf, (state) => {
-    return state.name;
+    return state?.name;
 });
 export const userBananaIdSelector = createDraftSafeSelector(selectSelf, (state) => {
-    return state.banana_id;
+    return state?.banana_id;
 });
 
 export const { setUserProfile, setIsProvider, setIsVisitor, getAuth } = userSlice.actions;

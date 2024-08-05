@@ -1,9 +1,15 @@
-// 付款畫面表單驗證 interface
+/**
+ * 即刻快閃付款資料
+ */
 export interface RightNowActivityOrderPaymentFormInterface {
-    form: {
+    payment: {
+        // 判斷是否需要輸入姓名
+        needName: boolean;
         // 聯絡姓名
-        name?: string;
+        contactName?: string;
         // 性別
-        gender?: string;
+        gender?: "female" | "male" | null;
+        // 付款方式
+        paymentMethod: string;
     };
 }
