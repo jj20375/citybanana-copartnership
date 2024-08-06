@@ -2,7 +2,7 @@
 import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -34,8 +34,8 @@ const OrderByDueDateTimeTimePicker = memo(
         dueDate,
     }: {
         lng: string;
-        register: UseFormRegister<RightNowActivityOrderFormInterface>;
-        label: Path<RightNowActivityOrderFormInterface>;
+        register: UseFormRegister<RightNowActivityOrderCreateFormInterface>;
+        label: Path<RightNowActivityOrderCreateFormInterface>;
         value: Date | null | undefined;
         setValue: Function;
         required: boolean;

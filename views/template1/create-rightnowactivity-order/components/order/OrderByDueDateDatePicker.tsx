@@ -2,7 +2,7 @@
 import { memo, useState, useCallback, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -19,7 +19,23 @@ import "dayjs/locale/en"; // 引入西班牙文
 import { addDays, getYear, getMonth, subDays, addHours } from "date-fns";
 
 const OrderByDueDateDatePicker = memo(
-    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null | undefined; setValue: Function; required: boolean; startDate: Date }) => {
+    ({
+        lng,
+        register,
+        label,
+        value,
+        setValue,
+        required,
+        startDate,
+    }: {
+        lng: string;
+        register: UseFormRegister<RightNowActivityOrderCreateFormInterface>;
+        label: Path<RightNowActivityOrderCreateFormInterface>;
+        value: Date | null | undefined;
+        setValue: Function;
+        required: boolean;
+        startDate: Date;
+    }) => {
         const state = useAppSelector((state) => state);
         const { t } = useTranslation(lng, "main");
         // 設定日期套件語系

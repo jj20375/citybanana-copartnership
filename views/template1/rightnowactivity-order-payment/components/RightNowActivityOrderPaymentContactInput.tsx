@@ -39,7 +39,7 @@ const RightNowActivityOrderPaymentContactInput = memo(
             <>
                 <div className={styles["rightnowactivity-order-payment-contact-input"]}>
                     <label
-                        className="block mb-[15px]"
+                        className="block mb-[15px] font-bold text-lg-content"
                         htmlFor={label}
                     >
                         {t("rightNowActivityOrderPayment.contactName")}

@@ -17,7 +17,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { RightNowActivityOrderFormInterface } from "./components/order/order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./components/order/order-interface";
 import OrderByPriceInput from "./components/order/OrderByPriceInput";
 import OrderByDurationSelect from "./components/order/OrderByDurationSelect";
 import OrderByRadioTimeType from "./components/order/OrderByRadioTimeType";
@@ -41,7 +41,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const state = useAppSelector((state) => {
         return state.orderStore;
     });
-    type FormValues = RightNowActivityOrderFormInterface;
+    type FormValues = RightNowActivityOrderCreateFormInterface;
     // 即刻快閃最少每小時單價
     const rightNowActivityHourMinPrice = rightNowActivityHourMinPriceSelector(state);
     // 即刻快閃最多每小時單價
@@ -87,18 +87,30 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             .min(rightNowActivityProviderMinRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_minErrMessage", { val: rightNowActivityProviderMinRequired }))
             .max(rightNowActivityProviderMaxRequired, t("rightNowActivityOrder.requiredProviderCount.validation.requiredProviderCount_maxErrMessage", { val: rightNowActivityProviderMaxRequired })),
 
-        startDate: yup.date().when("timeType", ([timeType], schema) => {
-            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.startDateDatePicker.validation.startDate_reqiredErrMessage")) : schema.optional();
-        }),
-        startTime: yup.date().when("timeType", ([timeType], schema) => {
-            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.startTimeTimePicker.validation.startTime_reqiredErrMessage")) : schema.optional();
-        }),
-        dueDate: yup.date().when("timeType", ([timeType], schema) => {
-            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.dueDateDatePicker.validation.dueDate_reqiredErrMessage")) : schema.optional();
-        }),
-        dueTime: yup.date().when("timeType", ([timeType], schema) => {
-            return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.dueDateTime.validation.dueTime_reqiredErrMessage")) : schema.optional();
-        }),
+        startDate: yup
+            .date()
+            .nullable()
+            .when("timeType", ([timeType], schema) => {
+                return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.startDateDatePicker.validation.startDate_reqiredErrMessage")) : schema.optional();
+            }),
+        startTime: yup
+            .date()
+            .nullable()
+            .when("timeType", ([timeType], schema) => {
+                return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.startTimeTimePicker.validation.startTime_reqiredErrMessage")) : schema.optional();
+            }),
+        dueDate: yup
+            .date()
+            .nullable()
+            .when("timeType", ([timeType], schema) => {
+                return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.dueDateDatePicker.validation.dueDate_reqiredErrMessage")) : schema.optional();
+            }),
+        dueTime: yup
+            .date()
+            .nullable()
+            .when("timeType", ([timeType], schema) => {
+                return timeType === "chooseTime" ? schema.required(t("rightNowActivityOrder.dueDateTime.validation.dueTime_reqiredErrMessage")) : schema.optional();
+            }),
     });
     const [schema, setSchema]: any = useState(
         yup
@@ -152,7 +164,8 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 2. 招募截止日期 = 活動開始日期
          * 3. 招募截止時間 = 活動開始時間
          */
-        if (dayjs(startDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD")) {
+        if (dayjs(startDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && !isEmpty(startDateValue)) {
+            alert(JSON.stringify(startDateValue));
             // 設定 活動開始時間為當下時間往後推1小時為預設值
             setValue(
                 "order.startTime",
@@ -166,15 +179,17 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             setValue("order.dueTime", startTimeValue);
             return;
         }
-        /**
-         * 當活動開始日期大於當天時
-         * 1. 活動開始時間為活動日期當天的中午12點整
-         * 2. 招募截止日期為活動開始日期
-         * 3. 招募截止時間為活動開始時間
-         */
-        setValue("order.startTime", dayjs(startDateValue).add(12, "hours").toDate());
-        setValue("order.dueDate", addDays(new Date(), 1));
-        setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
+        if (!isEmpty(startDateValue)) {
+            /**
+             * 當活動開始日期大於當天時
+             * 1. 活動開始時間為活動日期當天的中午12點整
+             * 2. 招募截止日期為活動開始日期
+             * 3. 招募截止時間為活動開始時間
+             */
+            setValue("order.startTime", dayjs(startDateValue).add(12, "hours").toDate());
+            setValue("order.dueDate", addDays(new Date(), 1));
+            setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
+        }
         return;
     }, [startDateValue]);
 
@@ -188,7 +203,9 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
         if (startTimeValue! > addHours(new Date(), 24)) {
             return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
         }
-        return setValue("order.dueTime", startTimeValue);
+        if (!isEmpty(startTimeValue)) {
+            return setValue("order.dueTime", startTimeValue);
+        }
     }, [startTimeValue]);
 
     useEffect(() => {
@@ -205,15 +222,17 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 當招募日期等於當天時
          * 1. 設定 招募截止時間為當下時間往後推1小時為預設值
          */
-        if (dayjs(dueDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD")) {
+        if (dayjs(dueDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && !isEmpty(dueDateValue)) {
             // 設定 招募截止時間為當下時間往後推1小時為預設值
             return setValue("order.dueTime", startOfHour(addHours(new Date(dueDateValue as Date), 1)));
         }
-        /**
-         * 當招募截止日期大於當天時間時
-         * 1. 招募截止時間為招募截止日期當天的中午12點整
-         */
-        return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
+        if (!isEmpty(dueDateValue)) {
+            /**
+             * 當招募截止日期大於當天時間時
+             * 1. 招募截止時間為招募截止日期當天的中午12點整
+             */
+            return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
+        }
     }, [dueDateValue]);
 
     const pathname = usePathname();

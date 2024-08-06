@@ -12,7 +12,9 @@
         "nextStep": "下一步",
         "prevStep": "上一步",
         "gender-male": "先生",
-        "gender-female": "女士"
+        "gender-female": "女士",
+        "paymentMethod-cash": "現金付款",
+        "paymentMethod-credit": "信用卡付款"
     },
     "index": {
         "title": "超級約妹引擎",
@@ -117,6 +119,7 @@
     "rightNowActivityOrderPayment": {
         "title": "確認付款及聯絡資訊",
         "contactName": "聯絡人姓名",
+        "paymentMethod": "選擇付款方式",
         "startTime-now": "服務商到場時間",
         "dueTime-now": "{{minute}} 分鐘後",
         "price-0": "依照服務商報價",
@@ -125,9 +128,25 @@
         "column-duration": "活動時長",
         "column-price": "活動費用",
         "column-requiredProviderCount": "活動人數",
+        "prevStep": "修改訂單資訊",
         "validation": {
             "contactName_requiredErrMessage": "請輸入姓名",
-            "gender_requiredErrMessage": "請選擇性別"
+            "gender_requiredErrMessage": "請選擇性別",
+            "paymentMethod_requiredErrMessage": "請選擇付款方式"
         }
+    },
+    "creditCardForm": {
+        "cardNo": {
+            "label": "卡號"
+        },
+        "exp": {
+            "label": "有效日期"
+        },
+        "cvc": {
+            "label": "安全碼"
+        }
+    },
+    "rightNowActivityOrderDetail": {
+        "title": "活動明細"
     }
 }

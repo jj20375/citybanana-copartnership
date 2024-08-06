@@ -10,6 +10,6 @@ export interface RightNowActivityOrderPaymentFormInterface {
         // 性別
         gender?: "female" | "male" | null;
         // 付款方式
-        paymentMethod: string;
+        paymentMethod: "cash" | "credit";
     };
 }

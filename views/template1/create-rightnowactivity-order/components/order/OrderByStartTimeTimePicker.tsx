@@ -3,7 +3,7 @@
 import { memo, useState, useEffect, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -23,7 +23,23 @@ import { addDays, getYear, getMonth, subDays, addHours, setHours, setMinutes } f
  * 活動開始時間 ui
  */
 const OrderByStartTimeTimePicker = memo(
-    ({ lng, register, label, value, setValue, required, startDate }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: Date | null | undefined; setValue: Function; required: boolean; startDate: Date | null }) => {
+    ({
+        lng,
+        register,
+        label,
+        value,
+        setValue,
+        required,
+        startDate,
+    }: {
+        lng: string;
+        register: UseFormRegister<RightNowActivityOrderCreateFormInterface>;
+        label: Path<RightNowActivityOrderCreateFormInterface>;
+        value: Date | null | undefined;
+        setValue: Function;
+        required: boolean;
+        startDate: Date | null;
+    }) => {
         console.log("OrderByStartTimeTimePicker redner =>", value);
         const { t } = useTranslation(lng, "main");
         // 設定日期套件語系

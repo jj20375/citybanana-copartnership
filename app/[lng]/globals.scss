@@ -36,6 +36,10 @@ body {
     font-family: var(--font-open-sans);
 }
 
+.DisabledBg {
+    @apply disabled:bg-gray-light disabled:cursor-not-allowed disabled:text-white;
+}
+
 .PrimaryGradient {
     @apply bg-gradient-to-r from-primary to-secondary;
 }

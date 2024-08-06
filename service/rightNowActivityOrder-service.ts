@@ -18,7 +18,7 @@ export function setRightNowActivityDefaultValuesByParams(searchParams: any) {
                     params[key] = dayjs(value).toDate();
                 } else if (key === "startTime" && !isEmpty(value)) {
                     params[key] = dayjs(value).toDate();
-                } else if (key === "dueDate" && !isEmpty(value)) {
+                } else if (key === "dueDate" && (!isEmpty(value) || value !== undefined)) {
                     console.log("due date => ", value);
                     params[key] = dayjs(value).toDate();
                 } else if (key === "dueTime" && !isEmpty(value)) {

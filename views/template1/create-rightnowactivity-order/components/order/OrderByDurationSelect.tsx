@@ -4,13 +4,13 @@ import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityHourMaxDurationSelector, rightNowActivityHourMinDurationSelector } from "@/store-toolkit/stores/orderStore";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**
  * 活動時長下拉選擇 ui
  */
-const OrderByDurationSelect = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: number; setValue: Function; required: boolean }) => {
+const OrderByDurationSelect = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderCreateFormInterface>; label: Path<RightNowActivityOrderCreateFormInterface>; value: number; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
     const state = useAppSelector((state) => state.orderStore);

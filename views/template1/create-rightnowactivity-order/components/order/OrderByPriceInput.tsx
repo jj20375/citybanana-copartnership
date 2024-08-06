@@ -4,13 +4,13 @@ import { memo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { rightNowActivityDefaultHourPriceSelector } from "@/store-toolkit/stores/orderStore";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**
  * 活動出席費輸入框與按鈕 ui
  */
-const OrderByPriceInput = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: number; setValue: Function; required: boolean }) => {
+const OrderByPriceInput = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderCreateFormInterface>; label: Path<RightNowActivityOrderCreateFormInterface>; value: number; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
     const state = useAppSelector((state) => state.orderStore);

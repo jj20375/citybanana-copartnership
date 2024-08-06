@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useState, useCallback, useRef, useEffect, useMemo } from "react";
 import { useForm, Controller } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -15,8 +15,13 @@ import { isValid } from "date-fns";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { userNameSelector, setUserProfile } from "@/store-toolkit/stores/userStore";
+import { RightNowActivityOrderFormInterface } from "../create-rightnowactivity-order/components/order/order-interface";
+import ContactWe from "../components/ContactWe";
 import RightNowActivityOrderPaymentContactInput from "./components/RightNowActivityOrderPaymentContactInput";
 import GenderRadio from "../components/GenderRadio";
+import CreditCardForm from "../components/CreditCardForm";
+import PaymentMethodsRadio from "../components/PaymentMethodsRadio";
+import ButtonBorderGradient from "../components/ButtonBorderGradient";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderPayment.title");
@@ -30,6 +35,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const userName = userNameSelector(state);
 
     type FormValues = RightNowActivityOrderPaymentFormInterface;
+    type OrderFormValues = RightNowActivityOrderFormInterface;
 
     const paymentFormSchema = yup.object({
         // 判斷是否需要輸入名稱
@@ -43,7 +49,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             return needName ? schema.required(t("rightNowActivityOrderPayment.validation.gender_requiredErrMessage")) : schema.optional();
         }),
         // 付款方式
-        paymentMethod: yup.string(),
+        paymentMethod: yup.string<"cash" | "credit">().required("rightNowActivityOrderPayment.validation.paymentMethod_requiredErrMessage"),
     });
 
     const [schema, setSchema]: any = useState(
@@ -56,6 +62,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     );
 
     const {
+        reset,
         register,
         control,
         handleSubmit,
@@ -72,13 +79,14 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                 needName: isEmpty(userName),
                 contactName: "",
                 gender: "male",
-                paymentMethod: "",
+                paymentMethod: "cash",
             },
         },
     });
 
     const contactNameValue = watch("payment.contactName");
     const genderValue = watch("payment.gender");
+    const paymentMethodValue = watch("payment.paymentMethod");
 
     /**
      * submit 成功時往下一步
@@ -86,7 +94,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
      */
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log("success form =>", data);
-        // onNextStepButtonClick();
+        onNextStepButtonClick();
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {
@@ -96,10 +104,20 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
 
     const router = useRouter();
     const onNextStepButtonClick = () => {
+        reset();
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
-        const host = `${origin}/${lng}/phone-validation`;
-        router.push(`${host}?${params}`);
+        const host = `${origin}/${lng}/rightnowactivity-order/1`;
+        router.push(`/rightnowactivity-order/1`);
+    };
+
+    // 上一步按鈕事件
+    const onPrevStepButtonClick = () => {
+        reset();
+        const origin = window.location.origin;
+        const host = `${origin}/${lng}/create-rightnowactivity-order`;
+        router.push(`${host}?${searchParams.toString()}`);
+        return;
     };
 
     type DisplayOrder = {
@@ -113,8 +131,16 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     // 網址參數
     const searchParams: any = useSearchParams();
 
-    const [order, setOrder] = useState<FormValues | null>(null);
+    // 訂單資料
+    const [order, setOrder] = useState<OrderFormValues>();
+    // 顯示用的訂單資料
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
+
+    const total = useMemo(() => {
+        const priceValue = isEmpty(order) ? 0 : order!.price;
+        const durationValue = isEmpty(order) ? 0 : order!.duration;
+        return priceValue * durationValue;
+    }, [order?.price, order?.duration]);
 
     useEffect(() => {
         // 判斷有網址參數時 需給表單填上預設值
@@ -123,7 +149,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             const params = setRightNowActivityDefaultValuesByParams(searchParams);
             if (Object.keys(params).length > 0) {
                 setOrder(params);
-                console.log("isValid(params.startDate) => ", isValid(params.startDate));
                 setDisplayOrder({
                     title: "海底撈火鍋-京站店",
                     datas: [
@@ -141,7 +166,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         },
                         {
                             label: t("rightNowActivityOrderPayment.column-price"),
-                            value: params.price > 0 ? t("global.price", { val: params.price }) : t("rightNowActivityOrderPayment.price-0"),
+                            value: params.price > 0 ? t("rightNowActivityOrder.price", { val: params.price * params.duration }) : t("rightNowActivityOrderPayment.price-0"),
                         },
                         {
                             label: t("rightNowActivityOrderPayment.column-requiredProviderCount"),
@@ -176,7 +201,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                                     key={item.value}
                                     className="mb-[5px]"
                                 >
-                                    <span className="text-gray-third  text-lg-content mr-[10px]">{item.label}</span> <span className="text-gray-primary text-lg-content">{item.value}</span>
+                                    <span className="text-gray-third  text-lg-content mr-[10px]">{item.label}</span> <span className="text-gray-primary text-lg-content OpenSans">{item.value}</span>
                                 </li>
                             );
                         })}
@@ -194,6 +219,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         setValue={setValue}
                         required={true}
                     />
+                    {errors.payment?.contactName && <p className="text-red-600 OpenSans">{errors.payment?.contactName.message}</p>}
                     <GenderRadio
                         lng={lng}
                         label="payment.gender"
@@ -201,15 +227,44 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         setValue={setValue}
                         register={register}
                         required={true}
+                        customClass="pt-[15px]"
                     />
-                    {errors.payment?.contactName && <p className="text-red-600 OpenSans">{errors.payment?.contactName.message}</p>}
-                    <button
-                        type="submit"
-                        className="border bg-blue-500 text-white p-2 border-blue-500 rounded-md"
-                    >
-                        測試 submit
-                    </button>
+                    <PaymentMethodsRadio
+                        lng={lng}
+                        label="payment.paymentMethod"
+                        value={paymentMethodValue}
+                        setValue={setValue}
+                        register={register}
+                        required={true}
+                        customClass="mt-[40px]"
+                    />
+                    <CreditCardForm
+                        lng={lng}
+                        required={true}
+                    />
+                    <div className="border-b border-gray-primary mt-[40px] flex items-end">
+                        <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
+                        <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
+                    </div>
+                    <div className="flex flex-col text-lg-content mt-[40px]">
+                        <ButtonBorderGradient
+                            onClick={handleSubmit(onSubmit, onError)}
+                            buttonText={t("global.nextStep")}
+                            outsideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"}  p-px rounded-md w-full`}
+                            insideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"} rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px]`}
+                            isDisabled={false}
+                        />
+                        <button
+                            type="button"
+                            onClick={onPrevStepButtonClick}
+                            disabled={false}
+                            className="mt-[15px] DisabledBg border bg-white border-primary rounded-md w-full h-[45px] text-primary"
+                        >
+                            {t("rightNowActivityOrderPayment.prevStep")}
+                        </button>
+                    </div>
                 </form>
+                <ContactWe lng={lng} />
             </div>
             <pre>{JSON.stringify(displayOrder, null, 4)}</pre>
             <div className="h-[50px]"></div>

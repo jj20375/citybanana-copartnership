@@ -1,13 +1,13 @@
 "use client";
 import { memo, useState, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { RightNowActivityOrderFormInterface } from "./order-interface";
+import { RightNowActivityOrderCreateFormInterface } from "./order-interface";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**
  * 活動開始時間 為 現在 或者 指定時間 ui
  */
-const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderFormInterface>; label: Path<RightNowActivityOrderFormInterface>; value: string; setValue: Function; required: boolean }) => {
+const OrderByRadioTimeType = memo(({ lng, register, label, value, setValue, required }: { lng: string; register: UseFormRegister<RightNowActivityOrderCreateFormInterface>; label: Path<RightNowActivityOrderCreateFormInterface>; value: string; setValue: Function; required: boolean }) => {
     const { t } = useTranslation(lng, "main");
 
     const [form, setForm] = useState(value);

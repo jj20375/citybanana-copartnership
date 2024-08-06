@@ -4,9 +4,9 @@ import { useTranslation } from "@/i18n/i18n-client";
 import type { UseFormRegister, Path } from "react-hook-form";
 
 /**
- * 性別選項 ui
+ * 付款方式 ui
  */
-const GenderRadio = memo(({ lng, register, label, value, setValue, required, customClass }: { lng: string; register: UseFormRegister<any>; label: Path<any>; value: string | null | undefined; setValue: Function; required: boolean; customClass?: string | void }) => {
+const PaymentMethodsRadio = memo(({ lng, register, label, value, setValue, required, customClass }: { lng: string; register: UseFormRegister<any>; label: Path<any>; value: string | null | undefined; setValue: Function; required: boolean; customClass?: string | void }) => {
     const { t } = useTranslation(lng, "main");
 
     const [form, setForm] = useState(value);
@@ -19,18 +19,25 @@ const GenderRadio = memo(({ lng, register, label, value, setValue, required, cus
         [form]
     );
 
-    // 性別選項
-    const genderOptions = [
-        { label: t("global.gender-male"), value: "male" },
-        { label: t("global.gender-female"), value: "female" },
+    // 付款方式選項
+    const paymentMethodOptions = [
+        { label: t("global.paymentMethod-cash"), value: "cash" },
+        { label: t("global.paymentMethod-credit"), value: "credit" },
     ];
 
     return (
-        <div className={`flex ${customClass}`}>
-            {genderOptions.map((type, index) => (
+        <div className={`flex flex-col ${customClass}`}>
+            <label
+                className="block mb-[15px] font-bold text-lg-content"
+                htmlFor={label}
+            >
+                {t("rightNowActivityOrderPayment.paymentMethod")}
+                {required && <span className="text-primary">*</span>}
+            </label>
+            {paymentMethodOptions.map((type, index) => (
                 <div
                     key={type.value}
-                    className={`flex items-center justify-center ${index === 0 ? "mr-[20px]" : ""}`}
+                    className={`flex items-center justify-start ${index === 0 ? "mt-[5px]" : "mt-[16px]"}`}
                 >
                     <div
                         id={type.value}
@@ -52,4 +59,4 @@ const GenderRadio = memo(({ lng, register, label, value, setValue, required, cus
     );
 });
 
-export default GenderRadio;
+export default PaymentMethodsRadio;
