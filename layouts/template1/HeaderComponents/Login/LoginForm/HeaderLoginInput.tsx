@@ -1,3 +1,4 @@
+"use client";
 import { useForm, Controller, SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import DatePicker from "react-datepicker";
@@ -8,6 +9,7 @@ import dayjs from "dayjs";
 import { addYears } from "date-fns";
 import { countryCodes } from "@/config/country-codes.config";
 import { useCallback, useEffect, useState } from "react";
+import { useTranslation } from "@/i18n/i18n-client";
 import { formPhoneValiation, formPasswordValiation, formCheckPhoneHaveFirstZero, formCheckCountryCodeResetPhoneValidation } from "@/service/form-validate";
 
 type FormValues = {
@@ -21,10 +23,11 @@ type FormValues = {
 // 設置最小日期為 18 年前
 const eighteenYearsAgo = addYears(new Date(), -18);
 
-export default function HeaderLoginInput() {
+export default async function HeaderLoginInput() {
+    const { t } = useTranslation("zh-TW", "main");
     const formSchema = {
         countryCode: yup.string().required("國家代碼為必填"),
-        phone: formPhoneValiation,
+        phone: formPhoneValiation({ requiredMessage: t("phoneValidation.phoneInput.validation.phone_requiredErrMessage"), matchMessage: t("phoneValidation.phoneInput.validation.phone_matchErrMessage") }),
         password: formPasswordValiation,
     };
     const [schema, setSchema]: any = useState(

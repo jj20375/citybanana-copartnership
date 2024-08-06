@@ -4,7 +4,7 @@ import { GetIndexAPI2 } from "@/api/userAPI";
 import { Button } from "antd";
 import useWidowResizeStore from "@/store-zustand/widowResizeStore";
 import { useTranslation } from "@/i18n/i18n-client";
-export default function Page({ lng }: { lng: string }) {
+export default function Page({ params: { lng, slug } }: { params: { lng: string; slug: string } }) {
     console.log("rerender work5");
     const { t } = useTranslation(lng, "main");
 

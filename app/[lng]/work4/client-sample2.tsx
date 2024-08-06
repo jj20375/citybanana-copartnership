@@ -1,5 +1,4 @@
 "use client";
-import { signIn, auth } from "@/auth";
 import { useEffect, Suspense, useState, useCallback } from "react";
 import useUserStore from "@/store-zustand/userStore";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
@@ -21,11 +20,21 @@ function FormPage() {
     return (
         <div>
             <div className="mb-2 text-black">
-                <input className="text-black" value={form.phone} onChange={handleFormChagne} name="phone" />
+                <input
+                    className="text-black"
+                    value={form.phone}
+                    onChange={handleFormChagne}
+                    name="phone"
+                />
                 <div className="text-white">{form.phone}</div>
             </div>
             <div className="text-black">
-                <input className="text-black" value={form.password} onChange={handleFormChagne} name="password" />
+                <input
+                    className="text-black"
+                    value={form.password}
+                    onChange={handleFormChagne}
+                    name="password"
+                />
                 <div className="text-white">{form.password}</div>
             </div>
         </div>
