@@ -238,32 +238,34 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         required={true}
                         customClass="mt-[40px]"
                     />
-                    <CreditCardForm
-                        lng={lng}
-                        required={true}
-                    />
-                    <div className="border-b border-gray-primary mt-[40px] flex items-end">
-                        <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
-                        <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
-                    </div>
-                    <div className="flex flex-col text-lg-content mt-[40px]">
-                        <ButtonBorderGradient
-                            onClick={handleSubmit(onSubmit, onError)}
-                            buttonText={t("global.nextStep")}
-                            outsideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"}  p-px rounded-md w-full`}
-                            insideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"} rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px]`}
-                            isDisabled={false}
-                        />
-                        <button
-                            type="button"
-                            onClick={onPrevStepButtonClick}
-                            disabled={false}
-                            className="mt-[15px] DisabledBg border bg-white border-primary rounded-md w-full h-[45px] text-primary"
-                        >
-                            {t("rightNowActivityOrderPayment.prevStep")}
-                        </button>
-                    </div>
                 </form>
+                <CreditCardForm
+                    lng={lng}
+                    required={true}
+                    customClass="mt-[15px]"
+                />
+                <div className="border-b border-gray-primary mt-[40px] flex items-end">
+                    <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
+                    <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
+                </div>
+                <div className="flex flex-col text-lg-content mt-[40px]">
+                    <ButtonBorderGradient
+                        onClick={handleSubmit(onSubmit, onError)}
+                        buttonText={t("global.nextStep")}
+                        outsideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"}  p-px rounded-md w-full`}
+                        insideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"} rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px]`}
+                        isDisabled={false}
+                    />
+                    <button
+                        type="button"
+                        onClick={onPrevStepButtonClick}
+                        disabled={false}
+                        className="mt-[15px] DisabledBg border bg-white border-primary rounded-md w-full h-[45px] text-primary"
+                    >
+                        {t("rightNowActivityOrderPayment.prevStep")}
+                    </button>
+                </div>
+
                 <ContactWe lng={lng} />
             </div>
             <pre>{JSON.stringify(displayOrder, null, 4)}</pre>

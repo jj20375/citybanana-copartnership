@@ -60,3 +60,33 @@ export const formatMillionByRightNowActivityPrice = (val: undefined | number) =>
     });
     return num;
 };
+
+// 轉換信用卡顯示方式
+export const formatCardNumber = (value: string | any) => {
+    // 移除非數字字串
+    value = value.replace(/[^\d]/g, "");
+    return !isEmpty(value) ? value.replace(/(\d{4})(?=\d)/g, "$1-") : "";
+};
+
+// 轉換信用卡到期日格式
+export const formatCardExpiryDate = (value: string | any) => {
+    // 移除非數字字串
+    value = value.replace(/[^\d]/g, "");
+
+    // 判斷有值時 且 值 大於  1 時 如果使用者月份忘記給 0 前綴時 幫忙補上 ex: 2 = 02
+    if (value.length === 1 && parseInt(value) > 1 && parseInt(value) < 10) {
+        value = "0" + value;
+    }
+
+    // 月份後面加上斜線 ex: 02/25
+    if (value.length > 2) {
+        value = value.slice(0, 2) + "/" + value.slice(2);
+    }
+
+    // 信用卡有效日期最多五位數 (MM/YY)
+    if (value.length > 5) {
+        value = value.slice(0, 5);
+    }
+
+    return value;
+};

@@ -30,7 +30,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         phone: formPhoneValiation({ requiredMessage: t("phoneValidation.phoneInput.validation.phone_requiredErrMessage"), matchMessage: t("phoneValidation.phoneInput.validation.phone_matchErrMessage") }),
 
         countryCode: yup.string().required(t("phoneValidation.phoneInput.validation.countryCode_requiredErrMessage")),
-        validateCode: yup.string().required(t("phoneValidation.validateCode.validation.requiredErrMessage")).matches(SmsValidateCodeRegex, "簡訊驗證碼為6位數"),
+        validateCode: yup.string().required(t("phoneValidation.validateCode.validation.validateCode_requiredErrMessage")).matches(SmsValidateCodeRegex, t("phoneValidation.validateCode.validation.validateCode_matchesErrMessage")),
     };
 
     const [schema, setSchema]: any = useState(

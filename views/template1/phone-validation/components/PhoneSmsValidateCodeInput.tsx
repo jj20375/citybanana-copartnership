@@ -44,7 +44,7 @@ const PhoneSmsValidateCodeInput = memo(({ lng, register, label, value, setValue,
                     name="validateCode"
                     onChange={handleFormChagne}
                     onKeyDown={handleOnKeyDown}
-                    placeholder={t("phoneValidation.validateCode.validation.requiredErrMessage")}
+                    placeholder={t("phoneValidation.validateCode.validation.validateCode_requiredErrMessage")}
                     value={form!}
                 />
             </div>

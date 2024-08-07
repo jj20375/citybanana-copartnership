@@ -111,7 +111,8 @@
         },
         "validateCode": {
             "validation": {
-                "requiredErrMessage": "請輸入驗證碼"
+                "validateCode_requiredErrMessage": "請輸入驗證碼",
+                "validateCode_matchesErrMessage": "簡訊驗證碼為6位數"
             },
             "buttonText": "發送驗證碼"
         }

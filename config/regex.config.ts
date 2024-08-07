@@ -6,3 +6,5 @@ export const PhoneFirstZeroRegex = /^[9]\d*$/;
 export const SmsValidateCodeRegex = /^[0-9]{6}$/;
 // 判斷是否為數字格式
 export const NumberRegex = /^\d*$/;
+// 信用卡卡號驗證
+export const CreditCardValidateCodeRegex = /^[0-9]{16}$/;
