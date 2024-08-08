@@ -31,6 +31,15 @@ i18next.services.formatter!.add("formatMillionByRightNowActivityPrice", (value, 
     if (options.customPrice === 0) {
         return i18next.t("rightNowActivityOrder.price-0");
     }
+    // 判斷有傳入此 key 時代表服務商報價 且為開單細節 預付款金額要用 服務商報價語系回傳
+    if (options.customPriceByDetail === 0) {
+        return i18next.t("rightNowActivityOrderPayment.price-0");
+    }
+    // 判斷有傳入此 key 時代表服務商報價 且為開單細節 出席鐘點費要用 服務商報價語系回傳
+    if (options.customPriceByDetailHourPrice === 0) {
+        return i18next.t("rightNowActivityOrderDetail.value-price-0");
+    }
+
     return `$ ${formatMillion(value)}`;
 });
 // lang = 選擇的語言, ns = 檔案名稱(name space)

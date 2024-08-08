@@ -148,6 +148,23 @@
         }
     },
     "rightNowActivityOrderDetail": {
-        "title": "活動明細"
+        "title": "活動明細",
+        "column-store": "特約商家",
+        "column-startDate": "活動開始",
+        "column-requiredProviderCount": "活動需求人數",
+        "value-requiredProviderCount": "{{val}}人",
+        "column-price": "出席鐘點費",
+        "value-price": "{{val}}元/時",
+        "value-price-0": "由服務商報價",
+        "column-duration": "活動時長",
+        "value-duration": "{{val}}小時",
+        "column-paymentMethod": "付款方式",
+        "value-paymentMethod-creditCard": "信用卡付款",
+        "column-note": "需求備註",
+        "expectedPayment": "預計付款金額",
+        "recruitment": {
+            "title": "招募時間剩餘",
+            "waitProvider": "等待服務商報名中"
+        }
     }
 }
