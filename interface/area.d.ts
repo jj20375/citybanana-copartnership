@@ -1,0 +1,1 @@
+export type areaInterface = "TW-TPE" | "TW-NWT" | "TW-KEE" | "TW-TAO" | "TW-HSZ" | "TW-MIA" | "TW-TXG" | "TW-CHA" | "TW-NAN" | "TW-YUN" | "TW-CYI" | "TW-TNN" | "TW-KHH" | "TW-PIF" | "TW-ILA" | "TW-HUA" | "TW-TTT";

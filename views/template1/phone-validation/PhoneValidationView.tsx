@@ -217,6 +217,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                                     outsideClassName={`PrimaryGradient p-px rounded-md w-full`}
                                     insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-primary bg-white justify-center h-[45px]`}
                                     isDisabled={false}
+                                    buttonType="button"
                                 />
                             </div>
                             <div className="ml-5 flex-1">
@@ -226,6 +227,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                                     outsideClassName={`${!disabled ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"}  p-px rounded-md w-full`}
                                     insideClassName={`${!disabled ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"} rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px]`}
                                     isDisabled={disabled}
+                                    buttonType="submit"
                                 />
                             </div>
                         </div>

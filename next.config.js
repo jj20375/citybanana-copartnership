@@ -37,5 +37,6 @@ module.exports = {
         // 圖片緩存時間 單位秒
         minimumCacheTTL: 300,
         formats: ["image/avif", "image/webp"],
+        domains: ["picsum.photos"],
     },
 };

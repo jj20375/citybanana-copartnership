@@ -1,0 +1,10 @@
+.change-required-provider-count {
+    :global {
+        .ant-select {
+            @apply border-gray-primary bg-white h-[45px] w-full;
+        }
+        .ant-select-selector {
+            @apply border-gray-primary #{!important};
+        }
+    }
+}

@@ -255,6 +255,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         outsideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"}  p-px rounded-md w-full`}
                         insideClassName={`${!false ? "PrimaryGradient" : "DisabledGradientByOutlineBtn"} rounded-[calc(0.5rem-3px)] p-2 w-full flex items-center justify-center text-white h-[45px]`}
                         isDisabled={false}
+                        buttonType="submit"
                     />
                     <button
                         type="button"

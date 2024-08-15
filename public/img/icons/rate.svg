@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" viewBox="0 0 12 12">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="矩形_1307" data-name="矩形 1307" width="12" height="12" fill="none"/>
+    </clipPath>
+  </defs>
+  <g id="Repeat_Grid_1" data-name="Repeat Grid 1" clip-path="url(#clip-path)">
+    <g id="组_1918" data-name="组 1918" transform="translate(-315 -684)">
+      <path id="star" d="M11.969,5.027a.643.643,0,0,0-.549-.458L7.956,4.241,6.587.9A.628.628,0,0,0,5.414.9L4.044,4.241.58,4.569a.644.644,0,0,0-.549.458.684.684,0,0,0,.186.707l2.618,2.4-.772,3.549a.68.68,0,0,0,.248.687.612.612,0,0,0,.7.032L6,10.534,8.987,12.4a.613.613,0,0,0,.7-.032.681.681,0,0,0,.248-.687L9.164,8.13l2.618-2.4a.685.685,0,0,0,.187-.7Zm0,0" transform="translate(315 683.508)" fill="#ff5733"/>
+    </g>
+  </g>
+</svg>

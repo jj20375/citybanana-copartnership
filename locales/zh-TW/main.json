@@ -8,13 +8,35 @@
         },
         "hour": "{{hour}}小時",
         "time": "時間",
+        "minute": "分鐘",
         "people": "人",
         "nextStep": "下一步",
         "prevStep": "上一步",
         "gender-male": "先生",
         "gender-female": "女士",
         "paymentMethod-cash": "現金付款",
-        "paymentMethod-credit": "信用卡付款"
+        "paymentMethod-credit": "信用卡付款",
+        "cancel-activity": "取消活動",
+        "confirm": "確定",
+        "cancel": "取消",
+        "age": "歲",
+        "height": "公分",
+        "weight": "公斤",
+        "choose": "選擇",
+        "moneyUnit": "元",
+        "count": "次"
+    },
+    "provider": {
+        "us": "個人介紹",
+        "responseRate": "活動回應率",
+        "temporaryCancellation": "臨時取消",
+        "responseTime": "回應時間"
+    },
+    "comment": {
+        "title": "社群回饋"
+    },
+    "auth": {
+        "authentication-checked": "身份已驗證"
     },
     "index": {
         "title": "超級約妹引擎",
@@ -37,7 +59,6 @@
         "durationSelect": {
             "label": "活動時長",
             "hour": "{{hour}} 小時",
-            "requiredCount": "{{count}} 人數",
             "validation": {
                 "durationSelect_reqiredErrMessage": "需選擇活動時長",
                 "durationSelect_minErrMessage": "最少需求 {{val}} 時數",
@@ -81,6 +102,7 @@
         },
         "requiredProviderCount": {
             "label": "活動需求人數",
+            "requiredCount": "{{count}} 人",
             "validation": {
                 "requiredProviderCount_reqiredErrMessage": "需選擇活動需求人數",
                 "requiredProviderCount_minErrMessage": "最少招募 {{val}} 人數",
@@ -162,9 +184,21 @@
         "value-paymentMethod-creditCard": "信用卡付款",
         "column-note": "需求備註",
         "expectedPayment": "預計付款金額",
+        "button-addRequiredProviderCount": "增加活動需求人數",
         "recruitment": {
             "title": "招募時間剩餘",
-            "waitProvider": "等待服務商報名中"
+            "waitProvider": "等待服務商報名中",
+            "label-changeRequiredProviderCount": "活動需求人數更改為",
+            "modalDescription": "更改後招募將重新倒數 <span className='text-primary'>{{val}}<span> 分鐘",
+            "travelTime": "抵達目的地需",
+            "needRequiredProviderCount": "活動需求人數 {{val}} 人",
+            "confirmed": "已確認"
+        },
+        "cancel": {
+            "description": "確定要讓此活動停止報名嗎？",
+            "confirm-description": "此活動您 已同意 服務商報名，確定要讓此活動停止報名嗎？",
+            "label-checkbox": "連同已同意的服務商訂單一起取消",
+            "label-checkbox-description": "( 訂單為 {{hour}} 小時內活動，須支付訂單金額之 {{price}}％ 作為臨時取消費用 ) "
         }
     }
 }

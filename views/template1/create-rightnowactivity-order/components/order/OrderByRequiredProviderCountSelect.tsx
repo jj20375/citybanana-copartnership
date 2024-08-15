@@ -63,7 +63,7 @@ const OrderByRequiredProviderCountSelect = memo(
                                 key={count}
                                 value={count}
                             >
-                                {t("rightNowActivityOrder.durationSelect.requiredCount", { count: count })}
+                                {t("rightNowActivityOrder.requiredProviderCount.requiredCount", { count: count })}
                             </option>
                         ))}
                     </select>
