@@ -52,6 +52,8 @@ export interface RightNowActivityOrderDetailProviderSigupCard {
  * 即刻快閃服務商評論資料
  */
 export interface RightNowActivityOrderProviderComment {
+    id: string | number;
+    name: string;
     // 大頭照
     avatar: string;
     // 評分

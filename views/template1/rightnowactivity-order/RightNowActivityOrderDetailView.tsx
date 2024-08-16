@@ -15,9 +15,10 @@ import RightNowActivityOrderChangeRequiredProviderCountModal from "./components/
 import RightNowActivityOrderProviderSignUp from "./components/RightNowActivityOrderProviderSignup";
 // 取消活動彈窗
 import RightNowActivityOrderCancelModal from "./components/RightNowActivityOrderCancelModal";
+// 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
 import { useEffect, useMemo, useRef, useState } from "react";
-import type { RightNowActivityOrderDetailProviderSigupCard } from "./rightnowactivity-order-interface";
+import { type RightNowActivityOrderDetailProviderSigupCard, RightNowActivityOrderProviderComment } from "./rightnowactivity-order-interface";
 
 export default function RightNowActivityOrderDetailView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -48,15 +49,24 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
         }[];
     };
 
+    // 原始訂單資料
     const [order, setOrder] = useState<any>({});
+    // 顯示訂單滋藥
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
+    // 訂單上方資料
     const [orderTopContent, setOrderTopContent] = useState<DisplayOrder>();
+    // 訂單付款資料
     const [orderPaymentContent, setOrderPaymentContent] = useState<DisplayOrder>();
     // 訂單細節上方資料顯示 key
     const displayOrderTopKeys = ["column-store", "column-startDate", "column-note"];
     // 訂單細節付款資料顯示 key
     const displayOrderPaymentKeys = ["column-requiredProviderCount", "column-price", "column-duration", "column-paymentMethod"];
-
+    // 報名服務商
+    const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCard[]>([]);
+    // 選擇服務商資料
+    const [chooseValues, setChooseValues] = useState([]);
+    // 服務商評論資料
+    const [comments, setComments] = useState<RightNowActivityOrderProviderComment[]>([]);
     // 判斷是否等待服務商報名中
     const [isWaitProviderApply, setIsWaitProviderApply] = useState(true);
 
@@ -76,9 +86,6 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
         return t("rightNowActivityOrder.price", { val: price * duration });
     }, [displayOrder]);
 
-    const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCard[]>([]);
-    const [chooseValues, setChooseValues] = useState([]);
-
     useEffect(() => {
         const apiDatas: DisplayOrder = {
             datas: [
@@ -91,10 +98,6 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
                 { label: t("rightNowActivityOrderDetail.column-paymentMethod"), value: t("rightNowActivityOrderDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
             ],
         };
-        console.log(
-            "apiDatas.datas.filter((data) => displayOrderTopKeys.includes(data.column)) =>",
-            apiDatas.datas.filter((data) => displayOrderTopKeys.includes(data.column))
-        );
         setOrderTopContent({ datas: apiDatas.datas.filter((data) => displayOrderTopKeys.includes(data.column)) });
         setOrderPaymentContent({
             datas: apiDatas.datas.filter((data) => displayOrderPaymentKeys.includes(data.column)),
@@ -104,12 +107,11 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
             price: 0,
             duration: 2,
         });
-        const providers: any = [];
 
-        for (let i = 0; i < 10; i++) {
-            providers.push({
+        setProviders(
+            Array.from({ length: 10 }).map((_, i) => ({
                 id: `provider-${i}`,
-                name: "test1",
+                name: "test1-" + i,
                 cover: `https://picsum.photos/id/${i + 10}/300/300`,
                 rate: 4.5,
                 description:
@@ -124,9 +126,20 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
                 area: "TW-TPE",
                 job: "金融業",
                 authentication: true,
-            });
-        }
-        setProviders(providers);
+                isQueen: true,
+            }))
+        );
+        setComments(
+            Array.from({ length: 10 }).map((_, i) => ({
+                id: `comment-${i}`,
+                name: "test2-" + i,
+                avatar: `https://picsum.photos/id/${i + 10}/300/300`,
+                rate: 4.5,
+                content:
+                    "Lorem Ipsum，也称乱数假文或者哑元文本， 是印刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷字体从而造出一本字体样品书，Lorem Ipsum从西元15世纪起就被作为此领域的标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然保存至今。在1960年代，”Leatraset”公司发布了印刷着Lorem Ipsum段落的纸张，从而广泛普及了它的使用。最近，计算机桌面出版软件”Aldus PageMaker”也通过同样的方式使Lorem Ipsum落入大众的视野。",
+                createdAt: "2024/02/25",
+            }))
+        );
     }, []);
     useEffect(() => {
         if (providers.length > 0) {
@@ -134,6 +147,7 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
                 <RightNowActivityOrderProviderSignUp
                     lng={lng}
                     providers={providers}
+                    comments={comments}
                     isSigleChoose={false}
                     parentValues={chooseValues}
                     setParentValues={setChooseValues}

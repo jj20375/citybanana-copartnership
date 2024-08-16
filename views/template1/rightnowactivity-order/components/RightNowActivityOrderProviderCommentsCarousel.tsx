@@ -51,11 +51,11 @@ interface CarouselRenderItemProps<T> {
 }
 
 /**
- * 選擇服務商幻燈片 ui
+ * 選擇服務商評論幻燈片 ui
  * @param param0
  * @returns
  */
-export const CarouselByProviders = <T extends any>({ items, renderItem }: CarouselProps<T>) => {
+export const CarouselByProviderComments = <T extends any>({ items, renderItem }: CarouselProps<T>) => {
     const { scrollRef, pages, activePageIndex, prev, next, goTo, snapPointIndexes } = useSnapCarousel();
     return (
         <div
@@ -119,11 +119,11 @@ interface CarouselItemProps {
 }
 
 /**
- * 選擇服務商幻燈片內容 ui
+ * 選擇服務商幻燈片評論內容 ui
  * @param param0
  * @returns
  */
-export const CarouselByProviderItem = ({ isSnapPoint, children }: CarouselItemProps) => (
+export const CarouselByProviderCommentItem = ({ isSnapPoint, children }: CarouselItemProps) => (
     <li
         style={{
             ...styles.item,

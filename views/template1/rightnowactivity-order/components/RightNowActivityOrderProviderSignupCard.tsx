@@ -37,10 +37,7 @@ const RightNowActivityOrderSignUpCard = memo(({ lng, providerCardData, customCla
                 </div>
                 <div className="flex-1 px-[10px]">
                     <div className="flex items-center mb-[8px]">
-                        <h5 className="pr-5 text-lg-content font-bold text-gray-primary">
-                            {providerCardData.name}
-                            {providerCardData.id}
-                        </h5>
+                        <h5 className="pr-5 text-lg-content font-bold text-gray-primary">{providerCardData.name}</h5>
                         {providerCardData.rate && (
                             <>
                                 <span className="pr-[2.5px]">

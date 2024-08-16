@@ -1,15 +1,17 @@
 "use client";
 import { memo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { RightNowActivityOrderDetailProviderSigupCard } from "../rightnowactivity-order-interface";
+import { RightNowActivityOrderDetailProviderSigupCard, RightNowActivityOrderProviderComment } from "../rightnowactivity-order-interface";
 import Image from "next/image";
 import { areasTW } from "@/config/area-tw.config";
 import { Rate } from "antd";
+// 服務商評論 carousel
+import { CarouselByProviderComments, CarouselByProviderCommentItem } from "./RightNowActivityOrderProviderCommentsCarousel";
 
 /**
  * 選擇服務商幻燈片服務商個人介紹資料 ui
  */
-const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCard }) => {
+const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comments }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCard; comments?: RightNowActivityOrderProviderComment[] | void }) => {
     const { t } = useTranslation(lng, "main");
     const providerInit: string[] = [];
 
@@ -112,6 +114,42 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
                         defaultValue={providerData.rate}
                     />
                     <p className="ml-2 text-[12px] text-gray-primary">{providerData.rate}</p>
+                </div>
+                <div className="mb-[15px]">
+                    {Array.isArray(comments) && (
+                        <CarouselByProviderComments
+                            items={comments}
+                            key="carouselComments"
+                            renderItem={({ item, isSnapPoint }: { item: RightNowActivityOrderProviderComment; isSnapPoint: any }) => (
+                                <CarouselByProviderCommentItem
+                                    key={item.id}
+                                    isSnapPoint={isSnapPoint}
+                                >
+                                    <div className="border border-gray-third p-[9px] rounded-md text-gray-third">
+                                        <div className="flex items-center">
+                                            <Image
+                                                src={item.avatar}
+                                                width={50}
+                                                height={50}
+                                                alt="member avatar"
+                                                style={{ width: "50px", height: "auto" }}
+                                                className="rounded-full"
+                                            />
+                                            <p className="text-lg-content text-gray-primary ml-[10px] flex-1">{item.name}</p>
+                                            <div className="text-sm-content text-gray-third">{item.createdAt}</div>
+                                        </div>
+                                        <div className="my-[8px]">
+                                            <Rate
+                                                allowHalf
+                                                defaultValue={item.rate}
+                                            />
+                                        </div>
+                                        {item.content}
+                                    </div>
+                                </CarouselByProviderCommentItem>
+                            )}
+                        />
+                    )}
                 </div>
             </section>
             <section className="flex">
