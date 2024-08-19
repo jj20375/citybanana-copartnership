@@ -1,0 +1,13 @@
+.provider-carousel-modal {
+    :global {
+        .ant-modal-content {
+            @apply p-0 bg-[rgba(255,255,255,0)];
+        }
+        .ant-rate {
+            @apply text-primary;
+        }
+        .ant-rate-star {
+            @apply me-[2px] #{!important};
+        }
+    }
+}

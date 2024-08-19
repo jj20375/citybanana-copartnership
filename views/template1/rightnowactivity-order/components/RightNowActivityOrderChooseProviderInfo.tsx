@@ -75,7 +75,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
     }
 
     return (
-        <div className="mt-[18px]">
+        <div className="mt-[18px] px-5">
             <div className="flex items-center">
                 <h2 className="text-left text-[20px]">
                     {providerData.name}
@@ -125,7 +125,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
                                     key={item.id}
                                     isSnapPoint={isSnapPoint}
                                 >
-                                    <div className="border border-gray-third p-[9px] rounded-md text-gray-third">
+                                    <div className="border border-gray-third p-[9px] rounded-md text-gray-third mr-5">
                                         <div className="flex items-center">
                                             <Image
                                                 src={item.avatar}
@@ -144,7 +144,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
                                                 defaultValue={item.rate}
                                             />
                                         </div>
-                                        {item.content}
+                                        <div className="line-clamp-4">{item.content}</div>
                                     </div>
                                 </CarouselByProviderCommentItem>
                             )}

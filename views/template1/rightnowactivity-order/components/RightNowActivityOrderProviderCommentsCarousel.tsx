@@ -4,26 +4,6 @@ import { useSnapCarousel } from "react-snap-carousel";
 // https://github.com/richardscarrott/react-snap-carousel
 
 const styles = {
-    root: {},
-    scroll: {
-        position: "relative",
-        display: "flex",
-        overflow: "auto",
-        scrollSnapType: "x mandatory",
-    },
-    item: {
-        width: "100%",
-        height: "auto",
-        flexShrink: 0,
-    },
-    itemSnapPoint: {
-        scrollSnapAlign: "start",
-    },
-    controls: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-    },
     nextPrevButton: {},
     nextPrevButtonDisabled: { opacity: 0.3 },
     pagination: {
@@ -58,13 +38,10 @@ interface CarouselRenderItemProps<T> {
 export const CarouselByProviderComments = <T extends any>({ items, renderItem }: CarouselProps<T>) => {
     const { scrollRef, pages, activePageIndex, prev, next, goTo, snapPointIndexes } = useSnapCarousel();
     return (
-        <div
-            style={styles.root}
-            className="relative"
-        >
+        <div className="relative">
             <ul
-                style={styles.scroll}
                 ref={scrollRef}
+                className="snap-x flex relative overflow-auto scroll-smooth snap-mandatory"
             >
                 {items.map((item, i) =>
                     renderItem({
@@ -74,9 +51,8 @@ export const CarouselByProviderComments = <T extends any>({ items, renderItem }:
                 )}
             </ul>
             <div
-                style={styles.controls}
                 aria-hidden
-                className="absolute bottom-2 mx-auto w-full"
+                className="absolute bottom-2 mx-auto w-full flex justify-center items-center"
             >
                 {/* <button
                     style={{
@@ -123,13 +99,4 @@ interface CarouselItemProps {
  * @param param0
  * @returns
  */
-export const CarouselByProviderCommentItem = ({ isSnapPoint, children }: CarouselItemProps) => (
-    <li
-        style={{
-            ...styles.item,
-            ...(isSnapPoint ? styles.itemSnapPoint : {}),
-        }}
-    >
-        {children}
-    </li>
-);
+export const CarouselByProviderCommentItem = ({ isSnapPoint, children }: CarouselItemProps) => <li className={`${isSnapPoint && "snap-start"} w-[70%] shrink-0 h-auto snap-normal`}>{children}</li>;

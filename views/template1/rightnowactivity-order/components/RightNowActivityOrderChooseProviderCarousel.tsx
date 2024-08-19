@@ -4,26 +4,6 @@ import { useSnapCarousel } from "react-snap-carousel";
 // https://github.com/richardscarrott/react-snap-carousel
 
 const styles = {
-    root: {},
-    scroll: {
-        position: "relative",
-        display: "flex",
-        overflow: "auto",
-        scrollSnapType: "x mandatory",
-    },
-    item: {
-        width: "100%",
-        height: "auto",
-        flexShrink: 0,
-    },
-    itemSnapPoint: {
-        scrollSnapAlign: "start",
-    },
-    controls: {
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-    },
     nextPrevButton: {},
     nextPrevButtonDisabled: { opacity: 0.3 },
     pagination: {
@@ -47,6 +27,7 @@ interface CarouselProps<T> {
 
 interface CarouselRenderItemProps<T> {
     readonly item: T;
+    readonly index: number;
     readonly isSnapPoint: boolean;
 }
 
@@ -58,25 +39,22 @@ interface CarouselRenderItemProps<T> {
 export const CarouselByProviders = <T extends any>({ items, renderItem }: CarouselProps<T>) => {
     const { scrollRef, pages, activePageIndex, prev, next, goTo, snapPointIndexes } = useSnapCarousel();
     return (
-        <div
-            style={styles.root}
-            className="relative"
-        >
+        <div className="relative rounded-md">
             <ul
-                style={styles.scroll}
                 ref={scrollRef}
+                className="snap-x flex relative overflow-auto scroll-smooth snap-mandatory"
             >
-                {items.map((item, i) =>
+                {items.map((item, index) =>
                     renderItem({
                         item,
-                        isSnapPoint: snapPointIndexes.has(i),
+                        index,
+                        isSnapPoint: snapPointIndexes.has(index),
                     })
                 )}
             </ul>
             <div
-                style={styles.controls}
                 aria-hidden
-                className="absolute bottom-2 mx-auto w-full"
+                className="absolute bottom-2 mx-auto w-full flex items-center justify-center"
             >
                 {/* <button
                     style={{
@@ -115,6 +93,7 @@ export const CarouselByProviders = <T extends any>({ items, renderItem }: Carous
 
 interface CarouselItemProps {
     readonly isSnapPoint: boolean;
+    readonly index: number;
     readonly children?: React.ReactNode;
 }
 
@@ -123,13 +102,4 @@ interface CarouselItemProps {
  * @param param0
  * @returns
  */
-export const CarouselByProviderItem = ({ isSnapPoint, children }: CarouselItemProps) => (
-    <li
-        style={{
-            ...styles.item,
-            ...(isSnapPoint ? styles.itemSnapPoint : {}),
-        }}
-    >
-        {children}
-    </li>
-);
+export const CarouselByProviderItem = ({ isSnapPoint, index, children }: CarouselItemProps) => <li className={`${isSnapPoint && "snap-center"} shrink-0 w-[calc(100%-3em)] ${index === 0 ? "mr-1" : "mx-1"} h-auto snap-normal rounded-lg bg-white`}>{children}</li>;

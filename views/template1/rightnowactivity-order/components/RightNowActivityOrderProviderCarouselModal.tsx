@@ -15,6 +15,8 @@ import { CarouselByProviderPhotos, CarouselByProviderPhotoItem } from "./RightNo
 import { CarouselByProviders, CarouselByProviderItem } from "./RightNowActivityOrderChooseProviderCarousel";
 // 選擇服務商幻燈片服務商個人介紹資料
 import RightNowActivityOrderChooseProviderInfo from "./RightNowActivityOrderChooseProviderInfo";
+import styles from "../styles/RightNowActivityOrderProviderCarouselModal.module.scss";
+import Image from "next/image";
 
 /**
  * 選擇服務商彈窗 ui
@@ -96,63 +98,70 @@ const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(
         return (
             <Modal
                 title={<div></div>}
+                closeIcon={false}
                 open={open}
                 centered
                 maskClosable
+                className={styles["provider-carousel-modal"]}
                 onCancel={handleCancel}
-                footer={[
-                    // <form
-                    //     key="form"
-                    //     className="flex"
-                    //     onSubmit={handleSubmit(onSubmit, onError)}
-                    // >
-                    //     <button
-                    //         type="submit"
-                    //         className="w-full PrimaryGradient text-white rounded-md"
-                    //     >
-                    //         {t("global.choose")}
-                    //     </button>
-                    // </form>,
-                    <CarouselByProviders
-                        items={providers}
-                        key="carouselProviderInfo"
-                        renderItem={({ item, isSnapPoint }) => (
-                            <CarouselByProviderItem
-                                key={item.id + "-providerInfo"}
-                                isSnapPoint={isSnapPoint}
-                            >
-                                <>
-                                    <CarouselByProviderPhotos
-                                        items={providers}
-                                        key="carouselPhotos"
-                                        renderItem={({ item, isSnapPoint }) => (
-                                            <CarouselByProviderPhotoItem
-                                                key={item.id}
-                                                isSnapPoint={isSnapPoint}
-                                            >
-                                                <>
-                                                    {item.id}
-                                                    <img
-                                                        src={item.cover}
-                                                        className="w-full"
-                                                        height="250"
-                                                        alt="Placeholder"
-                                                    />
-                                                </>
-                                            </CarouselByProviderPhotoItem>
-                                        )}
-                                    />
-                                    <RightNowActivityOrderChooseProviderInfo
-                                        lng={lng}
-                                        providerData={item}
-                                        comments={comments}
-                                    />
-                                </>
-                            </CarouselByProviderItem>
-                        )}
-                    />,
-                ]}
-            ></Modal>
+                footer={
+                    [
+                        // <form
+                        //     key="form"
+                        //     className="flex"
+                        //     onSubmit={handleSubmit(onSubmit, onError)}
+                        // >
+                        //     <button
+                        //         type="submit"
+                        //         className="w-full PrimaryGradient text-white rounded-md"
+                        //     >
+                        //         {t("global.choose")}
+                        //     </button>
+                        // </form>,
+                    ]
+                }
+            >
+                <CarouselByProviders
+                    items={providers}
+                    key="carouselProviderInfo"
+                    renderItem={({ item, index, isSnapPoint }) => (
+                        <CarouselByProviderItem
+                            key={item.id + "-providerInfo"}
+                            index={index}
+                            isSnapPoint={isSnapPoint}
+                        >
+                            <>
+                                <CarouselByProviderPhotos
+                                    items={providers}
+                                    key="carouselPhotos"
+                                    renderItem={({ item, isSnapPoint }) => (
+                                        <CarouselByProviderPhotoItem
+                                            key={item.id}
+                                            isSnapPoint={isSnapPoint}
+                                        >
+                                            <>
+                                                <Image
+                                                    src={item.cover}
+                                                    className="w-full rounded-t-lg"
+                                                    width={500}
+                                                    height={500}
+                                                    style={{ width: "100%", height: "auto" }}
+                                                    alt="Placeholder"
+                                                />
+                                            </>
+                                        </CarouselByProviderPhotoItem>
+                                    )}
+                                />
+                                <RightNowActivityOrderChooseProviderInfo
+                                    lng={lng}
+                                    providerData={item}
+                                    comments={comments}
+                                />
+                            </>
+                        </CarouselByProviderItem>
+                    )}
+                />
+            </Modal>
         );
     }
 );
