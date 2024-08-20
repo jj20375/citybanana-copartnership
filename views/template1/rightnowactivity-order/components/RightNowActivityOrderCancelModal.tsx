@@ -9,6 +9,9 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { CheckboxProps } from "antd";
 
+/**
+ * 取消活動彈窗 ui
+ */
 const RightNowActivityOrderCancelModal = forwardRef(
     ({ lng, orderId, description, needConfirm, confirmText, confirmTextDescription }: { lng: string; orderId: string; description: string; needConfirm?: boolean | void; confirmText?: string | void; confirmTextDescription?: string | void }, ref: any) => {
         const { t } = useTranslation(lng, "main");

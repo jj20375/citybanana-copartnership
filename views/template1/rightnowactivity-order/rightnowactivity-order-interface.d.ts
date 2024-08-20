@@ -3,7 +3,7 @@ import type { areaInterface } from "@/interface/area";
 /**
  * 即刻快閃上方區塊
  */
-export interface RightNowActivityOrderDetailTopContent {
+export interface RightNowActivityOrderDetailTopContentInterface {
     // 店家名稱
     store: string;
     // 活動時間
@@ -13,7 +13,7 @@ export interface RightNowActivityOrderDetailTopContent {
 /**
  * 即刻快閃服務商報名卡片樣式資料
  */
-export interface RightNowActivityOrderDetailProviderSigupCard {
+export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     id: number | string;
     name: string;
     // 封面圖
@@ -51,7 +51,7 @@ export interface RightNowActivityOrderDetailProviderSigupCard {
 /**
  * 即刻快閃服務商評論資料
  */
-export interface RightNowActivityOrderProviderComment {
+export interface RightNowActivityOrderProviderCommentInterface {
     id: string | number;
     name: string;
     // 大頭照

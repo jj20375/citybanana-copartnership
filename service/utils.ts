@@ -1,3 +1,6 @@
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
+
 //判斷是否為空值或空物件
 export const isEmpty = (value: any) => {
     return value === undefined || value === null || (typeof value === "object" && Object.keys(value).length === 0) || (typeof value === "string" && value.trim().length === 0) || value.length === 0;
@@ -90,3 +93,10 @@ export const formatCardExpiryDate = (value: string | any) => {
 
     return value;
 };
+
+/**
+ * 透過 tailwind-merge 與 clsx 方法來動態更新 className
+ */
+export function tmc(...inputs: ClassValue[]) {
+    return twMerge(clsx(inputs));
+}

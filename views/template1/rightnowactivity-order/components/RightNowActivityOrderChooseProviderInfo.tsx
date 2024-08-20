@@ -1,7 +1,7 @@
 "use client";
 import { memo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { RightNowActivityOrderDetailProviderSigupCard, RightNowActivityOrderProviderComment } from "../rightnowactivity-order-interface";
+import { RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "../rightnowactivity-order-interface";
 import Image from "next/image";
 import { areasTW } from "@/config/area-tw.config";
 import { Rate } from "antd";
@@ -11,7 +11,7 @@ import { CarouselByProviderComments, CarouselByProviderCommentItem } from "./Rig
 /**
  * 選擇服務商幻燈片服務商個人介紹資料 ui
  */
-const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comments }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCard; comments?: RightNowActivityOrderProviderComment[] | void }) => {
+const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comments }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface; comments?: RightNowActivityOrderProviderCommentInterface[] | void }) => {
     const { t } = useTranslation(lng, "main");
     const providerInit: string[] = [];
 
@@ -120,7 +120,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
                         <CarouselByProviderComments
                             items={comments}
                             key="carouselComments"
-                            renderItem={({ item, isSnapPoint }: { item: RightNowActivityOrderProviderComment; isSnapPoint: any }) => (
+                            renderItem={({ item, isSnapPoint }: { item: RightNowActivityOrderProviderCommentInterface; isSnapPoint: any }) => (
                                 <CarouselByProviderCommentItem
                                     key={item.id}
                                     isSnapPoint={isSnapPoint}
@@ -166,7 +166,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
             </section>
             <button
                 type="submit"
-                className="text-white h-[45px] text-lg-content rounded-md PrimaryGradient block w-full mt-[25px]"
+                className="text-white h-[45px] text-lg-content rounded-md PrimaryGradient block w-full mt-[25px] mb-[30px]"
             >
                 {t("global.choose")}
             </button>

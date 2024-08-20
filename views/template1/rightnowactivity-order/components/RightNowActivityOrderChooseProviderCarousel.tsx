@@ -1,5 +1,7 @@
-import React, { CSSProperties } from "react";
+import React, { CSSProperties, useRef } from "react";
 import { useSnapCarousel } from "react-snap-carousel";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { tmc } from "@/service/utils";
 
 // https://github.com/richardscarrott/react-snap-carousel
 
@@ -102,4 +104,12 @@ interface CarouselItemProps {
  * @param param0
  * @returns
  */
-export const CarouselByProviderItem = ({ isSnapPoint, index, children }: CarouselItemProps) => <li className={`${isSnapPoint && "snap-center"} shrink-0 w-[calc(100%-3em)] ${index === 0 ? "mr-1" : "mx-1"} h-auto snap-normal rounded-lg bg-white`}>{children}</li>;
+export const CarouselByProviderItem = ({ isSnapPoint, index, children }: CarouselItemProps) => (
+    <motion.li
+        initial={{ opacity: 0, y: 150 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        className={tmc(isSnapPoint && "snap-center", index === 0 ? "mr-1" : "mx-1", "h-auto snap-normal rounded-lg bg-white shrink-0 w-[calc(100%-3em)]")}
+    >
+        {children}
+    </motion.li>
+);

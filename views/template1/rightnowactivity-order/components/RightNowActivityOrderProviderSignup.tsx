@@ -2,15 +2,33 @@
 import { memo, useState, useRef } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import RightNowActivityOrderSignUpCard from "./RightNowActivityOrderProviderSignupCard";
-import type { RightNowActivityOrderDetailProviderSigupCard, RightNowActivityOrderProviderComment } from "../rightnowactivity-order-interface";
+import type { RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "../rightnowactivity-order-interface";
 import { Checkbox, GetProp, Radio, type RadioChangeEvent } from "antd";
 // 選擇服務商幻燈片彈窗
 import RightNowActivityOrderProviderCarouselModal from "./RightNowActivityOrderProviderCarouselModal";
+// 確認付款彈窗
+import RightNowActivityOrderConfirmPaymentModal from "./RightNowActivityOrderConfirmPaymentModal";
 /**
  * 服務商申請加入即刻快閃活動區塊 ui
  */
 const RightNowActivityOrderProviderSignUp = memo(
-    ({ lng, providers, comments, isSigleChoose, parentValues, setParentValues }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCard[]; comments?: RightNowActivityOrderProviderComment[] | void; isSigleChoose: boolean; parentValues: string[]; setParentValues: Function }) => {
+    ({
+        lng,
+        orderId,
+        providers,
+        comments,
+        isSigleChoose,
+        parentValues,
+        setParentValues,
+    }: {
+        lng: string;
+        orderId: string;
+        providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
+        comments?: RightNowActivityOrderProviderCommentInterface[] | void;
+        isSigleChoose: boolean;
+        parentValues: string[];
+        setParentValues: Function;
+    }) => {
         const { t } = useTranslation(lng, "main");
 
         const [value, setValue] = useState(parentValues[0]);
@@ -33,6 +51,13 @@ const RightNowActivityOrderProviderSignUp = memo(
         // 開啟選擇服務商幻燈片彈窗
         const openProviderCarouselModal = () => {
             chooseProviderCarouseModalRef.current.openModal();
+        };
+
+        // 付款彈窗 dom
+        const paymentConfirmModalRef = useRef<any>(null);
+        // 開啟付款彈窗
+        const openPaymentConfirmModal = () => {
+            paymentConfirmModalRef.current.openModal();
         };
 
         return (
@@ -110,9 +135,19 @@ const RightNowActivityOrderProviderSignUp = memo(
                         {t("global.people")}
                     </p>
                 </div>
-                <div className="my-[15px]">
+                <div
+                    className="my-[15px]"
+                    onClick={openPaymentConfirmModal}
+                >
                     <button className="PrimaryGradient h-[45px] w-full rounded-md text-white">{t("global.choose")}</button>
                 </div>
+                <RightNowActivityOrderConfirmPaymentModal
+                    ref={paymentConfirmModalRef}
+                    lng={lng}
+                    providers={providers}
+                    providerIds={isSigleChoose ? [value] : values}
+                    orderId={orderId}
+                />
             </>
         );
     }

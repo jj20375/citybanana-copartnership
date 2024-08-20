@@ -1,5 +1,6 @@
 import React, { CSSProperties } from "react";
 import { useSnapCarousel } from "react-snap-carousel";
+import Image from "next/image";
 
 // https://github.com/richardscarrott/react-snap-carousel
 
@@ -50,6 +51,15 @@ export const CarouselByProviderPhotos = <T extends any>({ items, renderItem }: C
                     })
                 )}
             </ul>
+            <div className="absolute bottom-10 right-[20px]">
+                <Image
+                    alt="queen"
+                    src="/img/icons/queen.svg"
+                    width={100}
+                    height={100}
+                    style={{ width: "150px", height: "auto" }}
+                />
+            </div>
             <div
                 aria-hidden
                 className="absolute bottom-2 mx-auto w-full flex justify-center items-center"

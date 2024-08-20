@@ -17,8 +17,10 @@ import RightNowActivityOrderProviderSignUp from "./components/RightNowActivityOr
 import RightNowActivityOrderCancelModal from "./components/RightNowActivityOrderCancelModal";
 // 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
+// 即刻快閃總計
+import RightNowActivityOrderTotal from "./components/RightNowActivityOrderTotal";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { type RightNowActivityOrderDetailProviderSigupCard, RightNowActivityOrderProviderComment } from "./rightnowactivity-order-interface";
+import { type RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "./rightnowactivity-order-interface";
 
 export default function RightNowActivityOrderDetailView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -62,11 +64,11 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
     // 訂單細節付款資料顯示 key
     const displayOrderPaymentKeys = ["column-requiredProviderCount", "column-price", "column-duration", "column-paymentMethod"];
     // 報名服務商
-    const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCard[]>([]);
+    const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
     // 選擇服務商資料
     const [chooseValues, setChooseValues] = useState([]);
     // 服務商評論資料
-    const [comments, setComments] = useState<RightNowActivityOrderProviderComment[]>([]);
+    const [comments, setComments] = useState<RightNowActivityOrderProviderCommentInterface[]>([]);
     // 判斷是否等待服務商報名中
     const [isWaitProviderApply, setIsWaitProviderApply] = useState(true);
 
@@ -104,6 +106,7 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
         });
         setDisplayOrder(apiDatas);
         setOrder({
+            id: "123",
             price: 0,
             duration: 2,
         });
@@ -146,6 +149,7 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
             setRecruitmentContent(
                 <RightNowActivityOrderProviderSignUp
                     lng={lng}
+                    orderId={order.id}
                     providers={providers}
                     comments={comments}
                     isSigleChoose={false}
@@ -161,6 +165,7 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
             <TitleCompoent title={title} />
             <div className="mx-auto max-w-[400px] mt-[40px]">
                 <RightNowActivityOrderTopContent
+                    showButton={true}
                     lng={lng}
                     values={orderTopContent?.datas}
                     customClass="border-b border-gray-light pb-[30px]"
@@ -176,13 +181,11 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
                     values={orderPaymentContent?.datas}
                     customClass="border-b border-gray-light py-[30px]"
                 />
-                <div className="flex mt-[30px] mb-[40px]">
-                    <span className="text-gray-primary text-lg-content flex-1">{t("rightNowActivityOrderDetail.expectedPayment")}</span>
-                    <span className="text-primary text-lg-content ">
-                        {typeof total === "number" && total > 0 ? "NTD" : ""}
-                        <span className="OpenSans font-medium">{total}</span>
-                    </span>
-                </div>
+                <RightNowActivityOrderTotal
+                    lng={lng}
+                    total={total}
+                    price={order.price}
+                />
                 <div className="flex flex-col">
                     <button
                         onClick={openChangeRequiredProviderCountModal}

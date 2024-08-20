@@ -24,7 +24,8 @@
         "weight": "公斤",
         "choose": "選擇",
         "moneyUnit": "元",
-        "count": "次"
+        "count": "次",
+        "sendMessage": "傳送訊息"
     },
     "provider": {
         "us": "個人介紹",
@@ -200,5 +201,17 @@
             "label-checkbox": "連同已同意的服務商訂單一起取消",
             "label-checkbox-description": "( 訂單為 {{hour}} 小時內活動，須支付訂單金額之 {{price}}％ 作為臨時取消費用 ) "
         }
+    },
+    "payWorking": {
+        "title": "付款進行中",
+        "description": "付款作業需要花費一些時間，\n請勿離開此頁面。"
+    },
+    "paymentConfirm": {
+        "confirm-1": "確定選擇",
+        "confirm-2": "參與活動嗎？",
+        "confirm-3": "按下確定後將進行付款。"
+    },
+    "orderDetail": {
+        "title": "訂單明細"
     }
 }

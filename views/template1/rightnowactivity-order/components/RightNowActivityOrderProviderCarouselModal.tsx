@@ -8,7 +8,7 @@ import type { SubmitHandler, SubmitErrorHandler } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 // 服務商報名卡片 interface
-import type { RightNowActivityOrderDetailProviderSigupCard, RightNowActivityOrderProviderComment } from "../rightnowactivity-order-interface";
+import type { RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "../rightnowactivity-order-interface";
 // 服務商照片 carousel
 import { CarouselByProviderPhotos, CarouselByProviderPhotoItem } from "./RightNowActivityOrderChooseProviderPhotosCarousel";
 // 服務商個人資料 carousel
@@ -17,12 +17,13 @@ import { CarouselByProviders, CarouselByProviderItem } from "./RightNowActivityO
 import RightNowActivityOrderChooseProviderInfo from "./RightNowActivityOrderChooseProviderInfo";
 import styles from "../styles/RightNowActivityOrderProviderCarouselModal.module.scss";
 import Image from "next/image";
+import { Icon } from "@iconify/react";
 
 /**
  * 選擇服務商彈窗 ui
  */
 const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(
-    ({ lng, providers, comments, providerIds, setProviderIds }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCard[]; comments?: RightNowActivityOrderProviderComment[] | void; providerIds?: string[] | void; setProviderIds: Function }, ref: any) => {
+    ({ lng, providers, comments, providerIds, setProviderIds }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; comments?: RightNowActivityOrderProviderCommentInterface[] | void; providerIds?: string[] | void; setProviderIds: Function }, ref: any) => {
         const { t } = useTranslation(lng, "main");
         const [open, setOpen] = useState(false);
         useImperativeHandle(ref, () => ({
@@ -131,27 +132,34 @@ const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(
                             isSnapPoint={isSnapPoint}
                         >
                             <>
-                                <CarouselByProviderPhotos
-                                    items={providers}
-                                    key="carouselPhotos"
-                                    renderItem={({ item, isSnapPoint }) => (
-                                        <CarouselByProviderPhotoItem
-                                            key={item.id}
-                                            isSnapPoint={isSnapPoint}
-                                        >
-                                            <>
-                                                <Image
-                                                    src={item.cover}
-                                                    className="w-full rounded-t-lg"
-                                                    width={500}
-                                                    height={500}
-                                                    style={{ width: "100%", height: "auto" }}
-                                                    alt="Placeholder"
-                                                />
-                                            </>
-                                        </CarouselByProviderPhotoItem>
-                                    )}
-                                />
+                                <div className="relative">
+                                    <Icon
+                                        className="text-5xl cursor-pointer absolute z-10 text-white bg-black rounded-full bg-opacity-50 left-2 top-2"
+                                        icon="iconamoon:arrow-left-2-light"
+                                        onClick={handleCancel}
+                                    />
+                                    <CarouselByProviderPhotos
+                                        items={providers}
+                                        key="carouselPhotos"
+                                        renderItem={({ item, isSnapPoint }) => (
+                                            <CarouselByProviderPhotoItem
+                                                key={item.id}
+                                                isSnapPoint={isSnapPoint}
+                                            >
+                                                <>
+                                                    <Image
+                                                        src={item.cover}
+                                                        className="w-full rounded-t-lg"
+                                                        width={500}
+                                                        height={500}
+                                                        style={{ width: "100%", height: "auto" }}
+                                                        alt="Placeholder"
+                                                    />
+                                                </>
+                                            </CarouselByProviderPhotoItem>
+                                        )}
+                                    />
+                                </div>
                                 <RightNowActivityOrderChooseProviderInfo
                                     lng={lng}
                                     providerData={item}

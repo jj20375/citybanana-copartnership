@@ -1,13 +1,13 @@
 "use client";
 import { memo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import type { RightNowActivityOrderDetailProviderSigupCard } from "../rightnowactivity-order-interface";
+import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "../rightnowactivity-order-interface";
 import Image from "next/image";
 
 /**
  * 服務商報名即刻快閃活動 卡片 ui
  */
-const RightNowActivityOrderSignUpCard = memo(({ lng, providerCardData, customClass }: { lng: string; providerCardData: RightNowActivityOrderDetailProviderSigupCard; customClass?: string | void }) => {
+const RightNowActivityOrderSignUpCard = memo(({ lng, providerCardData, customClass }: { lng: string; providerCardData: RightNowActivityOrderDetailProviderSigupCardInterface; customClass?: string | void }) => {
     const { t } = useTranslation(lng, "main");
     const providerInit: string[] = [];
 
