@@ -53,7 +53,7 @@ export default function RightNowActivityOrderDetailView({ lng }: { lng: string }
 
     // 原始訂單資料
     const [order, setOrder] = useState<any>({});
-    // 顯示訂單滋藥
+    // 顯示訂單資料
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
     // 訂單上方資料
     const [orderTopContent, setOrderTopContent] = useState<DisplayOrder>();

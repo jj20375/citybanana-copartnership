@@ -212,6 +212,12 @@
         "confirm-3": "按下確定後將進行付款。"
     },
     "orderDetail": {
-        "title": "訂單明細"
+        "title": "訂單明細",
+        "title-success": "您的訂單已成立",
+        "title-cancel": "您的訂單已取消"
+    },
+    "orderCancel": {
+        "button-uncareful": "不小心按錯？",
+        "button-recreate": "重新下訂"
     }
 }

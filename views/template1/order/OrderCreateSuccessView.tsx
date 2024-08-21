@@ -11,6 +11,7 @@ import RightNowActivityOrderChangeRequiredProviderCountModal from "../rightnowac
 import RightNowActivityOrderCancelModal from "../rightnowactivity-order/components/RightNowActivityOrderCancelModal";
 // 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
+import Image from "next/image";
 
 /**
  * 訂單詳細資料
@@ -71,13 +72,16 @@ export default function OrderDetailView({ lng }: { lng: string }) {
     const [order, setOrder] = useState<any>({});
 
     const RenderTitle = () => (
-        <div className="flex items-center mb-[40px] font-bold">
-            <Icon
-                className="text-3xl cursor-pointer text-black"
-                icon="iconamoon:arrow-left-2-light"
-                onClick={backList}
+        <div className=" mb-[40px] font-bold">
+            <Image
+                src="/img/icons/order-create-success.svg"
+                alt="order create success"
+                width={100}
+                height={100}
+                style={{ width: "50px", height: "auto" }}
+                className="mx-auto"
             />
-            <h1 className="text-black w-full text-md-title text-center">{t("orderDetail.title")}</h1>
+            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("orderDetail.title-success")}</h1>
         </div>
     );
 
