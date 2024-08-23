@@ -282,166 +282,168 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     }, [priceValue, durationValue]);
 
     return (
-        <div className="flex">
-            <div className="mx-auto max-w-[400px]">
-                <form
-                    className="mt-[40px]"
-                    onSubmit={handleSubmit(onSubmit, onError)}
-                >
-                    <OrderByPriceInput
-                        lng={lng}
-                        register={register}
-                        label="order.price"
-                        value={priceValue}
-                        setValue={setValue}
-                        required={true}
-                    />
-                    {errors.order?.price && <p className="text-red-600 OpenSans">{errors.order?.price.message}</p>}
-                    <OrderByDurationSelect
-                        lng={lng}
-                        register={register}
-                        label="order.duration"
-                        value={durationValue}
-                        setValue={setValue}
-                        required={true}
-                    />
-                    <OrderByRadioTimeType
-                        lng={lng}
-                        register={register}
-                        label="order.timeType"
-                        value={timeTypeValue}
-                        setValue={setValue}
-                        required={true}
-                    />
-                    {timeTypeValue === "now" && (
-                        <div className="text-base-content text-gray-third">
-                            {t("rightNowActivityOrder.radioTimeType.description_start")}：<span className="text-primary mx-1">60</span>
-                            {t("rightNowActivityOrder.radioTimeType.description_end")}
-                        </div>
-                    )}
-                    {timeTypeValue === "chooseTime" && (
-                        <>
-                            <div>
-                                <label className="text-gray-secondary mb-[15px] block">
-                                    {t("rightNowActivityOrder.startTimeTimePicker.label")} {true && <span className="text-primary">*</span>}
-                                </label>
-                                <div className="flex">
-                                    <OrderByStartDateDatePicker
-                                        lng={lng}
-                                        register={register}
-                                        label="order.startDate"
-                                        value={startDateValue}
-                                        setValue={setValue}
-                                        required={true}
-                                    />
-                                    <div className="ml-[15px]">
+        <>
+            <div className="flex">
+                <div className="mx-auto max-w-[400px]">
+                    <form
+                        className="mt-[40px]"
+                        onSubmit={handleSubmit(onSubmit, onError)}
+                    >
+                        <OrderByPriceInput
+                            lng={lng}
+                            register={register}
+                            label="order.price"
+                            value={priceValue}
+                            setValue={setValue}
+                            required={true}
+                        />
+                        {errors.order?.price && <p className="text-red-600 OpenSans">{errors.order?.price.message}</p>}
+                        <OrderByDurationSelect
+                            lng={lng}
+                            register={register}
+                            label="order.duration"
+                            value={durationValue}
+                            setValue={setValue}
+                            required={true}
+                        />
+                        <OrderByRadioTimeType
+                            lng={lng}
+                            register={register}
+                            label="order.timeType"
+                            value={timeTypeValue}
+                            setValue={setValue}
+                            required={true}
+                        />
+                        {timeTypeValue === "now" && (
+                            <div className="text-base-content text-gray-third">
+                                {t("rightNowActivityOrder.radioTimeType.description_start")}：<span className="text-primary mx-1">60</span>
+                                {t("rightNowActivityOrder.radioTimeType.description_end")}
+                            </div>
+                        )}
+                        {timeTypeValue === "chooseTime" && (
+                            <>
+                                <div>
+                                    <label className="text-gray-secondary mb-[15px] block">
+                                        {t("rightNowActivityOrder.startTimeTimePicker.label")} {true && <span className="text-primary">*</span>}
+                                    </label>
+                                    <div className="flex">
+                                        <OrderByStartDateDatePicker
+                                            lng={lng}
+                                            register={register}
+                                            label="order.startDate"
+                                            value={startDateValue}
+                                            setValue={setValue}
+                                            required={true}
+                                        />
+                                        <div className="ml-[15px]">
+                                            {startDateValue && (
+                                                <OrderByStartTimeTimePicker
+                                                    lng={lng}
+                                                    register={register}
+                                                    label="order.startTime"
+                                                    value={startTimeValue}
+                                                    setValue={setValue}
+                                                    required={true}
+                                                    startDate={startDateValue}
+                                                />
+                                            )}
+                                        </div>
+                                    </div>
+                                    {errors.order?.startDate && <p className="text-red-600 OpenSans">{errors.order?.startDate.message}</p>}
+                                    {errors.order?.startTime && <p className="text-red-600 OpenSans">{errors.order?.startTime.message}</p>}
+                                </div>
+                                <div className="mt-[15px]">
+                                    <label className="text-gray-secondary mb-[15px] block">
+                                        {t("rightNowActivityOrder.dueDateTime.label")} {true && <span className="text-primary">*</span>}
+                                    </label>
+                                    <div className="flex">
                                         {startDateValue && (
-                                            <OrderByStartTimeTimePicker
+                                            <OrderByDueDateDatePicker
                                                 lng={lng}
                                                 register={register}
-                                                label="order.startTime"
-                                                value={startTimeValue}
+                                                label="order.dueDate"
+                                                value={dueDateValue}
                                                 setValue={setValue}
                                                 required={true}
                                                 startDate={startDateValue}
                                             />
                                         )}
+                                        {startDateValue && startTimeValue && dueDateValue ? (
+                                            <div className="ml-[15px]">
+                                                <OrderByDueDateTimeTimePicker
+                                                    lng={lng}
+                                                    register={register}
+                                                    label="order.dueTime"
+                                                    value={dueTimeValue}
+                                                    setValue={setValue}
+                                                    required={true}
+                                                    startDate={startDateValue}
+                                                    startTime={startTimeValue}
+                                                    dueDate={dueDateValue}
+                                                />
+                                            </div>
+                                        ) : null}
                                     </div>
+                                    {errors.order?.dueDate && <p className="text-red-600 OpenSans">{errors.order?.dueDate.message}</p>}
+                                    {errors.order?.dueTime && <p className="text-red-600 OpenSans">{errors.order?.dueTime.message}</p>}
+                                    {startDateValue && startTimeValue && dueDateValue && dueTimeValue ? <p className="text-gray-secondary text-xs-content mt-[15px]">最晚招募截止時間: {JSON.stringify(dayjs().add(24, "hour").format("YYYY-MM-DD a hh:mm"))}</p> : null}
                                 </div>
-                                {errors.order?.startDate && <p className="text-red-600 OpenSans">{errors.order?.startDate.message}</p>}
-                                {errors.order?.startTime && <p className="text-red-600 OpenSans">{errors.order?.startTime.message}</p>}
-                            </div>
-                            <div className="mt-[15px]">
-                                <label className="text-gray-secondary mb-[15px] block">
-                                    {t("rightNowActivityOrder.dueDateTime.label")} {true && <span className="text-primary">*</span>}
-                                </label>
-                                <div className="flex">
-                                    {startDateValue && (
-                                        <OrderByDueDateDatePicker
-                                            lng={lng}
-                                            register={register}
-                                            label="order.dueDate"
-                                            value={dueDateValue}
-                                            setValue={setValue}
-                                            required={true}
-                                            startDate={startDateValue}
-                                        />
-                                    )}
-                                    {startDateValue && startTimeValue && dueDateValue ? (
-                                        <div className="ml-[15px]">
-                                            <OrderByDueDateTimeTimePicker
-                                                lng={lng}
-                                                register={register}
-                                                label="order.dueTime"
-                                                value={dueTimeValue}
-                                                setValue={setValue}
-                                                required={true}
-                                                startDate={startDateValue}
-                                                startTime={startTimeValue}
-                                                dueDate={dueDateValue}
-                                            />
-                                        </div>
-                                    ) : null}
-                                </div>
-                                {errors.order?.dueDate && <p className="text-red-600 OpenSans">{errors.order?.dueDate.message}</p>}
-                                {errors.order?.dueTime && <p className="text-red-600 OpenSans">{errors.order?.dueTime.message}</p>}
-                                {startDateValue && startTimeValue && dueDateValue && dueTimeValue ? <p className="text-gray-secondary text-xs-content mt-[15px]">最晚招募截止時間: {JSON.stringify(dayjs().add(24, "hour").format("YYYY-MM-DD a hh:mm"))}</p> : null}
-                            </div>
-                        </>
-                    )}
-                    <OrderByRequiredProviderCountSelect
-                        lng={lng}
-                        register={register}
-                        label="order.requiredProviderCount"
-                        value={requiredProviderCountValue}
-                        setValue={setValue}
-                        required={true}
-                    />
-                    <OrderByNoteTextarea
-                        lng={lng}
-                        register={register}
-                        label="order.note"
-                        value={noteValue}
-                        setValue={setValue}
-                        required={false}
-                    />
-                    <div className="mt-[40px] flex items-start">
-                        <input
-                            id="order.accept"
-                            {...register("order.accept")}
-                            type="checkbox"
-                            className="mr-[15px] mt-0.5"
+                            </>
+                        )}
+                        <OrderByRequiredProviderCountSelect
+                            lng={lng}
+                            register={register}
+                            label="order.requiredProviderCount"
+                            value={requiredProviderCountValue}
+                            setValue={setValue}
+                            required={true}
                         />
-                        <label
-                            className="text-gray-primary block leading-none m-0 p-0 underline font-light"
-                            htmlFor="order.accept"
-                        >
-                            {t("rightNowActivityOrder.accept.label")}
-                        </label>
-                    </div>
-                    <div className="border-b border-gray-primary mt-[40px] flex items-end">
-                        <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
-                        <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
-                    </div>
+                        <OrderByNoteTextarea
+                            lng={lng}
+                            register={register}
+                            label="order.note"
+                            value={noteValue}
+                            setValue={setValue}
+                            required={false}
+                        />
+                        <div className="mt-[40px] flex items-start">
+                            <input
+                                id="order.accept"
+                                {...register("order.accept")}
+                                type="checkbox"
+                                className="mr-[15px] mt-0.5"
+                            />
+                            <label
+                                className="text-gray-primary block leading-none m-0 p-0 underline font-light"
+                                htmlFor="order.accept"
+                            >
+                                {t("rightNowActivityOrder.accept.label")}
+                            </label>
+                        </div>
+                        <div className="border-b border-gray-primary mt-[40px] flex items-end">
+                            <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
+                            <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>
+                        </div>
 
-                    <button
-                        type="submit"
-                        className="PrimaryGradient DisabledGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center"
-                        disabled={errors.order ? true : false}
-                    >
-                        {t("global.nextStep")}
-                    </button>
-                </form>
-                {/* <FormSample /> */}
-                {/* <Link href={"/phone-validation?" + "a=2"}>
+                        <button
+                            type="submit"
+                            className="PrimaryGradient DisabledGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center"
+                            disabled={errors.order ? true : false}
+                        >
+                            {t("global.nextStep")}
+                        </button>
+                    </form>
+                    {/* <FormSample /> */}
+                    {/* <Link href={"/phone-validation?" + "a=2"}>
                     <button className="PrimaryGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center">{t("global.nextStep")}</button>
                 </Link> */}
 
-                <ContactWe lng={lng} />
-                <div className="h-[123px] w-full"></div>
+                    <ContactWe lng={lng} />
+                    <div className="h-[123px] w-full"></div>
+                </div>
             </div>
             <pre className="flex">{JSON.stringify(order, null, 4)}</pre>
-        </div>
+        </>
     );
 }
 

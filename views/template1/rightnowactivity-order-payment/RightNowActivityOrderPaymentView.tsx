@@ -107,8 +107,8 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         reset();
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
-        const host = `${origin}/${lng}/rightnowactivity-order/1`;
-        router.push(`/rightnowactivity-order/1`);
+        const host = `${origin}/${lng}/rightnowactivity-recruitment-order/1`;
+        router.push(`/rightnowactivity-recruitment-order/1`);
     };
 
     // 上一步按鈕事件

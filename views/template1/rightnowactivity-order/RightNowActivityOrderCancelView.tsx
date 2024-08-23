@@ -5,12 +5,10 @@ import RightNowActivityOrderDetail from "../components/RightNowActivityOrderDeta
 import { Icon } from "@iconify/react";
 import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "@/views/template1/rightnowactivity-recruitment-order/rightnowactivity-order-interface";
-// 增加服務商數量彈窗
-import RightNowActivityOrderChangeRequiredProviderCountModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderChangeRequiredProviderCountModal";
-// 取消活動彈窗
-import RightNowActivityOrderCancelModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderCancelModal";
 // 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
+import Image from "next/image";
+import ButtonBorderGradient from "../components/ButtonBorderGradient";
 
 /**
  * 訂單詳細資料
@@ -28,25 +26,10 @@ export default function OrderDetailView({ lng }: { lng: string }) {
             column: string;
         }[];
     };
-    const backList = () => {
-        router.push("/");
-    };
 
-    // 新增服務商人數彈窗 dom
-    const changeRequiredProviderCountRef = useRef<any>();
-
-    // 開啟修改服務商人數彈窗
-    const openChangeRequiredProviderCountModal = () => {
-        changeRequiredProviderCountRef.current.openModal();
-    };
-
-    // 取消活動彈窗 dom
-    const cancelOrderModalRef = useRef<any>();
-
-    // 開啟取消活動彈窗
-    const openCancelOrderModal = () => {
-        cancelOrderModalRef.current.openModal();
-    };
+    const [seconds, setSeconds] = useState(5);
+    const [isCounting, setIsCounting] = useState(false);
+    const timerRef = useRef<any>(null);
 
     const [provider, setProvider] = useState<RightNowActivityOrderDetailProviderSigupCardInterface>({
         id: `provider-${0}`,
@@ -70,30 +53,44 @@ export default function OrderDetailView({ lng }: { lng: string }) {
 
     const [order, setOrder] = useState<any>({});
 
+    // 重新下訂按鈕事件
+    const handleReCreate = () => {
+        return router.push("/create-rightnowactivity-order");
+    };
+
+    // 不小按錯按鈕事件
+    const onSubmit = () => {};
+
     const RenderTitle = () => (
-        <div className="flex items-center mb-[40px] font-bold">
-            <Icon
-                className="text-3xl cursor-pointer text-black"
-                icon="iconamoon:arrow-left-2-light"
-                onClick={backList}
+        <div className=" mb-[40px] font-bold">
+            <Image
+                src="/img/icons/order-cancel.svg"
+                alt="order create success"
+                width={100}
+                height={100}
+                style={{ width: "50px", height: "auto" }}
+                className="mx-auto"
             />
-            <h1 className="text-black w-full text-md-title text-center">{t("rightNowActivityOrderDetail.title")}</h1>
+            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-cancel")}</h1>
         </div>
     );
 
     const RenderButton = () => (
         <div className="flex flex-col">
+            <ButtonBorderGradient
+                onClick={onSubmit}
+                buttonText={t("rightNowActivityOrderCancel.button-uncareful") + ` (${seconds})`}
+                outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
+                insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}
+                isDisabled={false}
+                buttonType="submit"
+            />
             <button
-                onClick={openChangeRequiredProviderCountModal}
-                className="border border-primary text-primary h-[45px] w-full mb-[15px]"
+                type="button"
+                className="w-full mt-[15px] text-primary border rounded-md h-[45px] border-primary mr-[13px]"
+                onClick={handleReCreate}
             >
-                {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
-            </button>
-            <button
-                onClick={openCancelOrderModal}
-                className="border border-gray-third text-gray-third h-[45px] w-full"
-            >
-                {t("global.cancel-activity")}
+                {t("rightNowActivityOrderCancel.button-recreate")}
             </button>
         </div>
     );
@@ -134,7 +131,24 @@ export default function OrderDetailView({ lng }: { lng: string }) {
             price: 2000,
             duration: 2,
         });
+        setIsCounting(true);
     }, []);
+
+    useEffect(() => {
+        if (isCounting) {
+            timerRef.current = setInterval(() => {
+                setSeconds((prevSeconds) => {
+                    if (prevSeconds <= 1) {
+                        clearInterval(timerRef.current);
+                        setIsCounting(false);
+                        return 0;
+                    }
+                    return prevSeconds - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(timerRef.current);
+    }, [isCounting]);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
             <RightNowActivityOrderDetail
@@ -144,21 +158,6 @@ export default function OrderDetailView({ lng }: { lng: string }) {
                 providerData={provider}
                 displayOrder={apiDatas}
                 orderData={order}
-            />
-            <RightNowActivityOrderChangeRequiredProviderCountModal
-                lng={lng}
-                orderId="123"
-                currentProviderCount={2}
-                ref={changeRequiredProviderCountRef}
-            />
-            <RightNowActivityOrderCancelModal
-                lng={lng}
-                orderId="123"
-                description={t("rightNowActivityOrderRecruitmentDetail.cancel.description")}
-                needConfirm={true}
-                confirmText={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox")}
-                confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
-                ref={cancelOrderModalRef}
             />
             <ContactWe lng={lng} />
         </div>

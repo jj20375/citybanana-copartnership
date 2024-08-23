@@ -169,7 +169,6 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                         register={register}
                     />
                     {errors.form?.phone && <p className="text-red-600 OpenSans">{errors.form?.phone.message}</p>}
-
                     <div className="flex mt-[30px]">
                         <PhoneSmsValidateCodeInput
                             lng={lng}
@@ -187,29 +186,31 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                         />
                     </div>
                     {errors.form?.validateCode && <p className="text-red-600 OpenSans">{errors.form?.validateCode.message}</p>}
-
-                    <div className="mt-[40px]">
+                    <div className="mt-[40px] flex justify-center">
                         <ReCAPTCHA
                             sitekey={recaptcha2Key}
                             onChange={onRecaptchaChange}
                         />
                     </div>
-                    <div className="flex">
-                        <button
-                            className="border p-2"
-                            onClick={startCountdown}
-                        >
-                            Start Countdown
-                        </button>
-                        <button
-                            className="border p-2"
-                            onClick={cancelCountdown}
-                        >
-                            Cancel Countdown
-                        </button>
+                    <div>
+                        <p className="text-center">測試倒數計時按鈕</p>
+                        <div className="flex justify-center">
+                            <button
+                                className="border p-2"
+                                onClick={startCountdown}
+                            >
+                                Start Countdown
+                            </button>
+                            <button
+                                className="border p-2"
+                                onClick={cancelCountdown}
+                            >
+                                Cancel Countdown
+                            </button>
+                        </div>
                     </div>
-                    <div className="fixed bottom-0 w-full">
-                        <div className="flex absolute bottom-[105px] max-w-[400px] w-full">
+                    <div className="mt-[40px] w-full">
+                        <div className="flex  max-w-[400px] w-full">
                             <div className="flex-1">
                                 <ButtonBorderGradient
                                     onClick={onPrevStepButtonClick}
@@ -231,12 +232,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                                 />
                             </div>
                         </div>
-
-                        <div className="flex justify-center w-full max-w-[400px]">
-                            <div className="absolute bottom-[40px]">
-                                <ContactWe lng={lng} />
-                            </div>
-                        </div>
+                        <ContactWe lng={lng} />
                     </div>
                 </form>
             </div>

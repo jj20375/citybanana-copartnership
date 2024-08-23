@@ -8,7 +8,7 @@ export default async function PayWorkingView({ lng }: { lng: string }) {
 
     // 下一步按鈕事件
     const onNextStepButtonClick = () => {
-        redirect(`/order/1`);
+        redirect(`/rightnowactivity-order/1`);
     };
 
     return (
@@ -25,7 +25,7 @@ export default async function PayWorkingView({ lng }: { lng: string }) {
             <p className="text-[#7c7c7c] text-[20px] mt-[30px] whitespace-pre-wrap">{t("payWorking.description")}</p>
             <Link
                 href={{
-                    pathname: "/order/1",
+                    pathname: "/rightnowactivity-order/success/1",
                 }}
             >
                 測試下一步

@@ -28,7 +28,7 @@ export async function useTranslation(lng: string, ns: string, options = {}) {
         }
         // 判斷有傳入此 key 時代表服務商報價 且為開單細節 出席鐘點費要用 服務商報價語系回傳
         if (options.customPriceByDetailHourPrice === 0) {
-            return i18nextInstance.t("rightNowActivityOrderDetail.value-price-0");
+            return i18nextInstance.t("rightNowActivityOrderRecruitmentDetail.value-price-0");
         }
         return `$ ${formatMillion(value)}`;
     });
