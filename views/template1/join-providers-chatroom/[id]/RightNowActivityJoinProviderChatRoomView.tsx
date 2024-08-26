@@ -1,17 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
-import { Input } from "antd";
 import Image from "next/image";
 import ContactWe from "../../components/ContactWe";
 import styles from "../styles/RightNowActivityJoinProviderChatRoomListView.module.scss";
 import { tmc } from "@/service/utils";
 // 無限滾動套件
 import InfiniteScroll from "react-infinite-scroll-component";
+// 聊天室內容 ui
+import MessageItem from "./components/MessageItem";
+// 發送聊天室訊息 ui
+import SendMessage from "./components/SendMessage";
 import dayjs from "dayjs";
+import { MessageInterface, ProviderDataByChatRoomInterface } from "./RightNowActivityJoinProviderChatRoom-interface";
 
 /**
  * 與報名服務商1對1聊天室 ui
@@ -19,27 +23,22 @@ import dayjs from "dayjs";
  * @returns
  */
 export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng: string }) {
-    interface ProviderDataInterface {
-        id: string;
-        name: string;
-        cover: string;
-    }
-    interface Message {
-        id: string;
-        userId: string;
-        createdAt: string;
-    }
-
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
 
+    const sendMessageRef = useRef<any>(null);
+
+    const onSendMessage = () => {
+        sendMessageRef.current?.onSendMessage();
+    };
+
     const [orderId, setOrderId] = useState<string>("1");
-    const [providerData, setProviderData] = useState<ProviderDataInterface>({
+    const [providerData, setProviderData] = useState<ProviderDataByChatRoomInterface>({
         name: "",
         cover: "",
         id: "",
     });
-    const [messages, setMessages] = useState<Message[]>();
+    const [messages, setMessages] = useState<MessageInterface[]>();
 
     // 導頁去報名服務商聊天室列表
     const goToList = () => {
@@ -57,11 +56,12 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng:
         // 20 more records in 1.5 secs
         setTimeout(() => {
             if (Array.isArray(messages)) {
-                const arr: Message[] = [
+                const arr: MessageInterface[] = [
                     ...messages,
                     ...Array.from({ length: 10 }).map((_, i) => ({
                         id: `message-${i + messages.length}`,
                         userId: `userId-${messages.length}`,
+                        content: `testmessage-${i}`,
                         createdAt: new Date().toDateString(),
                     })),
                 ];
@@ -80,6 +80,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng:
             Array.from({ length: 10 }).map((_, i) => ({
                 id: `message-${i}`,
                 userId: `userId-${i}`,
+                content: `testmessage-${i}`,
                 createdAt: new Date().toDateString(),
             }))
         );
@@ -118,34 +119,22 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng:
                             loader={<h4>Loading...</h4>}
                             scrollableTarget="scrollableDiv"
                         >
-                            {messages.map((message) => (
-                                <li
+                            {messages.map((message, index) => (
+                                <MessageItem
                                     key={message.id}
-                                    className="mb-2 flex items-center"
-                                >
-                                    {typeof providerData.cover === "string" && (
-                                        <Image
-                                            src={providerData.cover}
-                                            alt="provider cover"
-                                            width={100}
-                                            height={100}
-                                            style={{ width: "50px", height: "auto" }}
-                                            className="rounded-full mr-[13px]"
-                                        />
-                                    )}
-                                    <div className="flex items-end">
-                                        <span className="bg-gray-light rounded-full py-[9px] px-[15px] text-gray-primary text-[15px] mr-[13px]">{message.id}</span>
-                                        <span>{dayjs(message.createdAt).format("H:mm")}</span>
-                                    </div>
-                                </li>
+                                    index={index}
+                                    lng={lng}
+                                    message={message}
+                                    providerData={providerData}
+                                />
                             ))}
                         </InfiniteScroll>
                     )}
                 </ul>
                 <div className={tmc([styles["chatroom"], "flex items-center relative my-2"])}>
-                    <Input
-                        className="h-[46px]"
-                        placeholder={t("rightNowActivityJoinProvidersChatRoom.input-placeholder")}
+                    <SendMessage
+                        lng={lng}
+                        ref={sendMessageRef}
                     />
                     <Image
                         src="/img/icons/photo.svg"
@@ -153,7 +142,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng:
                         height={100}
                         alt="chatroom photo"
                         style={{ width: "30px", height: "auto" }}
-                        className="absolute h-full right-[60px]"
+                        className="absolute h-full right-[90px]"
                     />
                     <Image
                         src="/img/icons/location.svg"
@@ -161,7 +150,15 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng:
                         height={100}
                         alt="chatroom photo"
                         style={{ width: "30px", height: "auto" }}
-                        className="absolute h-full right-[20px]"
+                        className="absolute h-full right-[50px]"
+                    />
+                    <Image
+                        src="/img/icons/send-message.svg"
+                        width={100}
+                        height={100}
+                        alt="chatroom photo"
+                        style={{ width: "30px", height: "auto" }}
+                        className="h-full mx-[10px]"
                     />
                 </div>
             </div>

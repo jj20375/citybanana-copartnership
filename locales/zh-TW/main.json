@@ -234,6 +234,9 @@
         "title": "聯繫服務商",
         "watingProviders": "待赴約之服務商",
         "button-seeOrder": "查看訂單明細",
-        "input-placeholder": "發送訊息"
+        "input-placeholder": "發送訊息",
+        "validation": {
+            "message_requiredErrMessage": "請輸入訊息"
+        }
     }
 }
