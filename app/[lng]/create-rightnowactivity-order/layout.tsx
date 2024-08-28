@@ -1,5 +1,5 @@
 import { HeaderContent } from "@/layouts/template1/Header";
-export default function Layout({ children, lng }: { children: React.ReactNode; lng: string }) {
+export default function Layout({ children, params: { lng } }: { children: React.ReactNode; params: { lng: string } }) {
     return (
         <>
             <HeaderContent lng={lng} />
