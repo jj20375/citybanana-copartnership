@@ -83,34 +83,23 @@ const OrderByDueDateTimeTimePicker = memo(
 
         const filterPassedTime = (time: Date) => {
             const currentDate = new Date();
+            // 活動開始日期與時辰
+            const startDateTimeSelect = new Date(dayjs(startTime).toDate());
+            // 招募日期
             let dueDateSelect = new Date(dayjs(dueDate).toDate());
             // 時間選擇器的日期時間
             const selectedDate = new Date(time);
 
-            console.log("work same", dayjs(dueDate).format("YYYY-MM-DD") === dayjs(startDate).format("YYYY-MM-DD"));
+            if (dayjs(dueDate).format("YYYY-MM-DD") === dayjs(startDate).format("YYYY-MM-DD")) {
+                return new Date(startTime).getTime() >= selectedDate.getTime() && selectedDate.getTime() > currentDate.getTime();
+            }
             // 判斷開始時間等於現在時間需加上現在的時辰與分鐘時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
             if (dayjs(dueDateSelect).format("YYYY-MM-DD") === dayjs(currentDate).format("YYYY-MM-DD")) {
                 console.log("work1 dueTime");
-                dueDateSelect = new Date(
-                    dayjs(dueDateSelect)
-                        .add(dayjs().hour() - 1, "hour")
-                        .add(dayjs().minute(), "minute")
-                        .toDate()
-                );
-                return dueDateSelect.getTime() < selectedDate.getTime();
-            }
-            // 活動開始日期 加上 選擇的活動開始時辰
-            const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
-            // 判斷當活動開始時間 > 招募截止時間 時觸發
-            if (startDateTimeSelect.getTime() > dueDateSelect.getTime()) {
-                // 當活動日期 與招募截止日期同一天時觸發
-                if (startDate === dueDate) {
-                    console.log("work2 dueTime");
-                    return startDateTimeSelect.getTime() >= selectedDate.getTime();
-                }
+                return startDateTimeSelect.getTime() < selectedDate.getTime() || selectedDate.getTime() > currentDate.getTime();
             }
             console.log("work3 dueTime");
-            return dueDateSelect.getTime() >= selectedDate.getTime();
+            return dueDateSelect.getTime() >= selectedDate.getTime() && selectedDate.getTime() > currentDate.getTime();
         };
 
         useEffect(() => {
@@ -130,7 +119,7 @@ const OrderByDueDateTimeTimePicker = memo(
                     showTimeSelectOnly
                     timeIntervals={60}
                     minTime={setHours(setMinutes(new Date(), 0), 0)}
-                    maxTime={setHours(setMinutes(new Date(startDate), 60), 23)}
+                    maxTime={setHours(setMinutes(new Date(), 60), 23)}
                     timeCaption={t("global.time")}
                     dateFormat="MM-dd h:mm aa"
                     filterTime={filterPassedTime}

@@ -32,7 +32,7 @@ import Link from "next/link";
 import FormSample from "@/layouts/template1/HeaderComponents/Login/LoginForm/FormSample";
 import ContactWe from "@/views/template1/components/ContactWe";
 import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
-import { addDays, getYear, getMonth, subDays, addHours, startOfHour } from "date-fns";
+import { addDays, getYear, getMonth, subDays, addHours, startOfHour, isDate } from "date-fns";
 import { isEmpty } from "@/service/utils";
 import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActivityOrder-service";
 
@@ -164,8 +164,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 2. 招募截止日期 = 活動開始日期
          * 3. 招募截止時間 = 活動開始時間
          */
-        if (dayjs(startDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && !isEmpty(startDateValue)) {
-            alert(JSON.stringify(startDateValue));
+        if (dayjs(startDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && isDate(dayjs(startDateValue).toDate())) {
             // 設定 活動開始時間為當下時間往後推1小時為預設值
             setValue(
                 "order.startTime",
@@ -179,7 +178,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
             setValue("order.dueTime", startTimeValue);
             return;
         }
-        if (!isEmpty(startDateValue)) {
+        if (isDate(dayjs(startDateValue).toDate())) {
             /**
              * 當活動開始日期大於當天時
              * 1. 活動開始時間為活動日期當天的中午12點整
@@ -201,9 +200,11 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 
         // 當活動開始時間 有變動時 招募截止日期跟著變動
         if (startTimeValue! > addHours(new Date(), 24)) {
+            console.log("startTime work1");
             return setValue("order.dueTime", startOfHour(addHours(new Date(), 24)));
         }
-        if (!isEmpty(startTimeValue)) {
+        if (isDate(dayjs(startTimeValue).toDate())) {
+            console.log("startTime work2");
             return setValue("order.dueTime", startTimeValue);
         }
     }, [startTimeValue]);
@@ -222,11 +223,22 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 當招募日期等於當天時
          * 1. 設定 招募截止時間為當下時間往後推1小時為預設值
          */
-        if (dayjs(dueDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && !isEmpty(dueDateValue)) {
+        if (dayjs(dueDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && isDate(dayjs(dueDateValue).toDate())) {
+            console.log("work dueDay change1");
             // 設定 招募截止時間為當下時間往後推1小時為預設值
-            return setValue("order.dueTime", startOfHour(addHours(new Date(dueDateValue as Date), 1)));
+            return setValue("order.dueTime", startOfHour(addHours(new Date(), 1)));
         }
-        if (!isEmpty(dueDateValue)) {
+        /**
+         * 當有選擇招募截止時間 且
+         * 招募截止日期等於活動開始日期 此時
+         * 招募截止時間等於活動開始時間
+         */
+        if (isDate(dayjs(dueDateValue).toDate()) && isDate(startTimeValue) && isDate(dueTimeValue) && dayjs(dueDateValue).format("YYYY-MM-DD") === dayjs(startDateValue).format("YYYY-MM-DD") && new Date(startTimeValue).getTime() > new Date(dueTimeValue).getTime()) {
+            console.log("work dueDay change3");
+            return setValue("order.dueTime", startTimeValue);
+        }
+        if (isDate(dayjs(dueDateValue).toDate()) && isDate(startTimeValue) && isDate(dueTimeValue) && new Date(startTimeValue).getTime() > new Date(dueTimeValue).getTime()) {
+            console.log("work dueDay change2");
             /**
              * 當招募截止日期大於當天時間時
              * 1. 招募截止時間為招募截止日期當天的中午12點整
