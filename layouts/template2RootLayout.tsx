@@ -4,7 +4,7 @@ import { Inter } from "next/font/google";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { dir } from "i18next";
 const inter = Inter({ subsets: ["latin"] });
-export default function Tmp1RootLayout({ children, lang }: { children: React.ReactNode; lang: string }) {
+export default function Tmp2RootLayout({ children, lang }: { children: React.ReactNode; lang: string }) {
     return (
         <html
             lang={lang}

@@ -1,4 +1,6 @@
+// 預設語系
 export const fallbackLang = "en";
+// 可用語系
 export const languages = [fallbackLang, "zh-TW"];
 export const cookieName = "i18next";
 // 預設語系檔 檔名

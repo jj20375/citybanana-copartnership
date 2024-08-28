@@ -14,6 +14,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import MessageItem from "./components/MessageItem";
 // 發送聊天室訊息 ui
 import SendMessage from "./components/SendMessage";
+// 聊天室上傳圖片 ui
+import ChatRoomUpload from "./components/ChatRoomUploadPhoto";
 import dayjs from "dayjs";
 import { MessageInterface, ProviderDataByChatRoomInterface } from "./RightNowActivityJoinProviderChatRoom-interface";
 
@@ -136,14 +138,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng }: { lng:
                         lng={lng}
                         ref={sendMessageRef}
                     />
-                    <Image
-                        src="/img/icons/photo.svg"
-                        width={100}
-                        height={100}
-                        alt="chatroom photo"
-                        style={{ width: "30px", height: "auto" }}
-                        className="absolute h-full right-[90px]"
-                    />
+                    <ChatRoomUpload lng={lng} />
                     <Image
                         src="/img/icons/location.svg"
                         width={100}

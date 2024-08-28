@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import AuthLayoutServerProvider from "@/providers/authLayoutServerProvider";
-import Header from "@/layouts/template1/Header";
 import ReduxProvider from "@/providers/reduxProvider";
 import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
@@ -30,7 +29,6 @@ export default function Tmp1RootLayout({ children, lang }: { children: React.Rea
             <body className={`${notoSansTc.className} ${openSans.variable}`}>
                 <Suspense fallback={<p>Loading feed...</p>}>
                     <ReduxProvider>
-                        <Header />
                         <AuthLayoutServerProvider>{children}</AuthLayoutServerProvider>
                     </ReduxProvider>
                 </Suspense>

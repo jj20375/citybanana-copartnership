@@ -1,12 +1,22 @@
 import { GetFooterDatasAPI } from "@/api/utilsAPI";
-import HeaderMenu from "./HeaderComponents/Menu/HeaderMenu";
+import { HeaderIndexMenu, HeaderContentMenu } from "./HeaderComponents/Menu/HeaderMenu";
 
-export default async function Page() {
+export async function HeaderIndex({ lng }: { lng: string }) {
     const menus: never[] = [];
     return (
         <>
             <header className="flex items-center">
-                <HeaderMenu menus={menus} />
+                <HeaderIndexMenu menus={menus} />
+            </header>
+        </>
+    );
+}
+export async function HeaderContent({ lng }: { lng: string }) {
+    const menus: never[] = [];
+    return (
+        <>
+            <header className="flex items-center">
+                <HeaderContentMenu menus={menus} />
             </header>
         </>
     );

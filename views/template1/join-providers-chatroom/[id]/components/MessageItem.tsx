@@ -30,12 +30,12 @@ const MessageItem = memo(({ lng, message, providerData, index }: { lng: string; 
                 {index % 2 === 0 ? (
                     <>
                         <div className={tmc(["bg-gray-light rounded-full py-[9px] px-[15px] text-gray-primary text-[15px] mr-[13px]"])}>{message.content}</div>
-                        <span>{dayjs(message.createdAt).format("H:mm")}</span>
+                        <div className="text-[12px] text-gray-third">{dayjs(message.createdAt).format("H:mm")}</div>
                     </>
                 ) : (
                     <>
-                        <div className="mr-[13px]">{dayjs(message.createdAt).format("H:mm")}</div>
-                        <span className={tmc(["PrimaryGradient rounded-full py-[9px] px-[15px] text-white text-[15px]"])}>{message.content}</span>
+                        <div className="mr-[13px] text-[12px] text-gray-third">{dayjs(message.createdAt).format("H:mm")}</div>
+                        <div className={tmc(["PrimaryGradient rounded-full py-[9px] px-[15px] text-white text-[15px]"])}>{message.content}</div>
                     </>
                 )}
             </div>

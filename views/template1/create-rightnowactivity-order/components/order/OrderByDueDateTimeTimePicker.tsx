@@ -87,15 +87,17 @@ const OrderByDueDateTimeTimePicker = memo(
             // 時間選擇器的日期時間
             const selectedDate = new Date(time);
 
+            console.log("work same", dayjs(dueDate).format("YYYY-MM-DD") === dayjs(startDate).format("YYYY-MM-DD"));
             // 判斷開始時間等於現在時間需加上現在的時辰與分鐘時間 ps. 這樣才可以知道 今天只剩下哪些時段能選擇
             if (dayjs(dueDateSelect).format("YYYY-MM-DD") === dayjs(currentDate).format("YYYY-MM-DD")) {
+                console.log("work1 dueTime");
                 dueDateSelect = new Date(
                     dayjs(dueDateSelect)
                         .add(dayjs().hour() - 1, "hour")
                         .add(dayjs().minute(), "minute")
                         .toDate()
                 );
-                return dueDateSelect.getTime() > selectedDate.getTime();
+                return dueDateSelect.getTime() < selectedDate.getTime();
             }
             // 活動開始日期 加上 選擇的活動開始時辰
             const startDateTimeSelect = new Date(dayjs(startDate + " " + startTime).toDate());
@@ -103,9 +105,11 @@ const OrderByDueDateTimeTimePicker = memo(
             if (startDateTimeSelect.getTime() > dueDateSelect.getTime()) {
                 // 當活動日期 與招募截止日期同一天時觸發
                 if (startDate === dueDate) {
+                    console.log("work2 dueTime");
                     return startDateTimeSelect.getTime() >= selectedDate.getTime();
                 }
             }
+            console.log("work3 dueTime");
             return dueDateSelect.getTime() >= selectedDate.getTime();
         };
 
