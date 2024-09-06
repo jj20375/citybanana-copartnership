@@ -1,24 +1,25 @@
 "use client";
 import { memo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import { MessageInterface, ProviderDataByChatRoomInterface } from "../RightNowActivityJoinProviderChatRoom-interface";
 import Image from "next/image";
 import dayjs from "dayjs";
 import { tmc } from "@/service/utils";
+import type { MessageInterface } from "../RightNowActivityJoinProviderChatRoom-interface";
+import type { ChatReceiverInterface } from "@/interface/chats";
 
 /**
  * 聊天室訊息
  */
-const MessageItem = memo(({ lng, message, providerData, index }: { lng: string; message: MessageInterface; providerData: ProviderDataByChatRoomInterface; index: number }) => {
+const MessageItem = memo(({ lng, message, providerData, index }: { lng: string; message: MessageInterface; providerData: ChatReceiverInterface; index: number }) => {
     const { t } = useTranslation(lng, "main");
     return (
         <li
             key={message.id}
             className={tmc([index % 2 === 0 ? "justify-start" : "justify-end", , "mb-2 flex items-center"])}
         >
-            {typeof providerData.cover === "string" && index % 2 === 0 && (
+            {typeof providerData.avatar === "string" && index % 2 === 0 && (
                 <Image
-                    src={providerData.cover}
+                    src={providerData.avatar}
                     alt="provider cover"
                     width={100}
                     height={100}

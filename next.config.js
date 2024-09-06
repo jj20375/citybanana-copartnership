@@ -21,7 +21,10 @@ module.exports = {
         firebase_measurementId: process.env.FIREBASE_MEASUREMENT_ID,
         firebase_databaseURL: process.env.FIREBASE_DATABASEURL,
         firebase_messagingKey: process.env.FIREBASE_MESSAGING_KEY,
+        // reacptcha key
         google_recaptcha2Key: process.env.GOOGLE_RECAPTCHA2_KEY,
+        // 聊天室客服 id
+        service_chat_id: process.env.NEXT_PUBLIC_SERVICE_CHAT_ID
     },
     experimental: {
         serverActions: true,
@@ -37,6 +40,7 @@ module.exports = {
         // 圖片緩存時間 單位秒
         minimumCacheTTL: 300,
         formats: ["image/avif", "image/webp"],
-        domains: ["picsum.photos"],
+        // 接受外部連結網址
+        domains: ["picsum.photos", "cdn-dev.citybanana.com", "banana_api.com"],
     },
 };

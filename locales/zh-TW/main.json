@@ -236,7 +236,8 @@
         "button-seeOrder": "查看訂單明細",
         "input-placeholder": "發送訊息",
         "validation": {
-            "message_requiredErrMessage": "請輸入訊息"
+            "message_requiredErrMessage": "請輸入訊息",
+            "message_minErrMessage": "最少需要{{val}}個字"
         }
     }
 }

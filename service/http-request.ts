@@ -1,12 +1,21 @@
 import { getCookie } from "cookies-next";
 export default async function useMyFetch(url: string, options: any) {
-    options.headers = {};
-    if (getCookie("accessToken") || options.token) {
-        const token = getCookie("accessToken") ?? options.token;
-        options.headers.Authorization = `Bearer ${token}`;
+    // 判斷是 formData 形式上傳資料時 不需要指定 Content-Type
+    if (typeof options.headers === "object" && Object.keys(options.headers).length > 0 && options.headers.isFormData) {
+        options.headers["Accept"] = "application/json, text/plain, */*";
+        if (getCookie("accessToken") || options.token) {
+            const token = getCookie("accessToken") ?? options.token;
+            options.headers.Authorization = `Bearer ${token}`;
+        }
+    } else {
+        options.headers = {};
+        options.headers["Content-Type"] = "application/json";
+        options.headers["Accept"] = "application/json, text/plain, */*";
+        if (getCookie("accessToken") || options.token) {
+            const token = getCookie("accessToken") ?? options.token;
+            options.headers.Authorization = `Bearer ${token}`;
+        }
     }
-    options.headers["Accept"] = "application/json, text/plain, */*";
-    options.headers["Content-Type"] = "application/json";
 
     // console.log("useMyfetch url =>", url);
     // console.log("useMyfetch options =>", options);

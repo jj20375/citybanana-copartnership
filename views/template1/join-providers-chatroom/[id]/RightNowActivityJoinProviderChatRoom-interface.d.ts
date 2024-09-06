@@ -6,10 +6,3 @@ export interface MessageInterface {
     type?: string | void;
     createdAt: string;
 }
-
-// 聊天室服務商資料
-export interface ProviderDataByChatRoomInterface {
-    id: string;
-    name: string;
-    cover: string;
-}

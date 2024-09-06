@@ -9,6 +9,7 @@ import { userReducer } from "@/store-toolkit/stores/userStore";
 import { apiReducer } from "@/store-toolkit/stores/apiStore";
 import { orderReducer } from "@/store-toolkit/stores/orderStore";
 import { utilityReducer } from "@/store-toolkit/stores/utilityStore";
+import { chatReducer } from "@/store-toolkit/stores/chatStore";
 import { createWrapper } from "next-redux-wrapper";
 
 const persistConfig = {
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
     apiStore: apiReducer,
     orderStore: orderReducer,
     utilityStore: utilityReducer,
+    chatStore: chatReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
