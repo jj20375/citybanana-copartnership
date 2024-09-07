@@ -26,6 +26,7 @@ import { setChatReceiver } from "@/store-toolkit/stores/chatStore";
 import { UserProfileInterface } from "@/interface/user";
 import type { MessageInterface } from "./RightNowActivityJoinProviderChatRoom-interface";
 import type { ChatReceiverInterface } from "@/interface/chats";
+import { firebaseCheckUserChatRoomEmpty, firebaseGetChatRoomUnReadMessageCountTotal, firebaseMessageReaded, firebaseUpdateUserUnReadMessageCount } from "@/lib/firebase/firebase-chat-hooks";
 
 /**
  * 與報名服務商1對1聊天室 ui
@@ -157,8 +158,64 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
         }
     }, []);
 
+    // 監聽聊天對象資料
+    const listenerReceiver = () => {
+        firebaseDbDoc(`chat_rooms/${id}/users/${receiverId}`).onSnapshot(
+            async (snapshot: any) => {
+                // 未取得聊天對象資料時 將聊天對象資料設定為預設值 且不往下執行
+                if (!snapshot.exists) {
+                    return;
+                }
+                console.log("work listerUserInfo", snapshot.data().userData);
+                const receiverData = snapshot.data().userData;
+                const setReceiverData: ChatReceiverInterface = {
+                    id: receiverData.banana_id!,
+                    name: receiverData.name!,
+                    avatar: receiverData.thumbnails ? receiverData.thumbnails?.avatar["360x360"] : "",
+                };
+                // 判斷有未確認訂單資料時 新增此資料到聊天對像
+                if (snapshot.data().unconfirmedOrder) {
+                    setReceiverData.unconfirmedOrder = snapshot.data().unconfirmedOrder;
+                }
+                // 判斷有已確認訂單資料時 新增此資料到聊天對像
+                if (snapshot.data().confirmedOrder) {
+                    setReceiverData.confirmedOrder = snapshot.data().confirmedOrder;
+                }
+                dispatch(setChatReceiver(setReceiverData));
+                // 判斷當前聊天對象時有未讀訊息時 要清空未讀訊息
+                if (snapshot.data().unReadMessageCount > 0) {
+                    // 取得指定對象中所有聊天對象未讀訊息總計
+                    let userUnReadMessageCount: number | boolean = await firebaseGetChatRoomUnReadMessageCountTotal(id);
+                    /**
+                     * 此部分先省略 如發生真的未建立聊天對象時 再補上
+                     */
+                    // // 判斷聊天對象是否有資料
+                    // const receiverDataEmpty = await firebaseCheckUserChatRoomEmpty(this.currentReceiveUserId);
+                    // // 聊天對象為空資料時建立
+                    // if (receiverDataEmpty) {
+                    //     // 取得服務商資料
+                    //     const { providerData } = await this.getProviderData();
+                    //     // 建立聊天對象資料
+                    //     await firebaseSetUserㄙChatRoom(providerData, this.currentReceiveUserId);
+                    // }
+                    // 更新 chat_rooms 中指定對象 所有未讀訊息數量
+                    if (typeof userUnReadMessageCount === "number") {
+                        await firebaseUpdateUserUnReadMessageCount(id, userUnReadMessageCount - snapshot.data().unReadMessageCount < 0 ? 0 : userUnReadMessageCount - snapshot.data().unReadMessageCount);
+                    }
+
+                    // 更新 firebase 聊天對象未讀訊息為 0
+                    await firebaseMessageReaded(id, receiverData.banana_id);
+                }
+            },
+            (error: any) => {
+                console.log(error);
+            }
+        );
+    };
+
     useEffect(() => {
         getReceiverData();
+        listenerReceiver();
         setTimeout(() => {
             getMessages();
         }, 1000);

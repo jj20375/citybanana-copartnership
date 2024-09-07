@@ -1,5 +1,16 @@
 import { UserProfileInterface } from "./user";
 
+// 訂單 type
+type orderDataType = {
+    order_id: string;
+    // 訂單開始時間
+    order_started: null | string;
+    // 訂單結束時間
+    order_ended: null | string;
+    // 訂單狀態
+    order_status: number;
+};
+
 export interface ChatRoomInterface {
     // 未讀訊息數量
     unReadMessageCount: number;
@@ -15,6 +26,10 @@ export interface ChatRoomInterface {
     isBot?: boolean | void;
     // 更新資料時間
     updatedAt: number;
+    // 已確認訂單
+    confirmedOrder?: orderDataType;
+    // 未確認訂單
+    unconfirmedOrder?: orderDataType;
     // 使用者資料
     userData: UserProfileInterface;
 }
@@ -50,4 +65,12 @@ export interface ChatReceiverInterface {
     id: string;
     name: string;
     avatar: string;
+    // 最後發訊息時間
+    lastMsgAt?: number;
+    // 更新資料時間
+    updatedAt?: number;
+    // 已確認訂單
+    confirmedOrder?: orderDataType;
+    // 未確認訂單
+    unconfirmedOrder?: orderDataType;
 }

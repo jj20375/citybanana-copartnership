@@ -100,7 +100,6 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     };
 
     const fetchMoreData = async () => {
-        console.log("fetching more data");
         const chatUsersRef = firebaseDbCollection(`chat_rooms/${id}/users`);
         // 判斷最後一頁時不往下執行
         if (chatRoomsPaginationKey === "end") {
@@ -155,7 +154,7 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     };
 
     const fetchData = useCallback(async () => {
-        const promises = [getUsers()];
+        const promises = [getUsers(), listenChatUsers()];
         try {
             const result = await Promise.all(promises);
             console.log("promises =>", result);
