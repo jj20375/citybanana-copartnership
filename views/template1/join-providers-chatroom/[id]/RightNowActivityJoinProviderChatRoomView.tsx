@@ -12,6 +12,12 @@ import { tmc } from "@/service/utils";
 import InfiniteScroll from "react-infinite-scroll-component";
 // 聊天室內容 ui
 import MessageItem from "./components/MessageItem";
+// 訂單聊天室內容 ui
+import MessageOrderItem from "./components/MessageOrderItem";
+// 一般預訂單或詢問單轉即刻快閃單內容 ui
+import MessageOrderOrVorderToCreateRightNowActivityOrderItem from "./components/MessageOrderToRightNowActivityOrderItem";
+// 詢問單聊天室內容 ui
+import MessageVorderItem from "./components/MessageVorderItem";
 // 發送聊天室訊息 ui
 import SendMessage from "./components/SendMessage";
 // 聊天室上傳圖片 ui
@@ -62,6 +68,29 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     const messageLimit = 35;
     // 聊天訊息數量顯示上線
     const messageLengthLimit = Number(process.env.NEXT_PUBLIC_CHATS_MESSAGE_LIMIT);
+    // 聊天室訂單type
+    const orderTypes = [
+        "extendDating",
+        "createDating",
+        "updateDating",
+        "updateExtendOrder",
+        "createExtendOrder",
+        "cancelExtendOrderByUser",
+        "cancelExtendOrderByProvider",
+        "acceptExtendOrderByProvider",
+        "cancelOrderByUser",
+        "cancelOrderByUserAndFeePay",
+        "cancelOrderByProvider",
+        "cancelOrderBySystem",
+        "acceptOrderByProvider",
+        "completeDating",
+        "startDating",
+        "acceptDatingDemandEnrollment",
+    ];
+    // 透過一般預訂單 或 詢問單 轉成即刻快閃單 type
+    const orderOrVorderTypeToCreateRightNowActivityOrderTypes = ["createDemandByDating", "createDemandByVorder"];
+    // 詢問單 type
+    const vorderTypes = ["vorder"];
 
     // 導頁去報名服務商聊天室列表
     const goToList = () => {
@@ -254,15 +283,46 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                             loader={<h4>Loading...</h4>}
                             scrollableTarget="scrollableDiv"
                         >
-                            {messages.map((message, index) => (
-                                <MessageItem
-                                    key={message.id}
-                                    index={index}
-                                    lng={lng}
-                                    message={message}
-                                    providerData={chatReceiver}
-                                />
-                            ))}
+                            {messages.map((message, index) => {
+                                if (message.type === undefined) {
+                                    return (
+                                        <MessageItem
+                                            key={message.id}
+                                            index={index}
+                                            lng={lng}
+                                            message={message}
+                                            providerData={chatReceiver}
+                                        />
+                                    );
+                                }
+                                if (orderTypes.includes(message.type)) {
+                                    return (
+                                        <MessageOrderItem
+                                            key={message.id}
+                                            lng={lng}
+                                            message={message}
+                                        />
+                                    );
+                                }
+                                if (orderOrVorderTypeToCreateRightNowActivityOrderTypes.includes(message.type)) {
+                                    return (
+                                        <MessageOrderOrVorderToCreateRightNowActivityOrderItem
+                                            key={message.id}
+                                            lng={lng}
+                                            message={message}
+                                        />
+                                    );
+                                }
+                                if (vorderTypes.includes(message.type)) {
+                                    return (
+                                        <MessageVorderItem
+                                            key={message.id}
+                                            lng={lng}
+                                            message={message}
+                                        />
+                                    );
+                                }
+                            })}
                         </InfiniteScroll>
                     )}
                 </ul>

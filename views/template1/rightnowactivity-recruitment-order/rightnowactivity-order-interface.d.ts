@@ -1,4 +1,4 @@
-import type { areaInterface } from "@/interface/area";
+import type { AreaInterface } from "@/interface/area";
 
 /**
  * 即刻快閃上方區塊
@@ -37,7 +37,7 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     // 每小時或每天單價金額
     price: number;
     // 居住縣市
-    area: areaInterface;
+    area: AreaInterface;
     // 身份驗證是否通過
     authentication: boolean;
     // 職業

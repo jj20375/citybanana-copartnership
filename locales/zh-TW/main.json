@@ -239,5 +239,17 @@
             "message_requiredErrMessage": "請輸入訊息",
             "message_minErrMessage": "最少需要{{val}}個字"
         }
+    },
+    "messageOrderStatusType": {
+        "status_cancelExtendOrderByUser": "取消續約",
+        "status_cancelExtendOrderByProvider": "婉拒續約",
+        "status_acceptExtendOrderByProvider": "接受續約",
+        "status_cancelOrderByProvider": "婉拒預訂",
+        "status_cancelOrderByUser": "取消預訂",
+        "status_cancelOrderBySystem": "系統自動婉拒預訂",
+        "status_cancelOrderByUserAndFeePay": "臨時取消預訂",
+        "status_acceptOrderByProvider": "接受預訂，很高興參與您的活動，我們那時見",
+        "status_startDating": "預訂的行程開始囉！讓我們在城市中追求美好的時刻",
+        "completeDating": "您的行程結束囉！歡迎幫我評分，謝謝您 !!祝福您有個美好的一天"
     }
 }
