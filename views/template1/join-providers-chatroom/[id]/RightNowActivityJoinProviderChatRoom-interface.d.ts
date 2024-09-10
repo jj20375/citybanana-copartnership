@@ -26,4 +26,8 @@ export interface MessageInterface {
         // 活動內容
         description?: string;
     };
+    // 經緯度資料
+    lat?: string;
+    // 經緯度資料
+    long?: string;
 }

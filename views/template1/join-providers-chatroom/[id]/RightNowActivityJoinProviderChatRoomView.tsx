@@ -18,6 +18,12 @@ import MessageOrderItem from "./components/MessageOrderItem";
 import MessageOrderOrVorderToCreateRightNowActivityOrderItem from "./components/MessageOrderToRightNowActivityOrderItem";
 // 詢問單聊天室內容 ui
 import MessageVorderItem from "./components/MessageVorderItem";
+// gps 聊天室內容 ui
+import MessageGpsItem from "./components/ＭessageGpsItem";
+// 有圖片的聊天室內容 ui
+import MessageImageItem from "./components/MessageImageItem";
+// 警告文字 聊天室內容 ui
+import MessageWarningItem from "./components/MessageWarningItem";
 // 發送聊天室訊息 ui
 import SendMessage from "./components/SendMessage";
 // 聊天室上傳圖片 ui
@@ -91,6 +97,12 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     const orderOrVorderTypeToCreateRightNowActivityOrderTypes = ["createDemandByDating", "createDemandByVorder"];
     // 詢問單 type
     const vorderTypes = ["vorder"];
+    // gps type
+    const gpsType = ["gps"];
+    // image type
+    const imageTypes = ["image"];
+    // 警告文字 type
+    const warningTypes = ["keywordWarning"];
 
     // 導頁去報名服務商聊天室列表
     const goToList = () => {
@@ -316,6 +328,33 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                                 if (vorderTypes.includes(message.type)) {
                                     return (
                                         <MessageVorderItem
+                                            key={message.id}
+                                            lng={lng}
+                                            message={message}
+                                        />
+                                    );
+                                }
+                                if (gpsType.includes(message.type)) {
+                                    return (
+                                        <MessageGpsItem
+                                            key={message.id}
+                                            lng={lng}
+                                            message={message}
+                                        />
+                                    );
+                                }
+                                if (imageTypes.includes(message.type)) {
+                                    return (
+                                        <MessageImageItem
+                                            key={message.id}
+                                            lng={lng}
+                                            message={message}
+                                        />
+                                    );
+                                }
+                                if (warningTypes.includes(message.type)) {
+                                    return (
+                                        <MessageWarningItem
                                             key={message.id}
                                             lng={lng}
                                             message={message}
