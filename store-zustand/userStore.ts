@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { GetUserProfileAPI } from "@/api/userAPI";
+import { GetUserProfileAPI } from "@/api/userAPI/userAPI";
 import { UserProfileInterface } from "@/interface/user";
 export interface UserStore {
     user: UserProfileInterface | any;

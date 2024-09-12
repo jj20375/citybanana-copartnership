@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, createDraftSafeSelector } from "@reduxjs/toolkit";
-import { GetFirebaseCustomTokenAPI, GetUserProfileAPI } from "@/api/userAPI";
+import { GetFirebaseCustomTokenAPI, GetUserProfileAPI } from "@/api/userAPI/userAPI";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { UserProfileInterface } from "@/interface/user";
 import { setFirebaseToken } from "@/service/actions";
@@ -99,7 +99,7 @@ export const userSlice = createSlice({
             })
             .addCase(fetchGetFirebaseCustomToken.fulfilled, (state, action) => {
                 console.log("fetchGetFirebaseCustomToken payload =>", action.payload);
-                state.isLoading = false;
+                state.isLoading = false; // fetch 成功
             })
             .addCase(fetchGetFirebaseCustomToken.rejected, (state, action) => {
                 state.isLoading = false; // fetch失敗
@@ -108,6 +108,10 @@ export const userSlice = createSlice({
             .addCase(fetchFirebaseLogin.fulfilled, (state, action) => {
                 console.log("fetchFirebaseLogin payload =>", action.payload);
                 setFirebaseToken({ expiresTime: 60 * 60 });
+            })
+            // 取得 user profile 成功
+            .addCase(getUserProfile.fulfilled, (state, action) => {
+                state.user = action.payload;
             });
     },
 });

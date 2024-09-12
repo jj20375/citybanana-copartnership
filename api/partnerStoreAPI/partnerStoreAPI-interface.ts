@@ -1,26 +1,9 @@
-import { AreaInterface } from "@/interface/area";
-/**
- * 合作店家 api
- */
-import useMyFetch from "@/service/http-request";
-const apiURL = process.env.NEXT_PUBLIC_API_URL;
-const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
+import type { AreaInterface } from "@/interface/area";
 
 /**
- * 取得合作店家資料
+ * 取得合作店家資料 api 回應參數
  */
-export async function getPartnerStoreInfoAPI({ storeCode, venueID }: { storeCode: string; venueID?: string | void }): Promise<GetPartnerStoreInfoAPIInterface> {
-    let url = `${apiURL}/partner/merchants/${storeCode}`;
-    if (venueID) {
-        const params = { venue: venueID };
-        url = `${url}?${new URLSearchParams(params).toString()}`;
-    }
-    return useMyFetch(url, {
-        method: "get",
-    });
-}
-
-export interface GetPartnerStoreInfoAPIInterface {
+export interface GetPartnerStoreInfoAPIResInterface {
     // 合作店家資料
     merchant: {
         code: string;

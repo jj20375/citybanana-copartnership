@@ -3,7 +3,7 @@
 import { memo, useState } from "react";
 import { message, Upload } from "antd";
 import type { GetProp, UploadFile, UploadProps } from "antd";
-import { ChatUploadAttachmentsAPI, SendChatImageMessageAPI } from "@/api/chatAPI";
+import { ChatUploadAttachmentsAPI, SendChatImageMessageAPI } from "@/api/chatAPI/chatAPI";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";

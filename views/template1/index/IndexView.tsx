@@ -1,11 +1,12 @@
 import { useTranslation } from "@/i18n";
 import Link from "next/link";
-import { getPartnerStoreInfoAPI, type GetPartnerStoreInfoAPIInterface } from "@/api/partnerStoreAPI";
+import { getPartnerStoreInfoAPI } from "@/api/partnerStoreAPI/partnerStoreAPI";
 import { useSearchParams } from "next/navigation";
+import type { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 export default async function IndexView({ lng, merchantCode, venueID }: { lng: string; merchantCode: string; venueID?: void | string }) {
     const { t } = await useTranslation(lng, "main");
 
-    let partnerStoreData: GetPartnerStoreInfoAPIInterface | object = {};
+    let partnerStoreData: GetPartnerStoreInfoAPIResInterface | object = {};
     async function getPartnerStoreInfo() {
         try {
             partnerStoreData = await getPartnerStoreInfoAPI({ storeCode: merchantCode, venueID });

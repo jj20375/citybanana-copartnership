@@ -3,7 +3,7 @@ import { useState, useRef, useImperativeHandle, forwardRef, useEffect } from "re
 /**
  * 倒數計時按鈕 ui
  */
-const CountdownButton = forwardRef(({ initialSeconds, buttonText, className }: { initialSeconds: number; buttonText: string; className?: string | void }, ref: any) => {
+const CountdownButton = forwardRef(({ initialSeconds, buttonText, className, isDisabled }: { initialSeconds: number; buttonText: string; className?: string | void; isDisabled: boolean }, ref: any) => {
     const [seconds, setSeconds] = useState(initialSeconds);
     const [isCounting, setIsCounting] = useState(false);
     const timerRef = useRef<any>(null);
@@ -49,7 +49,7 @@ const CountdownButton = forwardRef(({ initialSeconds, buttonText, className }: {
             type="button"
             onClick={() => ref.current.startCountdown()}
             className={`${className} PrimaryGradient rounded-md DisabledGradient text-white w-[120px] flex items-center justify-center`}
-            disabled={isCounting}
+            disabled={isCounting || isDisabled}
         >
             {isCounting ? formatTime(seconds) : buttonText}
         </button>

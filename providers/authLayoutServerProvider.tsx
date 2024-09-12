@@ -1,6 +1,6 @@
 "use server";
 import { lazy, Suspense } from "react";
-import { GetUserProfileAPI } from "@/api/userAPI";
+import { GetUserProfileAPI } from "@/api/userAPI/userAPI";
 import { GetConfigurationSetingsAPI, GetClientUiSettingsAPI } from "@/api/utilsAPI";
 import AuthLayoutClientProvider from "@/providers/authLayoutClientProvider";
 import { cookies } from "next/headers";

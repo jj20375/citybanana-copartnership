@@ -2,7 +2,7 @@
 
 import { memo, useState } from "react";
 import Image from "next/image";
-import { SendChatGPSMessageAPI } from "@/api/chatAPI";
+import { SendChatGPSMessageAPI } from "@/api/chatAPI/chatAPI";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 import { message, Modal } from "antd";

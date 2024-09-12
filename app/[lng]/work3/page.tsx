@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useState, useCallback, useEffect } from "react";
-import { LoginUserAPI, GetIndexAPI } from "@/api/userAPI";
+import { LoginUserAPI, GetIndexAPI } from "@/api/userAPI/userAPI";
 import { useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { setAuthState } from "@/store-toolkit/stores/authStore";
 import { setIsProvider, setUserProfile } from "@/store-toolkit/stores/userStore";

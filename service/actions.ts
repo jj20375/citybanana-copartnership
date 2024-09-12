@@ -1,9 +1,9 @@
 // import Cookies from "js-cookie";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import { isEmpty } from "@/service/utils";
-import { RefreshTokenAPI } from "@/api/authAPI";
+import { RefreshTokenAPI } from "@/api/authAPI/authAPI";
 import dayjs from "dayjs";
-import { GetFirebaseCustomTokenAPI } from "@/api/userAPI";
+import { GetFirebaseCustomTokenAPI } from "@/api/userAPI/userAPI";
 
 interface StoreTokenRequest {
     token?: string | null;

@@ -1,6 +1,6 @@
 // "use client";
 // import { createContext, useContext } from "react";
-// import userAPI from "@/api/userAPI";
+// import userAPI from "@/api/userAPI/userAPI";
 
 // const Context = createContext({});
 

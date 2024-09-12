@@ -1,6 +1,6 @@
 "use client";
 import useSWR from "swr";
-import { GetIndexAPI2 } from "@/api/userAPI";
+import { GetIndexAPI2 } from "@/api/userAPI/userAPI";
 import { Button } from "antd";
 import useWidowResizeStore from "@/store-zustand/widowResizeStore";
 import { useTranslation } from "@/i18n/i18n-client";

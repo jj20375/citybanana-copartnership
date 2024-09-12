@@ -7,7 +7,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Input } from "antd";
 import useSWR from "swr";
-import { SendChatMessageAPI } from "@/api/chatAPI";
+import { SendChatMessageAPI } from "@/api/chatAPI/chatAPI";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 import { useParams } from "next/navigation";

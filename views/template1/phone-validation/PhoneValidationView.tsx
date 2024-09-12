@@ -19,11 +19,17 @@ import ReCAPTCHA from "react-google-recaptcha";
 import dayjs from "dayjs";
 import { isEmpty } from "@/service/utils";
 import { TWPhoneRegex, SmsValidateCodeRegex } from "@/config/regex.config";
+import type { GetVerificationCodeAPIReqInterface, VerificationSMSCodeAPIReqInterface } from "@/api/authAPI/authAPI-interface";
+import { GetVerificationCodeAPI, VerificationSMSCodeAPI } from "@/api/authAPI/authAPI";
+import { setToken } from "@/service/actions";
+import { useAppDispatch } from "@/store-toolkit/storeToolkit";
+import { getUserProfile } from "@/store-toolkit/stores/userStore";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
-
     const router = useRouter();
+    const dispatch = useAppDispatch();
+
     const title = t("phoneValidation.title");
     type FormValues = PhoneValidationInterface;
     const formSchema = {
@@ -68,13 +74,32 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
     const countryCodeValue = watch("form.countryCode");
     const validateCodeValue = watch("form.validateCode");
     const form = watch("form");
+    // 設定 recaptcha token
+    const [recaptchaValue, setRecaptchaValue] = useState("");
+    // 簡訊驗證時 驗證密鑰
+    const [crumb, setCrumb] = useState("");
 
-    const countdownButtonRef = useRef<any>();
-
-    const startCountdown = () => {
-        countdownButtonRef.current.startCountdown();
+    // 清空表單資料
+    const clearForm = () => {
+        reset();
+        setRecaptchaValue("");
+        setCrumb("");
     };
 
+    const countdownButtonRef = useRef<any>();
+    const [countdownButtonDisabled, setCountdownButtonDisabled] = useState(false);
+
+    //開始倒數計時
+    const startCountdown = async () => {
+        countdownButtonRef.current.startCountdown();
+        await getVerificationCode({
+            country_code: countryCodeValue,
+            phone: "0" + phoneValue,
+            recaptchaToken: recaptchaValue,
+        });
+    };
+
+    // 取消倒數計時
     const cancelCountdown = () => {
         countdownButtonRef.current.cancelCountdown();
     };
@@ -96,9 +121,10 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         const origin = window.location.origin;
         const host = `${origin}/${lng}/rightnowactivity-order-payment`;
         router.push(`${host}?${searchParams.toString()}`);
-
         return;
     };
+
+    const recaptcha2Key = process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA2_KEY;
 
     /**
      * recaptcha 驗證回調
@@ -106,19 +132,45 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
      */
     const onRecaptchaChange = (val: any) => {
         console.log("onRecaptchaChange =>", val);
+        setRecaptchaValue(val);
     };
-    const recaptcha2Key = process.env.NEXT_PUBLIC_GOOGLE_RECAPTCHA2_KEY;
-
+    /**
+     * recaptcha 驗證失敗回調
+     */
+    const onRecaptchaError = (err: any) => {
+        console.log("onRecaptchaError =>", err);
+        setRecaptchaValue("");
+        setCrumb("");
+    };
+    /**
+     * recaptcha 驗證超時回調
+     */
+    const onRecaptchaExpired = (err: any) => {
+        console.log("onRecaptchaExpired =>", err);
+        setRecaptchaValue("");
+        setCrumb("");
+    };
     /**
      * submit 成功時往下一步
      * @param data
      */
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
         console.log("success form =>", data);
+        if (recaptchaValue === "") {
+            return;
+        }
         if (Object.keys(errors).length > 0) {
             return;
         }
-        onNextStepButtonClick();
+        // 驗證簡訊驗證碼
+        await verificationSMSCode({
+            country_code: countryCodeValue,
+            phone: "0" + phoneValue,
+            code: validateCodeValue,
+            crumb: crumb,
+        });
+        dispatch(getUserProfile());
+        // onNextStepButtonClick();
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {
@@ -138,17 +190,60 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         }
     };
 
+    /**
+     * 發送驗證碼
+     * @param form
+     */
+    const getVerificationCode = async (form: GetVerificationCodeAPIReqInterface) => {
+        try {
+            const data = await GetVerificationCodeAPI(form);
+            setCrumb(data.crumb);
+            console.log("GetVerificationCodeAPI data =>", data);
+        } catch (err) {
+            console.log("GetVerificationCodeAPI err =>", err);
+            throw err;
+        }
+    };
+
+    /**
+     * 驗證簡訊驗證碼
+     */
+    const verificationSMSCode = async (form: VerificationSMSCodeAPIReqInterface) => {
+        try {
+            const data = await VerificationSMSCodeAPI(form);
+            clearForm();
+            console.log("VerificationSMSCodeAPI data =>", data);
+            setToken({
+                token: data.access_token,
+                expiresTime: data.expires_in,
+            });
+        } catch (err) {
+            console.log("VerificationSMSCodeAPI err =>", err);
+            throw err;
+        }
+    };
+
     useEffect(() => {
-        if (!TWPhoneRegex.test(phoneValue) || !SmsValidateCodeRegex.test(validateCodeValue)) {
+        if (!TWPhoneRegex.test(phoneValue) || !SmsValidateCodeRegex.test(validateCodeValue) || recaptchaValue === "") {
             if (phoneValue.length > 0 && validateCodeValue.length > 0) {
                 handleManualValidation();
+            }
+            // 手機格式驗證失敗 不可以發送取得驗證碼
+            if (!TWPhoneRegex.test(phoneValue) || recaptchaValue === "") {
+                setCountdownButtonDisabled(true);
+            }
+            // 手機格式驗證成功 取消發送驗證碼按鈕 disabled
+            if (TWPhoneRegex.test(phoneValue) && recaptchaValue.length > 0) {
+                console.log("phoneValue =>", phoneValue);
+                setCountdownButtonDisabled(false);
             }
             setDisabled(true);
             return;
         }
+
         clearErrors();
         setDisabled(false);
-    }, [phoneValue, validateCodeValue]);
+    }, [phoneValue, validateCodeValue, recaptchaValue]);
 
     return (
         <>
@@ -178,18 +273,26 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                             register={register}
                             className="mr-5 flex-1"
                         />
-                        <CountdownButton
-                            initialSeconds={300}
-                            buttonText={t("phoneValidation.validateCode.buttonText")}
-                            className="text-base-content"
-                            ref={countdownButtonRef}
-                        />
+                        <div
+                            onClick={startCountdown}
+                            className="cursor-pointer"
+                        >
+                            <CountdownButton
+                                initialSeconds={300}
+                                buttonText={t("phoneValidation.validateCode.buttonText")}
+                                className="text-base-content h-[45px]"
+                                isDisabled={countdownButtonDisabled}
+                                ref={countdownButtonRef}
+                            />
+                        </div>
                     </div>
                     {errors.form?.validateCode && <p className="text-red-600 OpenSans">{errors.form?.validateCode.message}</p>}
                     <div className="mt-[40px] flex justify-center">
                         <ReCAPTCHA
                             sitekey={recaptcha2Key}
                             onChange={onRecaptchaChange}
+                            onErrored={onRecaptchaError}
+                            onExpired={onRecaptchaExpired}
                         />
                     </div>
                     <div>
