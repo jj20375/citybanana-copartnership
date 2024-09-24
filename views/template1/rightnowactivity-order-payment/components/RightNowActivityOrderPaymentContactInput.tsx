@@ -42,9 +42,10 @@ const RightNowActivityOrderPaymentContactInput = memo(
                         className="block mb-[15px] font-bold text-lg-content"
                         htmlFor={label}
                     >
-                        {t("rightNowActivityOrderPayment.contactName")}
+                        {t("rightNowActivityOrderPayment.contact")}
                         {required && <span className="text-primary">*</span>}
                     </label>
+                    <p className="text-lg-content text-gray-primary mb-[15px]">{t("rightNowActivityOrderPayment.contactName")}</p>
                     <Input
                         id={label}
                         {...register(label)}

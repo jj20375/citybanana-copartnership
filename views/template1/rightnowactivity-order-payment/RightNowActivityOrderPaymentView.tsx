@@ -14,7 +14,8 @@ import dayjs from "dayjs";
 import { isValid } from "date-fns";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
-import { userNameSelector, setUserProfile } from "@/store-toolkit/stores/userStore";
+import { userNameSelector, userGenderSelector, setUserProfile } from "@/store-toolkit/stores/userStore";
+import { usePartnerStoreCodeSelector, usePartnerStoreVenueCodeSelector } from "@/store-toolkit/stores/partnerStore";
 import { RightNowActivityOrderFormInterface } from "../create-rightnowactivity-order/components/order/order-interface";
 import ContactWe from "../components/ContactWe";
 import RightNowActivityOrderPaymentContactInput from "./components/RightNowActivityOrderPaymentContactInput";
@@ -22,17 +23,27 @@ import GenderRadio from "../components/GenderRadio";
 import CreditCardForm from "../components/CreditCardForm";
 import PaymentMethodsRadio from "../components/PaymentMethodsRadio";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
+import { RightNowActivityOrderCreateByCashAPI } from "@/api/bookingAPI/bookingAPI";
+import { RightNowActivityOrderCreateByCashAPIReqInterface } from "@/api/bookingAPI/bookingAPI-interfce";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderPayment.title");
 
-    const state = useAppSelector((state) => {
+    const userStore = useAppSelector((state) => {
         return state.userStore;
     });
+    const partnerStore = useAppSelector((state) => {
+        return state.partnerStore;
+    });
 
-    const dispatch = useAppDispatch();
-
-    const userName = userNameSelector(state);
+    const userName = userNameSelector(userStore);
+    const userGender = userGenderSelector(userStore);
+    // 是否為訪客
+    const isVisitor = useAppSelector((state) => state.userStore.isVisitor);
+    // 合作店家代碼
+    const partnerStoreCode = usePartnerStoreCodeSelector(partnerStore);
+    // 合作店家地點代碼
+    const partnerStoreVenueCode = usePartnerStoreVenueCodeSelector(partnerStore);
 
     type FormValues = RightNowActivityOrderPaymentFormInterface;
     type OrderFormValues = RightNowActivityOrderFormInterface;
@@ -76,7 +87,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         resolver: yupResolver(schema),
         defaultValues: {
             payment: {
-                needName: isEmpty(userName),
+                needName: isVisitor,
                 contactName: "",
                 gender: "male",
                 paymentMethod: "cash",
@@ -89,12 +100,43 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const paymentMethodValue = watch("payment.paymentMethod");
 
     /**
+     * 使用現金付款開單
+     */
+    const orderCreateByCash = async (data: RightNowActivityOrderCreateByCashAPIReqInterface) => {
+        try {
+            await RightNowActivityOrderCreateByCashAPI(data);
+        } catch (err) {
+            console.log("RightNowActivityOrderCreateByCashAPI err => ", err);
+            throw err;
+        }
+    };
+
+    /**
      * submit 成功時往下一步
      * @param data
      */
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
         console.log("success form =>", data);
-        onNextStepButtonClick();
+        if (paymentMethodValue === "cash") {
+            await orderCreateByCash({
+                provider_required: order?.requiredProviderCount!,
+                unit: order?.unit!,
+                hourly_pay: order?.price!,
+                district: "TW-TPE",
+                location: "abc",
+                due_at: dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm"),
+                started_at: order?.startDate ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
+                description: "123",
+                pay_voucher: 0,
+                merchant_code: partnerStoreCode,
+                venue_code: partnerStoreVenueCode,
+                requirement: order?.note!,
+                is_x: false,
+                duration: order?.duration!,
+            });
+            return;
+        }
+        // onNextStepButtonClick();
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {
@@ -211,24 +253,39 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                     className="mt-[40px]"
                     onSubmit={handleSubmit(onSubmit, onError)}
                 >
-                    <RightNowActivityOrderPaymentContactInput
-                        lng={lng}
-                        register={register}
-                        label="payment.contactName"
-                        value={contactNameValue}
-                        setValue={setValue}
-                        required={true}
-                    />
-                    {errors.payment?.contactName && <p className="text-red-600 OpenSans">{errors.payment?.contactName.message}</p>}
-                    <GenderRadio
-                        lng={lng}
-                        label="payment.gender"
-                        value={genderValue}
-                        setValue={setValue}
-                        register={register}
-                        required={true}
-                        customClass="pt-[15px]"
-                    />
+                    {isVisitor ? (
+                        <>
+                            <RightNowActivityOrderPaymentContactInput
+                                lng={lng}
+                                register={register}
+                                label="payment.contactName"
+                                value={contactNameValue}
+                                setValue={setValue}
+                                required={true}
+                            />
+                            {errors.payment?.contactName && <p className="text-red-600 OpenSans">{errors.payment?.contactName.message}</p>}
+                            <GenderRadio
+                                lng={lng}
+                                label="payment.gender"
+                                value={genderValue}
+                                setValue={setValue}
+                                register={register}
+                                required={true}
+                                customClass="pt-[15px]"
+                            />
+                        </>
+                    ) : (
+                        <>
+                            <label className="block mb-[15px] font-bold text-lg-content">
+                                {t("rightNowActivityOrderPayment.contact")}
+                                <span className="text-primary">*</span>
+                            </label>
+                            <p className="text-gray-primary text-lg-content">
+                                {userName} {t(`global.gender-${userGender}`)} {JSON.stringify(isVisitor)}
+                            </p>
+                        </>
+                    )}
+
                     <PaymentMethodsRadio
                         lng={lng}
                         label="payment.paymentMethod"

@@ -9,10 +9,10 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
 /**
  * 取得合作店家資料
  */
-export async function getPartnerStoreInfoAPI({ storeCode, venueID }: { storeCode: string; venueID?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> {
-    let url = `${apiURL}/partner/merchants/${storeCode}`;
-    if (venueID) {
-        const params = { venue: venueID };
+export async function GetPartnerStoreInfoAPI({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> {
+    let url = `${apiURL}/partner/merchants/${merchantCode}`;
+    if (venueCode) {
+        const params = { venue: venueCode };
         url = `${url}?${new URLSearchParams(params).toString()}`;
     }
     return useMyFetch(url, {

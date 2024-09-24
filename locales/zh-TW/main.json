@@ -14,6 +14,7 @@
         "prevStep": "上一步",
         "gender-male": "先生",
         "gender-female": "女士",
+        "gender-unknown": "未知",
         "paymentMethod-cash": "現金付款",
         "paymentMethod-credit": "信用卡付款",
         "cancel-activity": "取消活動",
@@ -142,6 +143,7 @@
     },
     "rightNowActivityOrderPayment": {
         "title": "確認付款及聯絡資訊",
+        "contact": "聯絡人資訊",
         "contactName": "聯絡人姓名",
         "paymentMethod": "選擇付款方式",
         "startTime-now": "服務商到場時間",

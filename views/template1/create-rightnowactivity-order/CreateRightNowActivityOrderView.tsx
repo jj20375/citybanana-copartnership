@@ -35,6 +35,8 @@ import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from
 import { addDays, getYear, getMonth, subDays, addHours, startOfHour, isDate } from "date-fns";
 import { isEmpty } from "@/service/utils";
 import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActivityOrder-service";
+import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByOtherAPI, RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI, RightNowActivityOrderCreateByCreditCardAPI } from "@/api/bookingAPI/bookingAPI";
+import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -164,7 +166,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
          * 2. 招募截止日期 = 活動開始日期
          * 3. 招募截止時間 = 活動開始時間
          */
-        if (dayjs(startDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && isDate(dayjs(startDateValue).toDate())) {
+        if (dayjs(startDateValue).format("YYYY-MM-DD") === dayjs().format("YYYY-MM-DD") && isDate(dayjs(startDateValue).toDate()) && startDateValue !== undefined) {
             // 設定 活動開始時間為當下時間往後推1小時為預設值
             setValue(
                 "order.startTime",
@@ -281,6 +283,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
      */
     const onSubmit: SubmitHandler<FormValues> = (data) => {
         console.log("success form =>", data);
+
         onNextStepButtonClick();
     };
 
@@ -442,6 +445,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                             className="PrimaryGradient DisabledGradient w-full rounded-md text-lg-content mt-[40px] text-white h-[45px] flex items-center justify-center"
                             disabled={errors.order ? true : false}
                         >
+                            {JSON.stringify(errors.order)}
                             {t("global.nextStep")}
                         </button>
                     </form>
@@ -461,7 +465,8 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 
 export default function CreateRightNowActivityOrderView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
-    const title = "海底撈火鍋-京站店";
+    const partnerStore = useAppSelector((state) => state.partnerStore);
+    const title = usePartnerStoreNameSelector(partnerStore);
     return (
         <>
             <TitleCompoent title={title} />

@@ -50,6 +50,8 @@ export interface VerificationSMSCodeAPIResInterface {
     registered: boolean;
     suspended: boolean;
     token_type: string;
+    // 用來判斷是否首次註冊帳號 true = 首次註冊 false = 非首次註冊
+    first_visit: boolean;
     user: User;
     user_role: number;
     [property: string]: any;

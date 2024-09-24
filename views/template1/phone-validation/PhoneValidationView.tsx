@@ -89,6 +89,9 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
     const countdownButtonRef = useRef<any>();
     const [countdownButtonDisabled, setCountdownButtonDisabled] = useState(false);
 
+    // 當還有取得簡訊驗證碼時 驗證碼輸入匡為 disabled
+    const [validateCodeInputDisabled, setValidateCodeInputDisabled] = useState(true);
+
     //開始倒數計時
     const startCountdown = async () => {
         countdownButtonRef.current.startCountdown();
@@ -170,7 +173,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             crumb: crumb,
         });
         dispatch(getUserProfile());
-        // onNextStepButtonClick();
+        onNextStepButtonClick();
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {
@@ -198,6 +201,8 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         try {
             const data = await GetVerificationCodeAPI(form);
             setCrumb(data.crumb);
+            // 設定簡訊驗證碼輸入匡為非 disabled狀態
+            setValidateCodeInputDisabled(false);
             console.log("GetVerificationCodeAPI data =>", data);
         } catch (err) {
             console.log("GetVerificationCodeAPI err =>", err);
@@ -217,6 +222,10 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                 token: data.access_token,
                 expiresTime: data.expires_in,
             });
+            // 因為簡訊驗證碼以驗證成功 再度將驗證碼輸入匡給為 disabled狀態
+            setValidateCodeInputDisabled(true);
+            // 設定是否為訪客身份(代表首次註冊)
+            setIsVisitor(data.first_visit);
         } catch (err) {
             console.log("VerificationSMSCodeAPI err =>", err);
             throw err;
@@ -271,6 +280,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                             value={validateCodeValue}
                             setValue={setValue}
                             register={register}
+                            isDisabled={validateCodeInputDisabled}
                             className="mr-5 flex-1"
                         />
                         <div

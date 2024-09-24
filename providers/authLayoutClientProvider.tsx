@@ -8,9 +8,10 @@ import { setRightNowActivityConfiguration } from "@/store-toolkit/stores/orderSt
 import { setClientUiSettings } from "@/store-toolkit/stores/utilityStore";
 import { useEffect, useState } from "react";
 import { refreshToken, refreshFirebaseToken } from "@/service/actions";
-import { getCookie } from "cookies-next";
 import { isOnAuthStateChange } from "@/lib/firebase/firebase-hooks";
 import WindowResizeContext from "@/context/windowResizeContext";
+import { setCookie, getCookie, deleteCookie } from "cookies-next";
+import { getPartnerStoreInfo } from "@/store-toolkit/stores/partnerStore";
 
 function IntervalCount() {
     let [count, setCount] = useState(0);
@@ -34,20 +35,26 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
     console.log("rerender client layout");
     const dispatch = useAppDispatch();
     const setUser = useUserStore((state) => state.setUser);
+
     if (user !== undefined) {
         setUser(user);
         dispatch(setUserProfile(user));
     }
     dispatch(setRightNowActivityConfiguration(configurationSettingsData));
     dispatch(setClientUiSettings(clientUiSettings));
-    // 判斷有 token 在執行 取得 firebase token
-
-    if (getCookie("accessToken")) {
-        dispatch(fetchGetFirebaseCustomToken()).then((res: any) => {
-            dispatch(fetchFirebaseLogin(res.payload.token));
-            isOnAuthStateChange();
-        });
-    }
+    useEffect(() => {
+        // 判斷有 token 在執行 取得 firebase token
+        if (getCookie("accessToken")) {
+            dispatch(fetchGetFirebaseCustomToken()).then((res: any) => {
+                dispatch(fetchFirebaseLogin(res.payload.token));
+                isOnAuthStateChange();
+            });
+        }
+        // 判斷有店家代碼時 取得店家資料
+        if (getCookie("merchantCode")) {
+            dispatch(getPartnerStoreInfo({ merchantCode: getCookie("merchantCode")!, venueCode: getCookie("venueCode")! }));
+        }
+    }, []);
     return (
         <>
             <WindowResizeContext>

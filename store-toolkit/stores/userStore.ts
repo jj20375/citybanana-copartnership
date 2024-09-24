@@ -12,7 +12,7 @@ export interface UserStore {
     isLoading: boolean;
     // 判斷是否為服務商
     isProvider: boolean;
-    // 判斷是否為訪客身份
+    // 判斷是否為訪客身份(代表首次註冊)
     isVisitor: boolean;
 }
 
@@ -25,7 +25,7 @@ const initialState: UserStore | any = {
     isLoading: false,
     // 判斷是否為服務商
     isProvider: false,
-    // 判斷是否為訪客身份
+    // 判斷是否為訪客身份(代表首次註冊)
     isVisitor: false,
 };
 
@@ -83,7 +83,7 @@ export const userSlice = createSlice({
         setIsProvider: (state: { isProvider: boolean }, action: PayloadAction<boolean>) => {
             state.isProvider = action.payload;
         },
-        // 設定是否為訪客身份
+        // 設定是否為訪客身份(代表首次註冊)
         setIsVisitor: (state: { isVisitor: boolean }, action: PayloadAction<boolean>) => {
             state.isVisitor = action.payload;
         },
@@ -123,6 +123,10 @@ export const userNameSelector = createDraftSafeSelector(selectSelf, (state) => {
 });
 export const userBananaIdSelector = createDraftSafeSelector(selectSelf, (state) => {
     return state?.banana_id;
+});
+// 使用者性別
+export const userGenderSelector = createDraftSafeSelector(selectSelf, (state) => {
+    return state?.gender;
 });
 
 export const { setUserProfile, setIsProvider, setIsVisitor, getAuth } = userSlice.actions;

@@ -11,6 +11,7 @@ import { orderReducer } from "@/store-toolkit/stores/orderStore";
 import { utilityReducer } from "@/store-toolkit/stores/utilityStore";
 import { chatReducer } from "@/store-toolkit/stores/chatStore";
 import { createWrapper } from "next-redux-wrapper";
+import { partnerReducer } from "./stores/partnerStore";
 
 const persistConfig = {
     key: "root",
@@ -23,6 +24,7 @@ const rootReducer = combineReducers({
     orderStore: orderReducer,
     utilityStore: utilityReducer,
     chatStore: chatReducer,
+    partnerStore: partnerReducer,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

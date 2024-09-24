@@ -1,7 +1,6 @@
 import { Suspense } from "react";
 import AuthLayoutServerProvider from "@/providers/authLayoutServerProvider";
 import ReduxProvider from "@/providers/reduxProvider";
-import Script from "next/script";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { dir } from "i18next";
 import { Noto_Sans_TC, Open_Sans } from "next/font/google";
