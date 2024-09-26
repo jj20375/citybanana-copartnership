@@ -23,7 +23,7 @@ import type { GetVerificationCodeAPIReqInterface, VerificationSMSCodeAPIReqInter
 import { GetVerificationCodeAPI, VerificationSMSCodeAPI } from "@/api/authAPI/authAPI";
 import { setToken } from "@/service/actions";
 import { useAppDispatch } from "@/store-toolkit/storeToolkit";
-import { getUserProfile } from "@/store-toolkit/stores/userStore";
+import { getUserProfile, setIsVisitor } from "@/store-toolkit/stores/userStore";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");

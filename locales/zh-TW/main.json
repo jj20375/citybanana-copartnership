@@ -159,7 +159,8 @@
             "contactName_requiredErrMessage": "請輸入姓名",
             "gender_requiredErrMessage": "請選擇性別",
             "paymentMethod_requiredErrMessage": "請選擇付款方式"
-        }
+        },
+        "paymentMethod-create-creditCard": "新增信用卡"
     },
     "creditCardForm": {
         "cardNo": {

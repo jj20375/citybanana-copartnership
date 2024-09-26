@@ -202,3 +202,39 @@ export interface Merchant {
     venue_id: number;
     [property: string]: any;
 }
+
+/**
+ * 選擇指定服務商付款並開立一般訂單 api 回應參數
+ */
+export interface RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPIResInterface {
+    data: {
+        amount: number;
+        payment: {
+            amount: number;
+            created_at: string;
+            details: string;
+            id: number;
+            order_id: string;
+            pay_time: null;
+            reason: string;
+            status: number;
+            transaction_log_id: null;
+            type: null;
+            user_id: number;
+            [property: string]: any;
+        };
+        response: {
+            Message: string;
+            Result: string;
+            Status: string;
+            [property: string]: any;
+        };
+        time: string;
+        type: string;
+        [property: string]: any;
+    };
+    message: string;
+    payment: string;
+    success: boolean;
+    [property: string]: any;
+}

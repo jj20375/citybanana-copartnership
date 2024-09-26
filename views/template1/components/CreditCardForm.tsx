@@ -7,15 +7,16 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Input } from "antd";
 import { CreditCardDataInterface } from "@/interface/global";
 import { formatCardExpiryDate, formatCardNumber, isEmpty } from "@/service/utils";
-import { useCallback, useEffect, useState, memo } from "react";
+import { useCallback, useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import styles from "@/styles/CreditCardForm.module.scss";
+import { RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI } from "@/api/bookingAPI/bookingAPI";
 /**
  * 信用卡表單 ui
  * @param { type String(字串) } lng 語系
  * @returns
  */
 
-const CreditCardForm = memo(({ lng, required, customClass }: { lng: string; required: boolean; customClass?: string | void }) => {
+const CreditCardForm = forwardRef(({ lng, required, customClass, orderID }: { lng: string; required: boolean; customClass?: string | void; orderID: string }, ref: any) => {
     const { t } = useTranslation(lng, "main");
 
     type FormValues = CreditCardDataInterface;
@@ -97,10 +98,10 @@ const CreditCardForm = memo(({ lng, required, customClass }: { lng: string; requ
         },
     });
 
+    const form = watch("form");
     const cardNoValue = watch("form.cardNo");
     const expValue = watch("form.exp");
     const cvcValue = watch("form.cvc");
-
     // 信用卡卡號輸入框值更新時觸發
     const handleCardNoChange = useCallback(
         (event: any) => {
@@ -157,6 +158,39 @@ const CreditCardForm = memo(({ lng, required, customClass }: { lng: string; requ
         console.log("error form =>", errors);
         // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
     };
+
+    /**
+     * 使用新增信用卡建立即刻快閃單
+     */
+    const createRightNowActivityOrderUseNewCreditCard = async () => {
+        const sendData = {
+            number: form.cardNo.replace(/-/g, ""),
+            expiration: form.exp.replace(/\//g, "").substring(2, 4) + form.exp.replace(/\//g, "").substring(0, 2),
+            cvc: form.cvc,
+            demand_id: orderID,
+            is_default: true,
+        };
+        console.log("sendData =>", sendData);
+        try {
+            const data = await RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI(sendData);
+            console.log("RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI =>", data);
+        } catch (err) {
+            console.log("RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI err =>", err);
+            throw err;
+        }
+    };
+
+    useImperativeHandle(ref, () => ({
+        onSubmit: async () => {
+            const result = await trigger();
+            if (result) {
+                await createRightNowActivityOrderUseNewCreditCard();
+            } else {
+                console.log("Validation credit card form failed");
+            }
+        },
+    }));
+
     return (
         <div className={`border border-gray-primary rounded-md p-[17px] ${customClass} ${styles["credit-card-form"]}`}>
             <form onSubmit={handleSubmit(onSubmit, onError)}>

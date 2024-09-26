@@ -22,9 +22,13 @@ import RightNowActivityOrderPaymentContactInput from "./components/RightNowActiv
 import GenderRadio from "../components/GenderRadio";
 import CreditCardForm from "../components/CreditCardForm";
 import PaymentMethodsRadio from "../components/PaymentMethodsRadio";
+import CreditCardListRadio from "../components/CreditCardListRadio";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
-import { RightNowActivityOrderCreateByCashAPI } from "@/api/bookingAPI/bookingAPI";
-import { RightNowActivityOrderCreateByCashAPIReqInterface } from "@/api/bookingAPI/bookingAPI-interfce";
+import { GetCreditCardListAPI } from "@/api/userAPI/userAPI";
+import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByCreditCardAPI, RightNowActivityOrderCreateByOtherAPI } from "@/api/bookingAPI/bookingAPI";
+import { RightNowActivityOrderCreateByCashAPIReqInterface, RightNowActivityOrderCreateByOtherAPIReqInterface } from "@/api/bookingAPI/bookingAPI-interfce";
+import { CreditCardDataInterface } from "@/interface/global";
+import { RightNowActivityOrderCreateByCreditCardAPIReqInterface } from "@/api/bookingAPI/bookingCreditCarAPI-interface";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderPayment.title");
@@ -44,6 +48,17 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const partnerStoreCode = usePartnerStoreCodeSelector(partnerStore);
     // 合作店家地點代碼
     const partnerStoreVenueCode = usePartnerStoreVenueCodeSelector(partnerStore);
+    // 判斷是否需要顯示選擇信用卡選項
+    const [showChooseCreditCard, setShowChooseCreditCard] = useState(false);
+    // 判斷是否需要顯示選擇信用卡選項 (只有在選擇信用卡付款情況下才顯示 信用卡選項)
+    const [showChooseCreditCardDom, setShowChooseCreditCardDom] = useState(false);
+    // 判斷是否顯示信用卡輸入匡
+    const [showCreditCardForm, setShowCreditCardForm] = useState(false);
+    // 即刻快閃訂單id
+    const [orderID, setOrderID] = useState("");
+
+    // 信用卡表單 dom
+    const creditCardFormRef = useRef<any>();
 
     type FormValues = RightNowActivityOrderPaymentFormInterface;
     type OrderFormValues = RightNowActivityOrderFormInterface;
@@ -61,6 +76,8 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         }),
         // 付款方式
         paymentMethod: yup.string<"cash" | "credit">().required("rightNowActivityOrderPayment.validation.paymentMethod_requiredErrMessage"),
+        // 選擇信用卡
+        creditCardChoose: yup.string().nullable(),
     });
 
     const [schema, setSchema]: any = useState(
@@ -91,6 +108,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                 contactName: "",
                 gender: "male",
                 paymentMethod: "cash",
+                creditCardChoose: null,
             },
         },
     });
@@ -98,13 +116,83 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const contactNameValue = watch("payment.contactName");
     const genderValue = watch("payment.gender");
     const paymentMethodValue = watch("payment.paymentMethod");
+    const creditCardChooseValue = watch("payment.creditCardChoose");
+
+    // 選擇信用卡選項
+    const [paymentMethodOptions, setPaymentMethodOptions] = useState([{ label: t("rightNowActivityOrderPayment.paymentMethod-create-creditCard"), value: "create" }]);
+    /**
+     * 取得信用卡資料
+     */
+    const getCreditCardList = useCallback(async () => {
+        try {
+            const data = await GetCreditCardListAPI();
+            if (Array.isArray(data.data) && data.data.length > 0) {
+                const list = data.data.map((item) => ({
+                    label: item.number,
+                    value: String(item.id),
+                }));
+                // 設定可選擇信用卡選項
+                setPaymentMethodOptions([...list, ...paymentMethodOptions]);
+                // 是否顯示可選擇信用卡選項
+                setShowChooseCreditCard(true);
+            }
+            console.log("GetCreditCardListAPI data =>", data);
+        } catch (err) {
+            console.log("GetCreditCardListAPI err =>", err);
+            throw err;
+        }
+    }, []);
 
     /**
      * 使用現金付款開單
      */
-    const orderCreateByCash = async (data: RightNowActivityOrderCreateByCashAPIReqInterface) => {
+    const orderCreateByCashMethod = async (data: RightNowActivityOrderCreateByCashAPIReqInterface) => {
         try {
             await RightNowActivityOrderCreateByCashAPI(data);
+        } catch (err) {
+            console.log("RightNowActivityOrderCreateByCashAPI err => ", err);
+            throw err;
+        }
+    };
+    // 使用新增信用卡開單並儲存此信用卡
+    const createCreditCardUseCreateOrder = () => {
+        creditCardFormRef.current.onSubmit();
+    };
+    /**
+     * 使用指定信用卡開單
+     */
+    const chooseCreditCardCreateOrder = async (data: RightNowActivityOrderCreateByCreditCardAPIReqInterface) => {
+        try {
+            const res = await RightNowActivityOrderCreateByCreditCardAPI(data);
+            console.log("RightNowActivityOrderCreateByCreditCardAPI => ", res);
+        } catch (err) {
+            console.log("RightNowActivityOrderCreateByCreditCardAPI err => ", err);
+            throw err;
+        }
+    };
+    /**
+     * 使用非現金付款開單
+     */
+    const orderCreateByOtherMethod = async (data: RightNowActivityOrderCreateByOtherAPIReqInterface) => {
+        try {
+            const res = await RightNowActivityOrderCreateByOtherAPI(data);
+            // 設定即刻快閃id
+            setOrderID(res.demand.demand_id);
+            // 判斷有顯示新增信用卡表單時才觸發 代表為新增信用卡付款模式
+            if (showCreditCardForm) {
+                setTimeout(() => {
+                    createCreditCardUseCreateOrder();
+                }, 1000);
+                return;
+            }
+            // 判斷使用指定信用卡開單才觸發
+            if (creditCardChooseValue !== "create" && showChooseCreditCardDom && typeof creditCardChooseValue === "string") {
+                setTimeout(() => {
+                    chooseCreditCardCreateOrder({ demand_id: res.demand.demand_id, credit_card_id: creditCardChooseValue, is_default: false });
+                }, 1000);
+
+                return;
+            }
         } catch (err) {
             console.log("RightNowActivityOrderCreateByCashAPI err => ", err);
             throw err;
@@ -117,25 +205,27 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
      */
     const onSubmit: SubmitHandler<FormValues> = async (data) => {
         console.log("success form =>", data);
+        const sendData: RightNowActivityOrderCreateByCashAPIReqInterface | RightNowActivityOrderCreateByOtherAPIReqInterface = {
+            provider_required: order?.requiredProviderCount!,
+            unit: order?.unit!,
+            hourly_pay: order?.price!,
+            district: "TW-TPE",
+            location: "abc",
+            due_at: dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm"),
+            started_at: order?.startDate ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
+            description: "123",
+            pay_voucher: 0,
+            merchant_code: partnerStoreCode,
+            venue_code: partnerStoreVenueCode,
+            requirement: order?.note!,
+            is_x: false,
+            duration: order?.duration!,
+        };
         if (paymentMethodValue === "cash") {
-            await orderCreateByCash({
-                provider_required: order?.requiredProviderCount!,
-                unit: order?.unit!,
-                hourly_pay: order?.price!,
-                district: "TW-TPE",
-                location: "abc",
-                due_at: dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm"),
-                started_at: order?.startDate ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
-                description: "123",
-                pay_voucher: 0,
-                merchant_code: partnerStoreCode,
-                venue_code: partnerStoreVenueCode,
-                requirement: order?.note!,
-                is_x: false,
-                duration: order?.duration!,
-            });
+            await orderCreateByCashMethod(sendData);
             return;
         }
+        await orderCreateByOtherMethod(sendData);
         // onNextStepButtonClick();
     };
 
@@ -172,7 +262,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
 
     // 網址參數
     const searchParams: any = useSearchParams();
-
     // 訂單資料
     const [order, setOrder] = useState<OrderFormValues>();
     // 顯示用的訂單資料
@@ -184,6 +273,9 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         return priceValue * durationValue;
     }, [order?.price, order?.duration]);
 
+    useEffect(() => {
+        getCreditCardList();
+    }, []);
     useEffect(() => {
         // 判斷有網址參數時 需給表單填上預設值
         if (searchParams) {
@@ -219,6 +311,30 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             }
         }
     }, [searchParams]);
+    useEffect(() => {
+        // 判斷選擇非新增信用卡時不顯示信用卡表單
+        if (creditCardChooseValue !== "create") {
+            setShowCreditCardForm(false);
+        }
+        // 判斷選擇信用卡付款時 顯示選擇信用卡列表
+        if (paymentMethodValue === "credit") {
+            setShowChooseCreditCardDom(true);
+        }
+        // 判斷選擇現金付款時 不顯示選擇信用卡列表
+        if (paymentMethodValue === "cash") {
+            setShowChooseCreditCardDom(false);
+        }
+        // 判斷選擇信用卡付款時 且不顯示信用卡列表選擇時 顯示信用卡表單
+        if (paymentMethodValue === "credit" && !showChooseCreditCard) {
+            setShowCreditCardForm(true);
+            return;
+        }
+        // 判斷選擇信用卡付款時 且顯示信用卡列表選擇時 並且選擇新增信用卡選項時 顯示信用卡表單
+        if (paymentMethodValue === "credit" && showChooseCreditCard && creditCardChooseValue === "create") {
+            setShowCreditCardForm(true);
+            return;
+        }
+    }, [paymentMethodValue, showChooseCreditCard, creditCardChooseValue]);
 
     return (
         <>
@@ -295,12 +411,31 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                         required={true}
                         customClass="mt-[40px]"
                     />
+                    {showChooseCreditCardDom && (
+                        <CreditCardListRadio
+                            lng={lng}
+                            label="payment.creditCardChoose"
+                            value={creditCardChooseValue}
+                            setValue={setValue}
+                            register={register}
+                            required={true}
+                            paymentMethodOptions={paymentMethodOptions}
+                            setShowChooseCreditCard={setShowChooseCreditCard}
+                            showChooseCreditCard={showChooseCreditCard}
+                            customClass="ml-[30px] mt-[15px]"
+                        />
+                    )}
                 </form>
-                <CreditCardForm
-                    lng={lng}
-                    required={true}
-                    customClass="mt-[15px]"
-                />
+                {showCreditCardForm && (
+                    <CreditCardForm
+                        ref={creditCardFormRef}
+                        lng={lng}
+                        required={true}
+                        orderID={orderID}
+                        customClass="mt-[15px]"
+                    />
+                )}
+                {/* <button onClick={createCreditCardUseCreateOrder}>測試信用卡表單</button> */}
                 <div className="border-b border-gray-primary mt-[40px] flex items-end">
                     <p className="text-gray-primary text-lg-content font-normal flex-1">{t("rightNowActivityOrder.total.label")}</p>
                     <p className="text-primary text-md-title OpenSans">{total === 0 ? t("rightNowActivityOrder.price", { val: Number(total), customPrice: total }) : t("rightNowActivityOrder.price", { val: Number(total) })}</p>

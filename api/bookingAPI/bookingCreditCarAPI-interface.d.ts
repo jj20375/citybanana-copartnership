@@ -89,3 +89,76 @@ export interface Card {
     user_id: number;
     [property: string]: any;
 }
+
+/**
+ * 取消一般預訂單
+ */
+/**
+ * Request
+ */
+export interface OrderCancelAPIResInterface {
+    dating: Dating;
+    message: string;
+    [property: string]: any;
+}
+
+export interface Dating {
+    category: Category;
+    category_id: number;
+    description: string;
+    details: Details;
+    district: string;
+    ended_at: string;
+    location: string;
+    order_id: string;
+    paid: number;
+    price: number;
+    provider: Provider;
+    provider_comment: null;
+    provider_score: number;
+    started_at: string;
+    status: number;
+    user: User;
+    [property: string]: any;
+}
+
+export interface Category {
+    id: number;
+    name: string;
+    [property: string]: any;
+}
+
+export interface Details {
+    cancelledNote: string;
+    fee: number;
+    serviceCharge: number;
+    tip: number;
+    total: number;
+    [property: string]: any;
+}
+
+export interface Provider {
+    avatar: string;
+    banana_id: string;
+    cover: string;
+    id: number;
+    isMyFavorite: boolean;
+    name: string;
+    passbook: null;
+    photos: null;
+    videos: null;
+    [property: string]: any;
+}
+
+export interface User {
+    avatar: null;
+    banana_id: string;
+    cover: string;
+    id: number;
+    isMyFavorite: boolean;
+    name: string;
+    passbook: null;
+    photos: null;
+    videos: null;
+    [property: string]: any;
+}

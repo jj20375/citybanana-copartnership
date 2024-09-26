@@ -11,5 +11,7 @@ export interface RightNowActivityOrderPaymentFormInterface {
         gender?: "female" | "male" | null;
         // 付款方式
         paymentMethod: "cash" | "credit";
+        // 選擇信用卡卡號
+        creditCardChoose?: string | null | void;
     };
 }
