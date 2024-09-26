@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import RightNowActivityOrderDetail from "../components/RightNowActivityOrderDetail";
 import { Icon } from "@iconify/react";
@@ -11,13 +11,14 @@ import RightNowActivityOrderChangeRequiredProviderCountModal from "../rightnowac
 import RightNowActivityOrderCancelModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderCancelModal";
 // 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
+import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 
 /**
- * 訂單詳細資料
+ * 即刻快閃訂單詳細資料
  * @param param0
  * @returns
  */
-export default function OrderDetailView({ lng }: { lng: string }) {
+export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
 
@@ -110,6 +111,19 @@ export default function OrderDetailView({ lng }: { lng: string }) {
         ],
     };
 
+    /**
+     * 取得訂單資料
+     */
+    const getOrder = useCallback(async (data: string) => {
+        try {
+            const res = await GetRightNowActivityOrderDetailAPI(data);
+            console.log("GetRightNowActivityOrderDetailAPI => ", res);
+        } catch (err) {
+            console.log("GetRightNowActivityOrderDetailAPI err => ", err);
+            throw err;
+        }
+    }, []);
+
     useEffect(() => {
         setProvider({
             id: `provider-${0}`,
@@ -134,6 +148,7 @@ export default function OrderDetailView({ lng }: { lng: string }) {
             price: 2000,
             duration: 2,
         });
+        getOrder(orderID);
     }, []);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">

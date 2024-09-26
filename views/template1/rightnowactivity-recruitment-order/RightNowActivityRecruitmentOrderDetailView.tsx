@@ -19,15 +19,16 @@ import RightNowActivityOrderCancelModal from "./components/RightNowActivityOrder
 import ContactWe from "../components/ContactWe";
 // 即刻快閃總計
 import RightNowActivityOrderTotal from "./components/RightNowActivityOrderTotal";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "./rightnowactivity-order-interface";
+import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 
 /**
  * 即刻快閃報名訂單詳情
  * @param param0
  * @returns
  */
-export default function RightNowActivityRecruitmentOrderDetailView({ lng }: { lng: string }) {
+export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = useTranslation(lng, "main");
 
     const title = t("rightNowActivityOrderRecruitmentDetail.title");
@@ -164,6 +165,23 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng }: { ln
             );
         }
     }, [providers]);
+
+    /**
+     * 取得訂單資料
+     */
+    const getOrder = useCallback(async (data: string) => {
+        try {
+            const res = await GetRightNowActivityOrderDetailAPI(data);
+            console.log("GetRightNowActivityOrderDetailAPI => ", res);
+        } catch (err) {
+            console.log("GetRightNowActivityOrderDetailAPI err => ", err);
+            throw err;
+        }
+    }, []);
+
+    useEffect(() => {
+        getOrder(orderID);
+    }, []);
 
     return (
         <>

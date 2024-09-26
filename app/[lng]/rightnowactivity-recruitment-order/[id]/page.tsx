@@ -1,7 +1,12 @@
 import Image from "next/image";
-import RightNowActivityOrderDetailView from "@/views/template1/rightnowactivity-recruitment-order/RightNowActivityOrderDetailView";
+import RightNowActivityRecruitmentOrderDetailView from "@/views/template1/rightnowactivity-recruitment-order/RightNowActivityRecruitmentOrderDetailView";
 import { useTranslation } from "@/i18n";
 
 export default async function Page({ params: { lng, id } }: { params: { lng: string; id: string[] } }) {
-    return <RightNowActivityOrderDetailView lng={lng} />;
+    return (
+        <RightNowActivityRecruitmentOrderDetailView
+            lng={lng}
+            orderID={id}
+        />
+    );
 }

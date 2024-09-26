@@ -148,7 +148,10 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
      */
     const orderCreateByCashMethod = async (data: RightNowActivityOrderCreateByCashAPIReqInterface) => {
         try {
-            await RightNowActivityOrderCreateByCashAPI(data);
+            const res = await RightNowActivityOrderCreateByCashAPI(data);
+            alert(res.demand.demand_id);
+            // 設定即刻快閃id
+            setOrderID(res.demand.demand_id);
         } catch (err) {
             console.log("RightNowActivityOrderCreateByCashAPI err => ", err);
             throw err;
@@ -223,6 +226,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         };
         if (paymentMethodValue === "cash") {
             await orderCreateByCashMethod(sendData);
+            // onNextStepButtonClick();
             return;
         }
         await orderCreateByOtherMethod(sendData);
@@ -239,8 +243,9 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         reset();
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
-        const host = `${origin}/${lng}/rightnowactivity-recruitment-order/1`;
-        router.push(`/rightnowactivity-recruitment-order/1`);
+        const host = `${origin}/${lng}/rightnowactivity-recruitment-order/${orderID}`;
+        alert("orderID=>" + orderID);
+        router.push(`/rightnowactivity-recruitment-order/${orderID}`);
     };
 
     // 上一步按鈕事件
@@ -335,6 +340,12 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             return;
         }
     }, [paymentMethodValue, showChooseCreditCard, creditCardChooseValue]);
+
+    useEffect(() => {
+        if (orderID !== "") {
+            onNextStepButtonClick();
+        }
+    }, [orderID]);
 
     return (
         <>
