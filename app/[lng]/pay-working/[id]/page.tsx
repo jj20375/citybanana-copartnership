@@ -1,10 +1,10 @@
 import Image from "next/image";
-import RightNowActivityOrderDetailView from "@/views/template1/rightnowactivity-order/RightNowActivityOrderDetailView";
+import PayWorkingView from "@/views/template1/pay-working/PayWorkingView";
 import { useTranslation } from "@/i18n";
 
 export default async function Page({ params: { lng, orderID } }: { params: { lng: string; orderID: string } }) {
     return (
-        <RightNowActivityOrderDetailView
+        <PayWorkingView
             lng={lng}
             orderID={orderID}
         />

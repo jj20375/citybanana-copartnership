@@ -9,7 +9,7 @@ export interface RightNowActivityOrderCreateByCashAPIReqInterface {
     due_at: string; // 招募截止時間
     started_at?: null | string | void; // 活動開始時間
     duration: number; // 活動時長 時數或天數
-    description: string; // 活動描述
+    description?: string | null | void; // 活動描述
     pay_voucher: 0 | 1; // 是否使用折抵金
     merchant_code?: string | void; // 店家代號
     venue_code?: string | null | void; // 店家桌號代號

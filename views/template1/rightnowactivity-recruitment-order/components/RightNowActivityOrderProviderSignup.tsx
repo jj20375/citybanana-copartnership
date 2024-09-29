@@ -14,7 +14,7 @@ import RightNowActivityOrderConfirmPaymentModal from "./RightNowActivityOrderCon
 const RightNowActivityOrderProviderSignUp = memo(
     ({
         lng,
-        orderId,
+        orderID,
         providers,
         comments,
         isSigleChoose,
@@ -22,7 +22,7 @@ const RightNowActivityOrderProviderSignUp = memo(
         setParentValues,
     }: {
         lng: string;
-        orderId: string;
+        orderID: string;
         providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
         comments?: RightNowActivityOrderProviderCommentInterface[] | void;
         isSigleChoose: boolean;
@@ -146,7 +146,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                     lng={lng}
                     providers={providers}
                     providerIds={isSigleChoose ? [value] : values}
-                    orderId={orderId}
+                    orderID={orderID}
                 />
             </>
         );

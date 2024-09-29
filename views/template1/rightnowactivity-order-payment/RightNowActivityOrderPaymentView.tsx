@@ -216,7 +216,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             location: "abc",
             due_at: dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm"),
             started_at: order?.startDate ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
-            description: "123",
             pay_voucher: 0,
             merchant_code: partnerStoreCode,
             venue_code: partnerStoreVenueCode,

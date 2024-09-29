@@ -162,15 +162,15 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
             />
             <RightNowActivityOrderChangeRequiredProviderCountModal
                 lng={lng}
-                orderId="123"
+                orderID={orderID}
                 currentProviderCount={2}
                 ref={changeRequiredProviderCountRef}
             />
             <RightNowActivityOrderCancelModal
                 lng={lng}
-                orderId="123"
+                orderID={orderID}
                 description={t("rightNowActivityOrderRecruitmentDetail.cancel.description")}
-                needConfirm={true}
+                isShowCancelAcceptedOrderConfirm={true}
                 confirmText={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox")}
                 confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
                 ref={cancelOrderModalRef}

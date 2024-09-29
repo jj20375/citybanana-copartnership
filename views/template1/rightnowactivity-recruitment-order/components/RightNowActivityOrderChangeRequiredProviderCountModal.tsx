@@ -17,11 +17,11 @@ const { Option } = Select;
 /**
  * 增加活動需求人數彈窗 ui
  */
-const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, orderId }: { lng: string; currentProviderCount: number; orderId: string }, ref: any) => {
+const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, orderID }: { lng: string; currentProviderCount: number; orderID: string }, ref: any) => {
     type FormValues = {
         form: {
             requriedProviderCount: number;
-            orderId: string;
+            orderID: string;
         };
     };
     const { t } = useTranslation(lng, "main");
@@ -33,7 +33,7 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
 
     const formSchema = {
         requriedProviderCount: yup.number(),
-        orderId: yup.string(),
+        orderID: yup.string(),
     };
 
     const [schema, setSchema]: any = useState(
@@ -63,7 +63,7 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
         defaultValues: {
             form: {
                 requriedProviderCount: providerCount,
-                orderId,
+                orderID,
             },
         },
     });

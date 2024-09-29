@@ -1,5 +1,5 @@
 "use client";
-import { forwardRef, useImperativeHandle, useState, useMemo } from "react";
+import { forwardRef, useImperativeHandle, useState, useMemo, useEffect } from "react";
 import { Modal, Checkbox } from "antd";
 import { useTranslation } from "@/i18n/i18n-client";
 import ButtonBorderGradient from "../../components/ButtonBorderGradient";
@@ -9,11 +9,12 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "../rightnowactivity-order-interface";
+import { RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI } from "@/api/bookingAPI/bookingAPI";
 
 /**
  * 確認付款彈窗 ui
  */
-const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderId, providers, providerIds }: { lng: string; orderId: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; providerIds?: string[] | void }, ref) => {
+const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, providers, providerIds }: { lng: string; orderID: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; providerIds?: string[] | void }, ref) => {
     const router = useRouter();
     const { t } = useTranslation(lng, "main");
     const [open, setOpen] = useState(false);
@@ -26,13 +27,13 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderId, pro
     type FormValues = {
         form: {
             providerIds: string[];
-            orderId: string;
+            orderID: string;
         };
     };
 
     const formSchema = {
         providerIds: yup.array(),
-        orderId: yup.string(),
+        orderID: yup.string(),
     };
     const [schema, setSchema]: any = useState(
         yup
@@ -70,7 +71,7 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderId, pro
         defaultValues: {
             form: {
                 providerIds: [],
-                orderId,
+                orderID,
             },
         },
     });
@@ -81,22 +82,38 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderId, pro
     };
 
     // 下一步按鈕事件
-    const onNextStepButtonClick = () => {
+    const onNextStepButtonClick = (orderID: string) => {
         reset();
-        router.push(`/pay-working`);
+        router.push(`/pay-working/${orderID}`);
         return;
+    };
+
+    /**
+     * 即刻快閃選擇服務商並付款
+     */
+    const handleConfirmPayment = async (ids: string[]) => {
+        try {
+            const res = await RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI({ ids });
+            console.log("choose providers to payment and create orders API success =>", res);
+        } catch (err) {
+            console.error("choose providers to payment and create orders API error =>", err);
+            // 處理錯誤
+            throw err;
+        }
     };
 
     /**
      * submit 成功時往下一步
      * @param data
      */
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
         console.log("success form =>", data);
         if (Object.keys(errors).length > 0) {
             return;
         }
-        onNextStepButtonClick();
+        console.log("data.form. =>", data.form, getValues("form.providerIds"));
+        await handleConfirmPayment(data.form.providerIds);
+        // onNextStepButtonClick(orderID);
         return;
     };
 
@@ -104,6 +121,12 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderId, pro
         console.log("error form =>", errors);
         // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
     };
+
+    useEffect(() => {
+        if (Array.isArray(providerIds)) {
+            setValue("form.providerIds", providerIds);
+        }
+    }, [providerIds]);
 
     return (
         <Modal
@@ -134,7 +157,7 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderId, pro
                         {t("global.cancel")}
                     </button>
                     <ButtonBorderGradient
-                        onClick={onSubmit}
+                        onClick={handleSubmit(onSubmit, onError)}
                         buttonText={t("global.confirm")}
                         outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
                         insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}

@@ -1,20 +1,18 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import RightNowActivityOrderDetail from "../components/RightNowActivityOrderDetail";
 import { Icon } from "@iconify/react";
 import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "@/views/template1/rightnowactivity-recruitment-order/rightnowactivity-order-interface";
-// 增加服務商數量彈窗
-import RightNowActivityOrderChangeRequiredProviderCountModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderChangeRequiredProviderCountModal";
 // 取消活動彈窗
 import RightNowActivityOrderCancelModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderCancelModal";
 // 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
-import Image from "next/image";
+import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 
 /**
- * 即刻快閃訂單建立成功詳細資料
+ * 一般訂單詳細資料
  * @param param0
  * @returns
  */
@@ -31,14 +29,6 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     };
     const backList = () => {
         router.push("/");
-    };
-
-    // 新增服務商人數彈窗 dom
-    const changeRequiredProviderCountRef = useRef<any>();
-
-    // 開啟修改服務商人數彈窗
-    const openChangeRequiredProviderCountModal = () => {
-        changeRequiredProviderCountRef.current.openModal();
     };
 
     // 取消活動彈窗 dom
@@ -72,27 +62,18 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     const [order, setOrder] = useState<any>({});
 
     const RenderTitle = () => (
-        <div className=" mb-[40px] font-bold">
-            <Image
-                src="/img/icons/order-create-success.svg"
-                alt="order create success"
-                width={100}
-                height={100}
-                style={{ width: "50px", height: "auto" }}
-                className="mx-auto"
+        <div className="flex items-center mb-[40px] font-bold">
+            <Icon
+                className="text-3xl cursor-pointer text-black"
+                icon="iconamoon:arrow-left-2-light"
+                onClick={backList}
             />
-            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-success")}</h1>
+            <h1 className="text-black w-full text-md-title text-center">{t("rightNowActivityOrderDetail.title")}</h1>
         </div>
     );
 
     const RenderButton = () => (
         <div className="flex flex-col">
-            <button
-                onClick={openChangeRequiredProviderCountModal}
-                className="border border-primary text-primary h-[45px] w-full mb-[15px]"
-            >
-                {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
-            </button>
             <button
                 onClick={openCancelOrderModal}
                 className="border border-gray-third text-gray-third h-[45px] w-full"
@@ -113,6 +94,19 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
             { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
         ],
     };
+
+    /**
+     * 取得訂單資料
+     */
+    const getOrder = useCallback(async (data: string) => {
+        try {
+            const res = await GetRightNowActivityOrderDetailAPI(data);
+            console.log("GetRightNowActivityOrderDetailAPI => ", res);
+        } catch (err) {
+            console.log("GetRightNowActivityOrderDetailAPI err => ", err);
+            throw err;
+        }
+    }, []);
 
     useEffect(() => {
         setProvider({
@@ -138,6 +132,7 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
             price: 2000,
             duration: 2,
         });
+        getOrder(orderID);
     }, []);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
@@ -148,12 +143,6 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 providerData={provider}
                 displayOrder={apiDatas}
                 orderData={order}
-            />
-            <RightNowActivityOrderChangeRequiredProviderCountModal
-                lng={lng}
-                orderID={orderID}
-                currentProviderCount={2}
-                ref={changeRequiredProviderCountRef}
             />
             <RightNowActivityOrderCancelModal
                 lng={lng}

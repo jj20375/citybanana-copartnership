@@ -3,7 +3,7 @@ import { useTranslation } from "@/i18n";
 import Image from "next/image";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-export default async function PayWorkingView({ lng }: { lng: string }) {
+export default async function PayWorkingView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = await useTranslation(lng, "main");
 
     // 下一步按鈕事件

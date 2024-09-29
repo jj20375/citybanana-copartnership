@@ -11,11 +11,11 @@ import Image from "next/image";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
 
 /**
- * 訂單詳細資料
+ * 即刻快閃訂單取消詳細資料
  * @param param0
  * @returns
  */
-export default function OrderDetailView({ lng }: { lng: string }) {
+export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
 
@@ -77,14 +77,6 @@ export default function OrderDetailView({ lng }: { lng: string }) {
 
     const RenderButton = () => (
         <div className="flex flex-col">
-            <ButtonBorderGradient
-                onClick={onSubmit}
-                buttonText={t("rightNowActivityOrderCancel.button-uncareful") + ` (${seconds})`}
-                outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
-                insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}
-                isDisabled={false}
-                buttonType="submit"
-            />
             <button
                 type="button"
                 className="w-full mt-[15px] text-primary border rounded-md h-[45px] border-primary mr-[13px]"
