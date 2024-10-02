@@ -1,5 +1,5 @@
 "use client";
-import { memo, useState, useRef } from "react";
+import { memo, useState, useRef, useMemo, useEffect } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import RightNowActivityOrderSignUpCard from "./RightNowActivityOrderProviderSignupCard";
 import type { RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "../rightnowactivity-order-interface";
@@ -16,6 +16,8 @@ const RightNowActivityOrderProviderSignUp = memo(
         lng,
         orderID,
         providers,
+        checkedProviders,
+        providerRequiredCount,
         comments,
         isSigleChoose,
         parentValues,
@@ -24,6 +26,8 @@ const RightNowActivityOrderProviderSignUp = memo(
         lng: string;
         orderID: string;
         providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
+        checkedProviders: number;
+        providerRequiredCount: number;
         comments?: RightNowActivityOrderProviderCommentInterface[] | void;
         isSigleChoose: boolean;
         parentValues: string[];
@@ -60,78 +64,122 @@ const RightNowActivityOrderProviderSignUp = memo(
             paymentConfirmModalRef.current.openModal();
         };
 
+        // 已接受報名服務商
+        const [acceptProviders, setAcceptPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
+        // 未選擇報名服務商
+        const [unchooseProviders, setUnchooseProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
+        useEffect(() => {
+            if (Array.isArray(providers)) {
+                // 取得已接受報名服務商資料
+                const accept = providers.filter((item) => item.enrollerStatus === 1);
+                setAcceptPrviders(accept);
+                // 取得未接受報名服務商資料
+                const unchoose = providers.filter((item) => item.enrollerStatus === 0);
+                setUnchooseProviders(unchoose);
+            }
+        }, [providers]);
+
+        const disabledChooseButton = useMemo(() => {
+            return (unchooseProviders && unchooseProviders.length === 0) || (values.length === 0 && value !== "") || (value === "" && values.length !== 0);
+        }, [unchooseProviders, value, values]);
+
         return (
             <>
-                {isSigleChoose ? (
-                    <Radio.Group
-                        onChange={onChange}
-                        value={value}
-                    >
-                        {providers.map((data, index) => (
-                            <Radio
-                                value={data.id}
-                                key={data.id + "-" + "single"}
-                            >
-                                <div
-                                    onClick={openProviderCarouselModal}
-                                    key={data.id + "-" + "single1"}
-                                >
-                                    <RightNowActivityOrderSignUpCard
-                                        customClass={`${index !== providers.length - 1 && "mb-[15px]"}`}
-                                        lng={lng}
-                                        providerCardData={data}
-                                    />
-                                </div>
-                            </Radio>
+                {Array.isArray(acceptProviders) && acceptProviders.length > 0 && (
+                    <div className="mb-5">
+                        <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.confirmed-acceptProviders", { val: checkedProviders })}</h5>
+                        {acceptProviders.map((data, index) => (
+                            <RightNowActivityOrderSignUpCard
+                                customClass={`${index !== acceptProviders.length - 1 && "mb-[15px]"}`}
+                                lng={lng}
+                                providerCardData={data}
+                            />
                         ))}
-                        <RightNowActivityOrderProviderCarouselModal
-                            ref={chooseProviderCarouseModalRef}
-                            lng={lng}
-                            providerIds={[value]}
-                            setProviderIds={setValue}
-                            providers={providers}
-                            comments={comments}
-                        />
-                    </Radio.Group>
-                ) : (
-                    <Checkbox.Group
-                        style={{ width: "100%" }}
-                        value={values}
-                        onChange={onChangeValues}
-                    >
-                        {providers.map((data, index) => (
-                            <Checkbox
-                                value={data.id}
-                                key={data.id + "-" + "more"}
-                            >
-                                <div
-                                    key={data.id + "-" + "more1"}
-                                    onClick={openProviderCarouselModal}
-                                >
-                                    <RightNowActivityOrderSignUpCard
-                                        customClass={`${index !== providers.length - 1 && "mb-[15px]"}`}
-                                        lng={lng}
-                                        providerCardData={data}
-                                    />
-                                </div>
-                            </Checkbox>
-                        ))}
-                        <RightNowActivityOrderProviderCarouselModal
-                            ref={chooseProviderCarouseModalRef}
-                            lng={lng}
-                            providerIds={values}
-                            setProviderIds={setValues}
-                            providers={providers}
-                            comments={comments}
-                        />
-                    </Checkbox.Group>
+                    </div>
                 )}
-
+                {isSigleChoose ? (
+                    <div>
+                        {Array.isArray(unchooseProviders) && (
+                            <>
+                                <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
+                                <Radio.Group
+                                    onChange={onChange}
+                                    value={value}
+                                >
+                                    {unchooseProviders.map((data, index) => (
+                                        <Radio
+                                            value={data.id}
+                                            key={data.id + "-" + "single"}
+                                        >
+                                            <div
+                                                onClick={openProviderCarouselModal}
+                                                key={data.id + "-" + "single1"}
+                                            >
+                                                <RightNowActivityOrderSignUpCard
+                                                    customClass={`${index !== unchooseProviders.length - 1 && "mb-[15px]"}`}
+                                                    lng={lng}
+                                                    providerCardData={data}
+                                                />
+                                            </div>
+                                        </Radio>
+                                    ))}
+                                    <RightNowActivityOrderProviderCarouselModal
+                                        ref={chooseProviderCarouseModalRef}
+                                        lng={lng}
+                                        providerIds={[value]}
+                                        setProviderIds={setValue}
+                                        providers={unchooseProviders}
+                                        comments={comments}
+                                    />
+                                </Radio.Group>
+                            </>
+                        )}
+                    </div>
+                ) : (
+                    <div>
+                        {Array.isArray(unchooseProviders) && (
+                            <>
+                                <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
+                                <Checkbox.Group
+                                    style={{ width: "100%" }}
+                                    value={values}
+                                    onChange={onChangeValues}
+                                >
+                                    {unchooseProviders.map((data, index) => (
+                                        <Checkbox
+                                            value={data.id}
+                                            key={data.id + "-" + "more"}
+                                        >
+                                            <div
+                                                key={data.id + "-" + "more1"}
+                                                onClick={openProviderCarouselModal}
+                                            >
+                                                <RightNowActivityOrderSignUpCard
+                                                    customClass={`${index !== unchooseProviders.length - 1 && "mb-[15px]"}`}
+                                                    lng={lng}
+                                                    providerCardData={data}
+                                                />
+                                            </div>
+                                        </Checkbox>
+                                    ))}
+                                    <RightNowActivityOrderProviderCarouselModal
+                                        ref={chooseProviderCarouseModalRef}
+                                        lng={lng}
+                                        providerIds={values}
+                                        setProviderIds={setValues}
+                                        providers={unchooseProviders}
+                                        comments={comments}
+                                    />
+                                </Checkbox.Group>
+                            </>
+                        )}
+                    </div>
+                )}
                 <div className="flex justify-center text-[15px] mt-[30px]">
-                    <p className="mr-2 text-gray-primary">{t("rightNowActivityOrderRecruitmentDetail.recruitment.needRequiredProviderCount", { val: 5 })},</p>
+                    <p className="mr-2 text-gray-primary">{t("rightNowActivityOrderRecruitmentDetail.recruitment.needRequiredProviderCount", { val: providerRequiredCount })},</p>
                     <p className="text-gray-primary">
                         {t("rightNowActivityOrderRecruitmentDetail.recruitment.confirmed")}
-                        <span className="mx-2 text-primary">2</span>
+                        <span className="mx-2 text-primary">{checkedProviders}</span>
                         {t("global.people")}
                     </p>
                 </div>
@@ -139,7 +187,12 @@ const RightNowActivityOrderProviderSignUp = memo(
                     className="my-[15px]"
                     onClick={openPaymentConfirmModal}
                 >
-                    <button className="PrimaryGradient h-[45px] w-full rounded-md text-white">{t("global.choose")}</button>
+                    <button
+                        className="PrimaryGradient h-[45px] w-full rounded-md text-white DisabledGradient"
+                        disabled={disabledChooseButton}
+                    >
+                        {t("global.choose")}
+                    </button>
                 </div>
                 <RightNowActivityOrderConfirmPaymentModal
                     ref={paymentConfirmModalRef}

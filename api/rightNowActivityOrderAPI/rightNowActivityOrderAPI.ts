@@ -16,7 +16,7 @@ export async function GetRightNowActivityOrderDetailAPI(orderID: string): Promis
  * 更改即刻快閃單服務商需求數量
  */
 export async function ChangeRightNowActivityProviderRequiredAPI(data: ChangeRightNowActivityProviderRequiredAPIReqInterface): Promise<ChangeRightNowActivityProviderRequiredAPIResInterface> {
-    return useMyFetch(`${apiURL}/my/demands/datings/${data.orderID}`, {
+    return useMyFetch(`${apiURL}/partner/demands/datings/${data.orderID}`, {
         method: "patch",
         body: JSON.stringify({ provider_required: data.provider_required }),
     });

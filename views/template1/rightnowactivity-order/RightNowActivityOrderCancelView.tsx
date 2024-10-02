@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import RightNowActivityOrderDetail from "../components/RightNowActivityOrderDetail";
 import { Icon } from "@iconify/react";
@@ -9,6 +9,10 @@ import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "@/vi
 import ContactWe from "../components/ContactWe";
 import Image from "next/image";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
+import type { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
+import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
+import { useAppSelector } from "@/store-toolkit/storeToolkit";
+import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 
 /**
  * 即刻快閃訂單取消詳細資料
@@ -27,31 +31,17 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
         }[];
     };
 
-    const [seconds, setSeconds] = useState(5);
-    const [isCounting, setIsCounting] = useState(false);
-    const timerRef = useRef<any>(null);
-
-    const [provider, setProvider] = useState<RightNowActivityOrderDetailProviderSigupCardInterface>({
-        id: `provider-${0}`,
-        name: "test1-" + "0",
-        cover: `https://picsum.photos/id/11/300/300`,
-        rate: 4.5,
-        description:
-            "Lorem Ipsum，也称乱数假文或者哑元文本， 是印刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷字体从而造出一本字体样品书，Lorem Ipsum从西元15世纪起就被作为此领域的标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然保存至今。在1960年代，”Leatraset”公司发布了印刷着Lorem Ipsum段落的纸张，从而广泛普及了它的使用。最近，计算机桌面出版软件”Aldus PageMaker”也通过同样的方式使Lorem Ipsum落入大众的视野。",
-        unit: "hour",
-        height: 160,
-        weight: 70,
-        age: 35,
-        travelTime: 35,
-        isNowTime: true,
-        price: 2000,
-        area: "TW-TPE",
-        job: "金融業",
-        authentication: true,
-        isQueen: true,
-    });
-
-    const [order, setOrder] = useState<any>({});
+    const [order, setOrder] = useState<GetRightNowActivityOrderDetailAPIResInterface>();
+    // 合作店家資料
+    const partnerStore = useAppSelector((state) => state.partnerStore);
+    // 合作店家名稱
+    const partnerStoreName = usePartnerStoreNameSelector(partnerStore);
+    // 顯示訂單資料
+    const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
+    // 報名服務商
+    const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
+    // 已接受報名服務商
+    const [acceptProviders, setAcceptPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
 
     // 重新下訂按鈕事件
     const handleReCreate = () => {
@@ -87,70 +77,97 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
         </div>
     );
 
-    const apiDatas: DisplayOrder = {
-        datas: [
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: "測試商家", column: "column-store" },
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: "服務商到場時間", column: "column-startDate" },
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: "測試活動備註", column: "column-note" },
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: 1 }), column: "column-requiredProviderCount" },
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: t("rightNowActivityOrder.price", { val: 0, customPriceByDetailHourPrice: 0 }), column: "column-price" },
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: 3 }), column: "column-duration" },
-            { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
-        ],
-    };
-
-    useEffect(() => {
-        setProvider({
-            id: `provider-${0}`,
-            name: "test1-" + "0",
-            cover: `https://picsum.photos/id/11/300/300`,
-            rate: 4.5,
-            description:
-                "Lorem Ipsum，也称乱数假文或者哑元文本， 是印刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷字体从而造出一本字体样品书，Lorem Ipsum从西元15世纪起就被作为此领域的标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然保存至今。在1960年代，”Leatraset”公司发布了印刷着Lorem Ipsum段落的纸张，从而广泛普及了它的使用。最近，计算机桌面出版软件”Aldus PageMaker”也通过同样的方式使Lorem Ipsum落入大众的视野。",
-            unit: "hour",
-            height: 160,
-            weight: 70,
-            age: 35,
-            travelTime: 35,
-            isNowTime: true,
-            price: 2000,
-            area: "TW-TPE",
-            job: "金融業",
-            authentication: true,
-            isQueen: true,
-        });
-        setOrder({
-            price: 2000,
-            duration: 2,
-        });
-        setIsCounting(true);
+    /**
+     * 取得訂單資料
+     */
+    const getOrder = useCallback(async (data: string) => {
+        try {
+            const res = await GetRightNowActivityOrderDetailAPI(data);
+            setOrder(res);
+            setDisplayOrder({
+                datas: [
+                    // 店家資料
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
+                    // 活動開始時間
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at, column: "column-startDate" },
+                    // 特殊需求備註
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
+                    // 服務商需求數量
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
+                    // 活動時長 時數或天數
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
+                    // 付款方式
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: res.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
+                ],
+            });
+            if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
+                const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
+                    const findJob = Array.isArray(item.user!.occupation) ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
+                    const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
+                    return {
+                        id: item.id!,
+                        name: item.user!.name!,
+                        cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
+                        rate: item.user!.rating_score!,
+                        unit: res.details.unit!,
+                        height: item.user!.height!,
+                        weight: item.user!.weight!,
+                        travelTime: item.travel_time!,
+                        isNowTime: res.at_any_time!,
+                        price: item.hourly_pay!,
+                        authentication: true,
+                        isQueen,
+                        job: findJob,
+                        area: item.user!.district!,
+                        enrollerStatus: item.status,
+                        providerID: item.user!.banana_id,
+                    };
+                });
+                setProviders(setDatas);
+            }
+            console.log("GetRightNowActivityOrderDetailAPI => ", res);
+        } catch (err) {
+            console.log("GetRightNowActivityOrderDetailAPI err => ", err);
+            throw err;
+        }
     }, []);
 
     useEffect(() => {
-        if (isCounting) {
-            timerRef.current = setInterval(() => {
-                setSeconds((prevSeconds) => {
-                    if (prevSeconds <= 1) {
-                        clearInterval(timerRef.current);
-                        setIsCounting(false);
-                        return 0;
-                    }
-                    return prevSeconds - 1;
-                });
-            }, 1000);
+        getOrder(orderID);
+    }, []);
+
+    useEffect(() => {
+        if (Array.isArray(providers)) {
+            // 取得已接受報名服務商資料
+            const accept = providers.filter((item) => item.enrollerStatus === 1);
+            setAcceptPrviders(accept);
         }
-        return () => clearInterval(timerRef.current);
-    }, [isCounting]);
+    }, [providers]);
+
+    /**
+     * 因為有時候合作店家 api 還沒有載入到資料
+     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
+     */
+    useEffect(() => {
+        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
+            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
+            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
+            setDisplayOrder(newDatas);
+        }
+    }, [partnerStoreName, displayOrder]);
+
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            <RightNowActivityOrderDetail
-                lng={lng}
-                renderTitle={RenderTitle()}
-                renderButton={RenderButton()}
-                providerData={provider}
-                displayOrder={apiDatas}
-                orderData={order}
-            />
+            {displayOrder && acceptProviders ? (
+                <RightNowActivityOrderDetail
+                    lng={lng}
+                    renderTitle={RenderTitle()}
+                    renderButton={RenderButton()}
+                    providers={acceptProviders}
+                    displayOrder={displayOrder}
+                    orderData={order}
+                />
+            ) : null}
             <ContactWe lng={lng} />
         </div>
     );

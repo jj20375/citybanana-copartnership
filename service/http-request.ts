@@ -32,8 +32,9 @@ export default async function useMyFetch(url: string, options: any) {
         } else {
             throw resData;
         }
-    } catch (err) {
-        console.log("myFetch error =>", err);
-        throw err;
+    } catch (err: any) {
+        const errData = await err.json();
+        console.log("myFetch error =>", errData);
+        throw errData;
     }
 }

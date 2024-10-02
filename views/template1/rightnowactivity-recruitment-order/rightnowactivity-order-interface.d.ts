@@ -46,6 +46,12 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     isQueen: boolean;
     // 描述
     description: string;
+    // 服務商被選擇狀態 status = 0 未選擇 status = 1 已選擇
+    enrollerStatus: number;
+    // 服務商 ID
+    providerID?: string;
+    // 一般訂單 ID
+    orderID?: string;
 }
 
 /**

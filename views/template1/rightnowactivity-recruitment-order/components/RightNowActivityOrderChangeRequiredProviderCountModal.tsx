@@ -3,6 +3,7 @@
 import { Modal, Select } from "antd";
 import { useState, useRef, useImperativeHandle, forwardRef, useEffect } from "react";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
+import { useSearchParams, useRouter } from "next/navigation";
 import { rightNowActivityProviderMaxRequiredSelector } from "@/store-toolkit/stores/orderStore";
 import ButtonBorderGradient from "../../components/ButtonBorderGradient";
 import { useTranslation } from "@/i18n/i18n-client";
@@ -12,6 +13,8 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import styles from "../styles/RightNowActivityOrderChangeRequiredProviderCountModal.module.scss";
 import { Trans } from "react-i18next";
+import { ChangeRightNowActivityProviderRequiredAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
+import { ChangeRightNowActivityProviderRequiredAPIReqInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 const { Option } = Select;
 
 /**
@@ -20,11 +23,12 @@ const { Option } = Select;
 const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, orderID }: { lng: string; currentProviderCount: number; orderID: string }, ref: any) => {
     type FormValues = {
         form: {
-            requriedProviderCount: number;
+            requiredProviderCount: number;
             orderID: string;
         };
     };
     const { t } = useTranslation(lng, "main");
+    const [loading, setLoading] = useState(false);
     const state = useAppSelector((state) => state.orderStore);
     const [open, setOpen] = useState(false);
     const [providerCount, setProviderCount] = useState(currentProviderCount);
@@ -32,7 +36,7 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
     const maxRequired = rightNowActivityProviderMaxRequiredSelector(state);
 
     const formSchema = {
-        requriedProviderCount: yup.number(),
+        requiredProviderCount: yup.number(),
         orderID: yup.string(),
     };
 
@@ -62,7 +66,7 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
         resolver: yupResolver(schema),
         defaultValues: {
             form: {
-                requriedProviderCount: providerCount,
+                requiredProviderCount: providerCount,
                 orderID,
             },
         },
@@ -82,15 +86,43 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
         setProviderCount(val);
     };
 
+    const router = useRouter();
+    const onNextStepButtonClick = () => {
+        reset();
+        router.push(`/rightnowactivity-recruitment-order/${orderID}`);
+    };
+
+    /**
+     * 更改服務商數量
+     * @param data
+     */
+    const updateProviderRequiredCount = async (data: ChangeRightNowActivityProviderRequiredAPIReqInterface) => {
+        setLoading(true);
+        try {
+            const res = await ChangeRightNowActivityProviderRequiredAPI(data);
+            console.log("ChangeRightNowActivityProviderRequiredAPI res =>", res);
+            setOpen(false);
+            onNextStepButtonClick();
+        } catch (err) {
+            console.log("ChangeRightNowActivityProviderRequiredAPI err =>", err);
+            throw err;
+        } finally {
+            setLoading(false);
+        }
+    };
     /**
      * submit 成功時往下一步
      * @param data
      */
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
+    const onSubmit: SubmitHandler<FormValues> = async (data) => {
         console.log("success form =>", data);
         if (Object.keys(errors).length > 0) {
             return;
         }
+        await updateProviderRequiredCount({
+            orderID,
+            provider_required: providerCount,
+        });
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {

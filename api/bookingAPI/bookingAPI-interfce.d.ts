@@ -4,8 +4,8 @@ export interface RightNowActivityOrderCreateByCashAPIReqInterface {
     provider_required: number; // 服務商需求數量
     unit: "hour" | "day"; // 計價單位 hour = 時數 | day = 天數
     hourly_pay: number; // 單位單價 每小時或每天單價
-    district: AreaInterface; // iso 3166 區域代碼
-    location: string; // 會面地點
+    district?: AreaInterface; // iso 3166 區域代碼
+    location?: string; // 會面地點
     due_at: string; // 招募截止時間
     started_at?: null | string | void; // 活動開始時間
     duration: number; // 活動時長 時數或天數

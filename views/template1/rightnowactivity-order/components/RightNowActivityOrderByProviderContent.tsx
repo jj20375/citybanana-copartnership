@@ -49,7 +49,7 @@ const OrderByProviderContent = memo(({ lng, providerData, customClass }: { lng: 
             </div>
             <div className="h-[80px] flex items-center">
                 <button
-                    onClick={() => goToChatroom(String(providerData.id))}
+                    onClick={() => goToChatroom(String(providerData.providerID))}
                     className="border rounded-md border-primary h-[27px] text-primary text-sm-content w-[84px]"
                 >
                     {t("global.sendMessage")}

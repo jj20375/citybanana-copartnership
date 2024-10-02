@@ -5,13 +5,14 @@ import { UserProfileInterface } from "@/interface/user";
 import useUserStore from "@/store-zustand/userStore";
 import { setUserProfile, fetchGetFirebaseCustomToken, fetchFirebaseLogin } from "@/store-toolkit/stores/userStore";
 import { setRightNowActivityConfiguration } from "@/store-toolkit/stores/orderStore";
-import { setClientUiSettings } from "@/store-toolkit/stores/utilityStore";
-import { useEffect, useState } from "react";
+import { setClientUiSettings, setErrorMessageLang } from "@/store-toolkit/stores/utilityStore";
+import { useCallback, useEffect, useState } from "react";
 import { refreshToken, refreshFirebaseToken } from "@/service/actions";
 import { isOnAuthStateChange } from "@/lib/firebase/firebase-hooks";
 import WindowResizeContext from "@/context/windowResizeContext";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import { getPartnerStoreInfo } from "@/store-toolkit/stores/partnerStore";
+import { firebaseConnectRef } from "@/lib/firebase/firebase-hooks";
 
 function IntervalCount() {
     let [count, setCount] = useState(0);
@@ -42,6 +43,22 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
     }
     dispatch(setRightNowActivityConfiguration(configurationSettingsData));
     dispatch(setClientUiSettings(clientUiSettings));
+
+    const getErrorMessageLang = useCallback(async () => {
+        try {
+            const data = await firebaseConnectRef("langs/errorStatus").get();
+            // 判斷是否有訊息
+            if (data.exists()) {
+                dispatch(setErrorMessageLang(data.val()));
+                return data.val();
+            }
+            return null;
+        } catch (err) {
+            console.log("getErrorMessageLang =>", err);
+            throw err;
+        }
+    }, []);
+
     useEffect(() => {
         // 判斷有 token 在執行 取得 firebase token
         if (getCookie("accessToken")) {
@@ -54,6 +71,9 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
         if (getCookie("merchantCode")) {
             dispatch(getPartnerStoreInfo({ merchantCode: getCookie("merchantCode")!, venueCode: getCookie("venueCode")! }));
         }
+
+        // 取得錯誤語系檔
+        getErrorMessageLang();
     }, []);
     return (
         <>

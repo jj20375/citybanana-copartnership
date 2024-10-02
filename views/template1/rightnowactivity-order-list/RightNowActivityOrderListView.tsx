@@ -47,6 +47,7 @@ export default function OrderListView({ lng }: { lng: string }) {
                 job: "金融業",
                 authentication: true,
                 isQueen: true,
+                enrollerStatus: 0,
             },
             orderData: {
                 id: "orderidabc-" + i,

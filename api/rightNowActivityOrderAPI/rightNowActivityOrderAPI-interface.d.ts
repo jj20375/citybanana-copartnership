@@ -8,14 +8,14 @@ export interface GetRightNowActivityOrderDetailAPIResInterface {
     currency: string;
     demand_id: string;
     description: string;
-    details: Details;
+    details: RequestDetails;
     district: string;
     due_at: string;
     ended_at: null;
     /**
      * 已報名服務商，已報名服務商列表
      */
-    enrollers: Enroller[] | [];
+    enrollers: Enroller[];
     hourly_pay: number;
     id: number;
     is_x: boolean;
@@ -34,25 +34,27 @@ export interface GetRightNowActivityOrderDetailAPIResInterface {
     requirement: null;
     source_application: string;
     started_at: null;
-    status: number; // 身份驗證等級 status = 1 代表已驗證
-    user: GetRightNowActivityOrderDetailAPIResInterfaceUser;
+    status: number;
+    user: RequestUser;
     user_id: number;
     [property: string]: any;
 }
 
-export interface Details {
+export interface RequestDetails {
     acceptedVoucherUsed: number;
+    credit_card_id: string;
     datingDemandFeePercentage: string;
     duration: number;
     eachFee: number;
     eachPrice: number;
     eachProviderRemuneration: number;
+    eachTransactionFee: number;
     eachVoucherUsed: number;
     fee: number;
     hourlyPrice: number;
     isCommissionPaidByProvider: string;
     isX: boolean;
-    merchant: Merchant;
+    merchant: PurpleMerchant;
     penalty: number;
     pointPaid: number;
     pointRefunded: number;
@@ -69,23 +71,67 @@ export interface Details {
     [property: string]: any;
 }
 
-export interface Merchant {
+export interface PurpleMerchant {
     merchant_id: number;
     venue_id: number;
     [property: string]: any;
 }
 
 export interface Enroller {
-    created_at?: string;
-    dating?: null;
-    dating_demand_id?: number;
-    dating_id?: null;
-    hourly_pay?: number;
-    id?: number;
-    status?: number;
-    travel_time?: number;
-    user?: EnrollerUser;
-    user_id?: number;
+    created_at: string;
+    dating: null | Dating;
+    dating_demand_id: number;
+    dating_id: number | null;
+    hourly_pay: number;
+    id: number;
+    status: number;
+    travel_time: number;
+    user: EnrollerUser;
+    user_id: number;
+    [property: string]: any;
+}
+
+export interface Dating {
+    cash_receivable: number;
+    created_at: string;
+    cut_due_time: null;
+    details: DatingDetails;
+    expected_arrival_time: string;
+    id: number;
+    is_x: boolean;
+    order_id: string;
+    point_paid: number;
+    refund: number;
+    source_application: string;
+    voucher_paid: number;
+    [property: string]: any;
+}
+
+export interface DatingDetails {
+    brokerCommission: number;
+    credit_card_id: string;
+    duration: number;
+    fee: number;
+    hourlyPrice: number;
+    isX: boolean;
+    merchant: FluffyMerchant;
+    payment_id: number;
+    price: number;
+    providerPercentage: number;
+    serviceCharge: number;
+    sourceApplication: string;
+    tip: number;
+    total: number;
+    transactionFee: number;
+    transactionFeePercentage: string;
+    travelTime: number;
+    unit: string;
+    [property: string]: any;
+}
+
+export interface FluffyMerchant {
+    merchant_id: number;
+    venue_id: number;
     [property: string]: any;
 }
 
@@ -101,6 +147,8 @@ export interface EnrollerUser {
     isMyFavorite: boolean;
     matrices: string[];
     name: string;
+    newbie: number;
+    occupation: PurpleOccupation[];
     passbook: null;
     photos: PurplePhoto[];
     rating_score: number;
@@ -110,15 +158,22 @@ export interface EnrollerUser {
 }
 
 export interface Badge {
-    id?: number;
-    name?: string;
-    pivot?: BadgePivot;
+    id: number;
+    name: string;
+    pivot: BadgePivot;
     [property: string]: any;
 }
 
 export interface BadgePivot {
     badge_id: number;
     user_id: number;
+    [property: string]: any;
+}
+
+export interface PurpleOccupation {
+    description?: string;
+    id: string;
+    name: string;
     [property: string]: any;
 }
 
@@ -172,7 +227,7 @@ export interface Purple720X720 {
     [property: string]: any;
 }
 
-export interface GetRightNowActivityOrderDetailAPIResInterfaceUser {
+export interface RequestUser {
     address: string;
     age: number;
     avatar: string;
@@ -201,7 +256,8 @@ export interface GetRightNowActivityOrderDetailAPIResInterfaceUser {
     matrices: string[];
     media: Media;
     name: string;
-    occupation: Occupation[];
+    newbie: number;
+    occupation: FluffyOccupation[];
     online: number;
     passbook: string;
     phone: string;
@@ -248,8 +304,9 @@ export interface Media {
     [property: string]: any;
 }
 
-export interface Occupation {
+export interface FluffyOccupation {
     id?: string;
+    name?: string;
     [property: string]: any;
 }
 

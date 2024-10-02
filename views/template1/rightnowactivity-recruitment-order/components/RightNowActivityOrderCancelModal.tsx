@@ -9,7 +9,7 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import type { CheckboxProps } from "antd";
 import { useRouter } from "next/navigation";
-import { RightNowActivityOrderCancelAndCancelAcceptedOrderAPI, RightNowActivityOrderCancelAPI } from "@/api/bookingAPI/bookingAPI";
+import { OrderCancelAPI, RightNowActivityOrderCancelAndCancelAcceptedOrderAPI, RightNowActivityOrderCancelAPI } from "@/api/bookingAPI/bookingAPI";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
 
@@ -17,7 +17,20 @@ import { LoadingOutlined } from "@ant-design/icons";
  * 取消活動彈窗 ui
  */
 const RightNowActivityOrderCancelModal = forwardRef(
-    ({ lng, orderID, description, confirmText, confirmTextDescription, isShowCancelAcceptedOrderConfirm }: { lng: string; orderID: string; description: string; confirmText?: string | void; confirmTextDescription?: string | void; isShowCancelAcceptedOrderConfirm: boolean }, ref: any) => {
+    (
+        {
+            lng,
+            rightNowActivityID,
+            orderID,
+            description,
+            confirmText,
+            confirmTextDescription,
+            isShowCancelAcceptedOrderConfirm,
+            providerID,
+            isCancelOrder = false,
+        }: { lng: string; rightNowActivityID: string; orderID?: string | void; description: string; confirmText?: string | void; confirmTextDescription?: string | void; isShowCancelAcceptedOrderConfirm: boolean; providerID?: string | void; isCancelOrder?: boolean | void },
+        ref: any
+    ) => {
         const { t } = useTranslation(lng, "main");
         const router = useRouter();
         const [open, setOpen] = useState(false);
@@ -64,7 +77,7 @@ const RightNowActivityOrderCancelModal = forwardRef(
             defaultValues: {
                 form: {
                     checkedCancelAcceptedOrder: false,
-                    orderID,
+                    orderID: rightNowActivityID,
                 },
             },
         });
@@ -77,6 +90,20 @@ const RightNowActivityOrderCancelModal = forwardRef(
         const onChange: CheckboxProps["onChange"] = (e) => {
             console.log(`checked = ${e.target.checked}`);
             setValue("form.checkedCancelAcceptedOrder", e.target.checked);
+        };
+
+        /**
+         * 取消一般訂單
+         */
+        const cancelOrder = async (id: string) => {
+            try {
+                await OrderCancelAPI(id);
+            } catch (err) {
+                console.log("OrderCancelAPI err => ", err);
+                throw err;
+            } finally {
+                setLoading(false);
+            }
         };
 
         /**
@@ -118,15 +145,22 @@ const RightNowActivityOrderCancelModal = forwardRef(
             if (Object.keys(errors).length > 0) {
                 return;
             }
+            if (isCancelOrder && orderID) {
+                await cancelOrder(orderID);
+                setOpen(false);
+                alert(orderID);
+                router.push(`/order/cancel/${providerID}/${rightNowActivityID}`);
+                return;
+            }
             // 判斷是否勾選連同已確認服務商訂單一同取消
             if (data.form.checkedCancelAcceptedOrder) {
                 // 連同已確認服務商訂單一同取消
-                await rightNowActivityOrderCancelAndCancelAcceptedOrder(orderID);
+                await rightNowActivityOrderCancelAndCancelAcceptedOrder(rightNowActivityID);
             } else {
                 // 只取消即刻快閃單
-                await rightNowActivityOrderCancel(orderID);
+                await rightNowActivityOrderCancel(rightNowActivityID);
             }
-            router.push(`/rightnowactivity-order/cancel/${orderID}`);
+            router.push(`/rightnowactivity-order/cancel/${rightNowActivityID}`);
             setOpen(false);
         };
 

@@ -24,9 +24,8 @@ import { type RightNowActivityOrderDetailProviderSigupCardInterface, RightNowAct
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
-import { GetJobListAPI } from "@/api/utilsAPI/utilsAPI";
-import { GetJobListAPIResInterface } from "@/api/utilsAPI/utilsAPI-interface";
 import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
+import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 /**
  * 即刻快閃報名訂單詳情
  * @param param0
@@ -67,7 +66,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     };
 
     // 原始訂單資料
-    const [order, setOrder] = useState<any>({});
+    const [order, setOrder] = useState<GetRightNowActivityOrderDetailAPIResInterface>();
     // 顯示訂單資料
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
     // 訂單上方資料
@@ -99,27 +98,17 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     );
 
     const total = useMemo(() => {
-        const price = order.hourly_pay;
-        const duration = order.duration;
-        if (price === 0) {
-            return t("rightNowActivityOrder.price", { val: price, customPriceByDetail: price });
+        if (order) {
+            const price = order.hourly_pay;
+            const duration = order.duration;
+            if (price === 0) {
+                return t("rightNowActivityOrder.price", { val: price, customPriceByDetail: price });
+            }
+            return t("rightNowActivityOrder.price", { val: price * duration });
         }
-        return t("rightNowActivityOrder.price", { val: price * duration });
+        return t("rightNowActivityOrder.price", { val: 0 });
     }, [displayOrder]);
 
-    const [jobs, setJos] = useState<{ id: string; name: string }[] | []>([]);
-
-    /**
-     * 取得職業列表
-     */
-    const getJobs = useCallback(async () => {
-        try {
-            const res = await GetJobListAPI();
-            setJos(res.occupations);
-        } catch (err) {
-            throw err;
-        }
-    }, []);
     /**
      * 取得訂單資料
      */
@@ -162,8 +151,9 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                  */
                 setIsShowCancelAcceptedOrderConfirm(res.enrollers.some((item) => item.status === rightNowActivityOrderEnrollersStatusEnum.Confirmed));
 
+                // 設定服務商資料
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
-                    const findJob = Array.isArray(item.user!.occupation) ? jobs.find((job) => job.id === item.user!.occupation[0].id) : undefined;
+                    const findJob = Array.isArray(item.user!.occupation) ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
                     const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
                     console.log("item.user!.occupation =>", item.user!.occupation);
                     return {
@@ -177,10 +167,12 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         travelTime: item.travel_time!,
                         isNowTime: res.at_any_time!,
                         price: item.hourly_pay!,
-                        job: Array.isArray(item.user!.occupation) ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : findJob !== undefined ? findJob.name : undefined) : undefined,
+                        job: findJob,
                         authentication: true,
                         isQueen,
                         area: item.user!.district!,
+                        enrollerStatus: item.status,
+                        providerID: item.user!.banana_id,
                     };
                 });
                 setProviders(setDatas);
@@ -191,33 +183,19 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         }
     }, []);
 
+    // 服務商已選擇數量
+    const checkedProviders = useMemo(() => {
+        if (order && Array.isArray(order.enrollers)) {
+            return order.enrollers.filter((item) => item.status === 1).length;
+        }
+        return 0;
+    }, [providers]);
+
     useEffect(() => {
-        getJobs();
         getOrder(orderID);
     }, []);
 
     useEffect(() => {
-        // setProviders(
-        //     Array.from({ length: 10 }).map((_, i) => ({
-        //         id: `provider-${i}`,
-        //         name: "test1-" + i,
-        //         cover: `https://picsum.photos/id/${i + 10}/300/300`,
-        //         rate: 4.5,
-        //         description:
-        //             "Lorem Ipsum，也称乱数假文或者哑元文本， 是印刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷字体从而造出一本字体样品书，Lorem Ipsum从西元15世纪起就被作为此领域的标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然保存至今。在1960年代，”Leatraset”公司发布了印刷着Lorem Ipsum段落的纸张，从而广泛普及了它的使用。最近，计算机桌面出版软件”Aldus PageMaker”也通过同样的方式使Lorem Ipsum落入大众的视野。",
-        //         unit: "hour",
-        //         height: 160,
-        //         weight: 70,
-        //         age: 35,
-        //         travelTime: 35,
-        //         isNowTime: true,
-        //         price: 2000,
-        //         area: "TW-TPE",
-        //         job: "金融業",
-        //         authentication: true,
-        //         isQueen: true,
-        //     }))
-        // );
         setComments(
             Array.from({ length: 10 }).map((_, i) => ({
                 id: `comment-${i}`,
@@ -232,7 +210,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     }, []);
 
     useEffect(() => {
-        if (displayOrder) {
+        if (displayOrder && Array.isArray(displayOrder.datas)) {
             setOrderTopContent({ datas: displayOrder.datas.filter((data) => displayOrderTopKeys.includes(data.column)) });
             setOrderPaymentContent({
                 datas: displayOrder.datas.filter((data) => displayOrderPaymentKeys.includes(data.column)),
@@ -240,13 +218,15 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         }
     }, [displayOrder]);
     useEffect(() => {
-        if (providers.length > 0) {
+        if (providers.length > 0 && order) {
             setRecruitmentContent(
                 <RightNowActivityOrderProviderSignUp
                     lng={lng}
                     orderID={order.demand_id}
                     providers={providers}
                     comments={comments}
+                    checkedProviders={checkedProviders}
+                    providerRequiredCount={order.provider_required}
                     isSigleChoose={false}
                     parentValues={chooseValues}
                     setParentValues={setChooseValues}
@@ -254,6 +234,18 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
             );
         }
     }, [providers]);
+
+    /**
+     * 因為有時候合作店家 api 還沒有載入到資料
+     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
+     */
+    useEffect(() => {
+        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
+            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
+            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
+            setDisplayOrder(newDatas);
+        }
+    }, [partnerStoreName, displayOrder]);
 
     return (
         <>
@@ -266,7 +258,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     customClass="border-b border-gray-light pb-[30px]"
                 />
                 {JSON.stringify(chooseValues)}
-                {/* 倒數計時區塊 */}
+                {/* 倒數計時區塊 與 選擇服務商報名區塊 */}
                 <RightNowActivityOrderRecruitment
                     lng={lng}
                     customClass="mt-[30px] pb-[30px]"
@@ -277,11 +269,13 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     values={orderPaymentContent?.datas}
                     customClass="border-b border-gray-light py-[30px]"
                 />
-                <RightNowActivityOrderTotal
-                    lng={lng}
-                    total={total}
-                    price={order.hourly_pay}
-                />
+                {order && (
+                    <RightNowActivityOrderTotal
+                        lng={lng}
+                        total={total}
+                        price={order.hourly_pay}
+                    />
+                )}
                 <div className="flex flex-col">
                     <button
                         onClick={openChangeRequiredProviderCountModal}
@@ -305,22 +299,26 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                 <div className="h-[123px] w-full"></div>
             </div>
             {/* 增加需求人數確認彈窗 */}
-            <RightNowActivityOrderChangeRequiredProviderCountModal
-                lng={lng}
-                orderID={order.demand_id}
-                currentProviderCount={2}
-                ref={changeRequiredProviderCountRef}
-            />
+            {order && (
+                <RightNowActivityOrderChangeRequiredProviderCountModal
+                    lng={lng}
+                    orderID={order.demand_id}
+                    currentProviderCount={order.provider_required}
+                    ref={changeRequiredProviderCountRef}
+                />
+            )}
             {/* 取消活動確認彈窗 */}
-            <RightNowActivityOrderCancelModal
-                lng={lng}
-                orderID={order.demand_id}
-                description={t("rightNowActivityOrderRecruitmentDetail.cancel.description")}
-                confirmText={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox")}
-                confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
-                isShowCancelAcceptedOrderConfirm={isShowCancelAcceptedOrderConfirm}
-                ref={cancelOrderModalRef}
-            />
+            {order && (
+                <RightNowActivityOrderCancelModal
+                    lng={lng}
+                    rightNowActivityID={order.demand_id}
+                    description={t("rightNowActivityOrderRecruitmentDetail.cancel.description")}
+                    confirmText={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox")}
+                    confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
+                    isShowCancelAcceptedOrderConfirm={isShowCancelAcceptedOrderConfirm}
+                    ref={cancelOrderModalRef}
+                />
+            )}
         </>
     );
 }

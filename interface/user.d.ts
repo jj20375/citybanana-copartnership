@@ -162,6 +162,12 @@ export interface UserProfileInterface {
     };
     // 是否開啟現金付款
     enablePayByCash?: 0 | 1;
+    /**
+     * 判斷是否為首次註冊會員資料不完整會員（合作店家註冊)
+     * 1 = 資料不完整
+     * 再合作店家開單時 資料不完整會員 需補上暱稱與性別才能開單
+     */
+    newbie: number;
     matrices?: {
         response_time: string;
         response_rate: string;

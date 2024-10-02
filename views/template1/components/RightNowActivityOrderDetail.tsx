@@ -20,20 +20,20 @@ type DisplayOrder = {
     }[];
 };
 /**
- * 訂單詳細資料
+ * 即刻快閃訂單詳細資料
  * @param param0
  * @returns
  */
-export default function OrderDetail({
+export default function RightNowActivityOrderDetail({
     lng,
-    providerData,
+    providers,
     orderData,
     displayOrder,
     renderTitle,
     renderButton,
 }: {
     lng: string;
-    providerData: RightNowActivityOrderDetailProviderSigupCardInterface;
+    providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
     orderData: any;
     displayOrder: DisplayOrder;
     renderTitle: React.ReactElement;
@@ -52,7 +52,7 @@ export default function OrderDetail({
     const displayOrderPaymentKeys = ["column-requiredProviderCount", "column-price", "column-duration", "column-paymentMethod"];
 
     const total = useMemo(() => {
-        const price = orderData.price;
+        const price = orderData.hourly_pay;
         const duration = orderData.duration;
         if (price === 0) {
             return t("rightNowActivityOrder.price", { val: price, customPriceByDetail: price });
@@ -69,10 +69,15 @@ export default function OrderDetail({
     return (
         <>
             {renderTitle}
-            <RightNowActivityOrderByProviderContent
-                lng={lng}
-                providerData={providerData}
-            />
+            {Array.isArray(providers)
+                ? providers.map((providerData) => (
+                      <RightNowActivityOrderByProviderContent
+                          key={providerData.id}
+                          lng={lng}
+                          providerData={providerData}
+                      />
+                  ))
+                : null}
             <RightNowActivityOrderTopContent
                 lng={lng}
                 values={orderContent?.datas}

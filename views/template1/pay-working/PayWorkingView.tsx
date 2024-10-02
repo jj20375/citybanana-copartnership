@@ -1,15 +1,20 @@
 "use server";
 import { useTranslation } from "@/i18n";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+
 export default async function PayWorkingView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = await useTranslation(lng, "main");
 
+    async function sleep() {
+        await new Promise((resolve: Function) => setTimeout(resolve("sleep done"), 2000));
+    }
+
     // 下一步按鈕事件
-    const onNextStepButtonClick = () => {
-        redirect(`/rightnowactivity-order/1`);
-    };
+    const onNextStepButtonClick = () => {};
+    await sleep();
+    redirect(`/rightnowactivity-order/success/${orderID}`);
 
     return (
         <div className="mt-[55px] mx-auto max-w-[400px] text-center">

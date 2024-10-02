@@ -149,7 +149,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const orderCreateByCashMethod = async (data: RightNowActivityOrderCreateByCashAPIReqInterface) => {
         try {
             const res = await RightNowActivityOrderCreateByCashAPI(data);
-            alert(res.demand.demand_id);
             // 設定即刻快閃id
             setOrderID(res.demand.demand_id);
         } catch (err) {
@@ -212,8 +211,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             provider_required: order?.requiredProviderCount!,
             unit: order?.unit!,
             hourly_pay: order?.price!,
-            district: "TW-TPE",
-            location: "abc",
             due_at: dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm"),
             started_at: order?.startDate ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
             pay_voucher: 0,
@@ -243,7 +240,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
         const host = `${origin}/${lng}/rightnowactivity-recruitment-order/${orderID}`;
-        alert("orderID=>" + orderID);
         router.push(`/rightnowactivity-recruitment-order/${orderID}`);
     };
 
