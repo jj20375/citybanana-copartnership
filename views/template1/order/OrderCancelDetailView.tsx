@@ -243,7 +243,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            {displayOrder && provider ? (
+            {displayOrder && provider && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}

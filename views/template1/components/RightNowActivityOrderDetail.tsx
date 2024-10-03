@@ -11,6 +11,7 @@ import RightNowActivityOrderPaymentContent from "../rightnowactivity-recruitment
 // 總計區塊
 import RightNowActivityOrderTotal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderTotal";
 import { tmc } from "@/service/utils";
+import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 
 type DisplayOrder = {
     datas: {
@@ -34,7 +35,7 @@ export default function RightNowActivityOrderDetail({
 }: {
     lng: string;
     providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
-    orderData: any;
+    orderData: GetRightNowActivityOrderDetailAPIResInterface;
     displayOrder: DisplayOrder;
     renderTitle: React.ReactElement;
     renderButton: React.ReactElement;
@@ -69,12 +70,13 @@ export default function RightNowActivityOrderDetail({
     return (
         <>
             {renderTitle}
-            {Array.isArray(providers)
+            {Array.isArray(providers) && orderData
                 ? providers.map((providerData) => (
                       <RightNowActivityOrderByProviderContent
                           key={providerData.id}
                           lng={lng}
                           providerData={providerData}
+                          orderData={orderData}
                       />
                   ))
                 : null}

@@ -5,15 +5,23 @@ import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "@/vi
 import Image from "next/image";
 import { tmc } from "@/service/utils";
 import { useRouter } from "next/navigation";
+import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 /**
  * 訂單上方服務商資料區塊 ui
  */
-const OrderByProviderContent = memo(({ lng, providerData, customClass }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface; customClass?: string | void }) => {
+const OrderByProviderContent = memo(({ lng, providerData, orderData, customClass }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface; orderData: GetRightNowActivityOrderDetailAPIResInterface; customClass?: string | void }) => {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
 
-    const goToChatroom = (id: string) => {
-        router.push(`/join-providers-chatroom/${id}`);
+    const goToChatroom = (receiverID: string) => {
+        if (providerData.orderID) {
+            const origin = window.location.origin;
+            const params = new URLSearchParams({ orderID: orderData.demand_id }).toString();
+            const host = `${origin}/${lng}/join-providers-chatroom/${receiverID}?${params}`;
+            router.push(host);
+            return;
+        }
+        router.push(`/join-providers-chatroom/${receiverID}`);
     };
     return (
         <section className={tmc(typeof customClass === "string" && customClass, "flex")}>

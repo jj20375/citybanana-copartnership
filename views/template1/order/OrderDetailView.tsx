@@ -37,7 +37,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
         }[];
     };
     const backList = () => {
-        router.push("/");
+        router.push("/rightnowactivity-order");
     };
 
     // 取消活動彈窗 dom
@@ -165,7 +165,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            {displayOrder && provider ? (
+            {displayOrder && provider && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}

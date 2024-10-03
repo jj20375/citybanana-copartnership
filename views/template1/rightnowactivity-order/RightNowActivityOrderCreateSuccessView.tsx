@@ -170,7 +170,7 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     }, [partnerStoreName, displayOrder]);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            {displayOrder && acceptProviders ? (
+            {displayOrder && acceptProviders && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}

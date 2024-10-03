@@ -45,7 +45,7 @@ import { firebaseCheckUserChatRoomEmpty, firebaseGetChatRoomUnReadMessageCountTo
  * @param param0
  * @returns
  */
-export default function RightNowActivityJoinProviderChatRoomView({ lng, receiverId }: { lng: string; receiverId: string }) {
+export default function RightNowActivityJoinProviderChatRoomView({ lng, receiverID, orderID }: { lng: string; receiverID: string; orderID?: string | void }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
 
@@ -64,8 +64,6 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
         sendMessageRef.current?.onSendMessage();
     };
 
-    // 訂單 id
-    const [orderId, setOrderId] = useState<string>("1");
     // 聊天室訊息
     const [messages, setMessages] = useState<MessageInterface[]>();
     // 聊天室訊息分頁key
@@ -110,15 +108,15 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     };
 
     // 導頁去訂單細節頁
-    const goToOrderDetail = (id: string) => {
-        router.push(`/rightnowactivity-order/${id}`);
+    const goToOrderDetail = ({ orderID, providerID }: { orderID: string; providerID: string }) => {
+        router.push(`/order/${providerID}/${orderID}`);
         return;
     };
 
     // 滾動事件觸發載入歷史訊息
     const fetchMoreData = async () => {
         try {
-            let snapshot = await firebaseConnectRef(`chats/${id}/${receiverId}`).orderByKey().endBefore(messagePaginationKey).limitToLast(messageLimit).once("value");
+            let snapshot = await firebaseConnectRef(`chats/${id}/${receiverID}`).orderByKey().endBefore(messagePaginationKey).limitToLast(messageLimit).once("value");
 
             //判斷有值時才執行
             if (snapshot.val() === null) {
@@ -157,8 +155,8 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     };
 
     const getMessages = () => {
-        console.log("messages id receiverId =>", id, receiverId, `chats/${id}/${receiverId}`);
-        firebaseConnectRef(`chats/${id}/${receiverId}`)
+        console.log("messages id receiverID =>", id, receiverID, `chats/${id}/${receiverID}`);
+        firebaseConnectRef(`chats/${id}/${receiverID}`)
             .orderByKey()
             .limitToLast(messageLimit)
             .on("value", async (snapshot: any) => {
@@ -182,7 +180,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
 
     const getReceiverData = useCallback(async () => {
         try {
-            const doc = await firebaseDbDoc(`chat_rooms/${id}/users/${receiverId}`).get();
+            const doc = await firebaseDbDoc(`chat_rooms/${id}/users/${receiverID}`).get();
             if (doc.exists) {
                 const userData: UserProfileInterface = doc.data().userData;
                 console.log("get receiver data =>", userData);
@@ -201,7 +199,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
 
     // 監聽聊天對象資料
     const listenerReceiver = () => {
-        firebaseDbDoc(`chat_rooms/${id}/users/${receiverId}`).onSnapshot(
+        firebaseDbDoc(`chat_rooms/${id}/users/${receiverID}`).onSnapshot(
             async (snapshot: any) => {
                 // 未取得聊天對象資料時 將聊天對象資料設定為預設值 且不往下執行
                 if (!snapshot.exists) {
@@ -384,14 +382,16 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     </button>
                 </div>
             </div>
-            <div className="flex flex-col mt-[40px]">
-                <button
-                    onClick={() => goToOrderDetail(orderId)}
-                    className="border border-primary rounded-md text-primary  h-[40px] text-lg-content"
-                >
-                    {t("rightNowActivityJoinProvidersChatRoom.button-seeOrder")}
-                </button>
-            </div>
+            {orderID && orderID !== "" && orderID !== undefined ? (
+                <div className="flex flex-col mt-[40px]">
+                    <button
+                        onClick={() => goToOrderDetail({ providerID: receiverID, orderID })}
+                        className="border border-primary rounded-md text-primary  h-[40px] text-lg-content"
+                    >
+                        {t("rightNowActivityJoinProvidersChatRoom.button-seeOrder")}
+                    </button>
+                </div>
+            ) : null}
             <ContactWe lng={lng} />
         </div>
     );

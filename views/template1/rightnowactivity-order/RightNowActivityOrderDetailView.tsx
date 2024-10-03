@@ -183,7 +183,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
     }, [partnerStoreName, displayOrder]);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            {displayOrder && (
+            {displayOrder && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}
@@ -192,7 +192,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                     displayOrder={displayOrder}
                     orderData={order}
                 />
-            )}
+            ) : null}
             {order && (
                 <RightNowActivityOrderChangeRequiredProviderCountModal
                     lng={lng}

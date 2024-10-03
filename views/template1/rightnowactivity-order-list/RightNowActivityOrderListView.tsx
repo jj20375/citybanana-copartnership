@@ -63,12 +63,12 @@ export default function OrderListView({ lng }: { lng: string }) {
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
             <h1 className="mb-[10px] text-md-title font-bold text-center">{t("rightNowActivityOrderList.title")}</h1>
-            <ul className="flex justify-between">
+            <ul className="flex justify-between border-b border-gray-light">
                 {statusTabs.map((tab) => (
                     <li
                         key={tab}
                         onClick={() => onChangeTab(tab)}
-                        className={tmc([currentTab === tab ? "border-b-4 border-primary text-gray-primary" : "text-gray-third", "font-semibold text-[15px] cursor-pointer"])}
+                        className={tmc([currentTab === tab ? "border-b-4 border-primary text-gray-primary" : "text-gray-third", "font-semibold text-[15px] cursor-pointer pb-[19px]"])}
                     >
                         {t(`rightNowActivityOrderList.status-${tab}`)}
                     </li>
