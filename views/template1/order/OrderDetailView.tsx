@@ -37,7 +37,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
         }[];
     };
     const backList = () => {
-        router.push("/rightnowactivity-order");
+        router.push("/rightnowactivity-order/list/starting");
     };
 
     // 取消活動彈窗 dom

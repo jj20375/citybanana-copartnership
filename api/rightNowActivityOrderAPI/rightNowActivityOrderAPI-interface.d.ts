@@ -412,5 +412,167 @@ export interface ChangeRightNowActivityProviderRequiredAPIResInterface {
 }
 
 /**
- *
+ * 即刻快閃列表 api 回應參數
  */
+
+export interface GetRightNowActivityOrderListAPIResInterface {
+    current_page: number;
+    data: Datum[];
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: Link[];
+    next_page_url: null;
+    path: string;
+    per_page: string;
+    prev_page_url: null;
+    to: number;
+    total: number;
+    [property: string]: any;
+}
+
+export interface Datum {
+    anonymous: number;
+    at_any_time: boolean;
+    created_at: string;
+    currency: string;
+    demand_id: string;
+    description: string;
+    details: Details;
+    district: string;
+    due_at: string;
+    ended_at: null | string;
+    hourly_pay: number;
+    is_x: boolean;
+    location: string;
+    my_enrolled_data: null;
+    my_enrolled_dating: null;
+    my_enrolled_status: null;
+    name: string;
+    paid_by: number;
+    provider_accepted: number;
+    provider_enrolled: number;
+    provider_required: number;
+    requirement: null | string;
+    source_application: string;
+    started_at: null | string;
+    status: number;
+    user: User;
+    user_id: number;
+    [property: string]: any;
+}
+
+export interface Details {
+    acceptedVoucherUsed: number;
+    datingDemandFeePercentage: string;
+    duration: number;
+    eachFee: number;
+    eachPrice: number;
+    eachProviderRemuneration: number;
+    eachTransactionFee?: number;
+    eachVoucherUsed: number;
+    fee: number;
+    hourlyPrice: number;
+    isCommissionPaidByProvider: string;
+    isX: boolean | number;
+    merchant: Merchant;
+    penalty: number;
+    pointPaid: number;
+    pointRefunded: number;
+    price: number;
+    prohibitVoucherForDatingDemand: string;
+    sourceApplication: string;
+    total: number;
+    transactionFeePercentage: string;
+    unit: string;
+    unitPrice: number;
+    voucherPaid: number;
+    voucherRefunded: number;
+    voucherUsed: number;
+    [property: string]: any;
+}
+
+export interface Merchant {
+    merchant_id: number;
+    venue_id: number;
+    [property: string]: any;
+}
+
+export interface User {
+    avatar: string;
+    banana_id: string;
+    cover: string;
+    description: string;
+    enablePayByCash: number;
+    gender: string;
+    id: number;
+    isMyFavorite: boolean;
+    matrices: string[];
+    name: string;
+    newbie: number;
+    passbook: string;
+    photos: Photo[];
+    rating_score: number;
+    status: number;
+    thumbnails: Thumbnails;
+    videos: null;
+    [property: string]: any;
+}
+
+export interface Photo {
+    id: string;
+    is_erotic: number;
+    sorting: number;
+    url: string;
+    [property: string]: any;
+}
+
+export interface Thumbnails {
+    avatar: Avatar;
+    cover: Cover;
+    photos: Photos;
+    videos: string[];
+    [property: string]: any;
+}
+
+export interface Avatar {
+    "360x360": string;
+    "720x720": string;
+    [property: string]: any;
+}
+
+export interface Cover {
+    "360x360": string;
+    "720x720": string;
+    [property: string]: any;
+}
+
+export interface Photos {
+    "360x360": The360X360[];
+    "720x720": The720X720[];
+    [property: string]: any;
+}
+
+export interface The360X360 {
+    id: string;
+    is_erotic: number;
+    sorting: number;
+    url: string;
+    [property: string]: any;
+}
+
+export interface The720X720 {
+    id: string;
+    is_erotic: number;
+    sorting: number;
+    url: string;
+    [property: string]: any;
+}
+
+export interface Link {
+    active: boolean;
+    label: string;
+    url: null | string;
+    [property: string]: any;
+}

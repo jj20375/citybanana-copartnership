@@ -1,13 +1,19 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
-import RightNowActivityOrderListItem from "./components/RightNowActivityOrderListItem";
-import type { RightNowActivityOrderListItemInterface } from "./rightnowactivity-order-list-interface";
+import { RightNowActivityOrderListItem, OrderListItem } from "./components/RightNowActivityOrderListItem";
+import type { RightNowActivityOrderListItemInterface, OrderLisItemtInterface } from "./rightnowactivity-order-list-interface";
 import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "../rightnowactivity-recruitment-order/rightnowactivity-order-interface";
 import { tmc } from "@/service/utils";
+import { GetRightNowActivityOrderListAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
+import dayjs from "dayjs";
+import { GetOrderListAPI } from "@/api/orderAPI.ts/orderAPI";
+import { rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/order-enum";
+import { useRouter } from "next/navigation";
 
-export default function OrderListView({ lng }: { lng: string }) {
+export default function OrderListView({ lng, status }: { lng: string; status: string }) {
     const { t } = useTranslation(lng, "main");
+    const router = useRouter();
 
     // 訂單狀態選項
     const statusTabs = ["all", "starting", "waiting"];
@@ -15,50 +21,90 @@ export default function OrderListView({ lng }: { lng: string }) {
 
     const onChangeTab = (val: string) => {
         setCurrentTab(val);
+        router.push(`/rightnowactivity-order/list/${val}`);
     };
 
-    const [orderList, setOrderList] = useState<
-        {
-            providerData: RightNowActivityOrderDetailProviderSigupCardInterface;
-            orderData: RightNowActivityOrderListItemInterface;
-        }[]
-    >();
+    // 即刻快閃列表資訊
+    const [rightNowActivityOrderList, setRightNowActivityOrderList] = useState<RightNowActivityOrderListItemInterface[]>();
+    // 一般預訂單列表資訊
+    const [orderList, setOrderList] = useState<OrderLisItemtInterface[]>();
+    //
+
+    /**
+     * 取得即刻快閃列表
+     */
+    const getRightNowActivityOrderList = useCallback(async (params: any) => {
+        try {
+            const res = await GetRightNowActivityOrderListAPI(params);
+            if (Array.isArray(res.data) && res.data.length > 0) {
+                const list = res.data.map((item) => {
+                    return {
+                        id: item.demand_id,
+                        name: item.name,
+                        startDay: item.at_any_time ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(item.started_at).format("YYYY-MM-DD"),
+                        startTime: item.at_any_time ? "" : dayjs(item.started_at).format("HH:mm"),
+                        endDay: item.at_any_time ? "" : dayjs(item.ended_at).format("YYYY-MM-DD"),
+                        endTime: item.at_any_time ? "" : dayjs(item.ended_at).format("HH:mm"),
+                        location: item.location,
+                        total: item.details.total,
+                        requiredProviderCount: item.provider_required,
+                    };
+                });
+                setRightNowActivityOrderList(list);
+            }
+            console.log("GetRightNowActivityOrderListAPI res =>", res);
+        } catch (err) {
+            console.log("GetRightNowActivityOrderListAPI err => ", err);
+            throw err;
+        }
+    }, []);
+
+    const getOrderList = useCallback(async (params: any) => {
+        try {
+            const res = await GetOrderListAPI(params);
+            if (Array.isArray(res.data) && res.data.length > 0) {
+                const list = res.data.map((item) => {
+                    return {
+                        id: item.order_id,
+                        rightNowActivityID: "",
+                        name: item.description,
+                        startDay: item.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(item.started_at).format("YYYY-MM-DD"),
+                        startTime: item.started_at === null ? "" : dayjs(item.started_at).format("HH:mm"),
+                        endDay: item.started_at === null ? "" : dayjs(item.ended_at).format("YYYY-MM-DD"),
+                        endTime: item.started_at === null ? "" : dayjs(item.ended_at).format("HH:mm"),
+                        location: item.location,
+                        total: item.details.total,
+                        providerData: {
+                            cover: item.provider!.thumbnails !== undefined && item.provider!.thumbnails.cover !== undefined ? item.provider!.thumbnails.cover["360x360"] : item.provider!.cover!,
+                            name: item.provider.name,
+                            id: item.provider.banana_id,
+                        },
+                    };
+                });
+                setOrderList(list);
+            }
+            console.log("GetOrderList API =>", res);
+        } catch (err) {
+            console.log("GetOrderListAPI err => ", err);
+            throw err;
+        }
+    }, []);
 
     useEffect(() => {
-        const apiDatas: {
-            providerData: RightNowActivityOrderDetailProviderSigupCardInterface;
-            orderData: RightNowActivityOrderListItemInterface;
-        }[] = Array.from({ length: 10 }).map((_, i) => ({
-            providerData: {
-                id: `provider-${i}`,
-                name: "test1-" + i,
-                cover: `https://picsum.photos/id/${i + 10}/300/300`,
-                rate: 4.5,
-                description:
-                    "Lorem Ipsum，也称乱数假文或者哑元文本， 是印刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷字体从而造出一本字体样品书，Lorem Ipsum从西元15世纪起就被作为此领域的标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然保存至今。在1960年代，”Leatraset”公司发布了印刷着Lorem Ipsum段落的纸张，从而广泛普及了它的使用。最近，计算机桌面出版软件”Aldus PageMaker”也通过同样的方式使Lorem Ipsum落入大众的视野。",
-                unit: "hour",
-                height: 160,
-                weight: 70,
-                age: 35,
-                travelTime: 35,
-                isNowTime: true,
-                price: 2000,
-                area: "TW-TPE",
-                job: "金融業",
-                authentication: true,
-                isQueen: true,
-                enrollerStatus: 0,
-            },
-            orderData: {
-                id: "orderidabc-" + i,
-                name: "test活動name" + `-${i}`,
-                time: "2024/10/02 13:00 - 20:00",
-                location: "台北101",
-                total: 4000,
-            },
-        }));
-        setOrderList(apiDatas);
-    }, []);
+        // 取得報名中即刻快閃單列表
+        if (status === "all") {
+            getRightNowActivityOrderList({ status: ["0"], limit: 100 });
+        }
+        // 取得進行中一般訂單列表
+        if (status === "starting") {
+            getOrderList({ status: [rightNowActivityOrderStatusByMemberEnum.InProgress], limit: 100 });
+        }
+        // 取得待赴約一般訂單列表
+        if (status === "waiting") {
+            getOrderList({ status: [rightNowActivityOrderStatusByMemberEnum.Confirmed], limit: 100 });
+        }
+        setCurrentTab(status);
+    }, [status]);
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
@@ -75,16 +121,27 @@ export default function OrderListView({ lng }: { lng: string }) {
                 ))}
             </ul>
             <ul>
-                {Array.isArray(orderList) &&
-                    orderList.map((item) => (
-                        <RightNowActivityOrderListItem
-                            key={item.orderData.id}
-                            providerData={item.providerData}
-                            orderData={item.orderData}
-                            lng={lng}
-                            customClass="mt-[20px]"
-                        />
-                    ))}
+                {Array.isArray(rightNowActivityOrderList) && status === "all"
+                    ? rightNowActivityOrderList.map((item) => (
+                          <RightNowActivityOrderListItem
+                              key={item.id}
+                              orderData={item}
+                              lng={lng}
+                              customClass="my-[10px]"
+                          />
+                      ))
+                    : null}
+                {Array.isArray(orderList) && status !== "all"
+                    ? orderList.map((item) => (
+                          <OrderListItem
+                              key={item.id}
+                              providerData={item.providerData}
+                              orderData={item}
+                              lng={lng}
+                              customClass="my-[10px]"
+                          />
+                      ))
+                    : null}
             </ul>
         </div>
     );

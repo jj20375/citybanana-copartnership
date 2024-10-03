@@ -1,5 +1,6 @@
 import useMyFetch from "@/service/http-request";
-import type { ChangeRightNowActivityProviderRequiredAPIReqInterface, ChangeRightNowActivityProviderRequiredAPIResInterface, GetRightNowActivityOrderDetailAPIResInterface } from "./rightNowActivityOrderAPI-interface";
+import type { ChangeRightNowActivityProviderRequiredAPIReqInterface, ChangeRightNowActivityProviderRequiredAPIResInterface, GetRightNowActivityOrderDetailAPIResInterface, GetRightNowActivityOrderListAPIResInterface } from "./rightNowActivityOrderAPI-interface";
+import qs from "qs";
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
 
@@ -23,5 +24,10 @@ export async function ChangeRightNowActivityProviderRequiredAPI(data: ChangeRigh
 }
 
 /**
- *
+ * 取得即刻快閃列表
  */
+export async function GetRightNowActivityOrderListAPI(params: any): Promise<GetRightNowActivityOrderListAPIResInterface> {
+    return useMyFetch(`${apiURL}/demands/datings-web?${qs.stringify(params)}`, {
+        method: "get",
+    });
+}

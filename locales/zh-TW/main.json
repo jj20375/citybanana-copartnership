@@ -234,13 +234,17 @@
     },
     "rightNowActivityOrderList": {
         "title": "快閃訂單",
+        "status-all": "所有訂單",
+        "status-starting": "進行中",
+        "status-waiting": "待赴約",
+        "status-pending": "報名中",
+        "requiredProviderCount": "位服務商"
+    },
+    "orderList": {
         "column-name": "活動名稱",
         "column-time": "活動時間",
         "column-location": "活動地點",
-        "column-total": "付款總額",
-        "status-all": "所有訂單",
-        "status-starting": "進行中",
-        "status-waiting": "待赴約"
+        "column-total": "付款總額"
     },
     "rightNowActivityJoinProvidersChatRoom": {
         "title": "聯繫服務商",

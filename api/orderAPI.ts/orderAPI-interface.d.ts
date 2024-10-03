@@ -249,3 +249,189 @@ export interface FluffyCover {
     "720x720": string;
     [property: string]: any;
 }
+
+/**
+ * 取得一般預訂單列表 api 回應參數
+ */
+export interface GetOrderListAPIResInterface {
+    current_page: number;
+    data: Datum[];
+    first_page_url: string;
+    from: number;
+    last_page: number;
+    last_page_url: string;
+    links: Link[];
+    next_page_url: string;
+    path: string;
+    per_page: string;
+    prev_page_url: null;
+    to: number;
+    total: number;
+    [property: string]: any;
+}
+
+export interface Datum {
+    cash_receivable: number;
+    category: Category;
+    category_id: number;
+    closed_at: null | string;
+    created_at: string;
+    currency: string;
+    cut_due_time: null | string;
+    dating_extensions: string[];
+    description: string;
+    details: Details;
+    district: string;
+    ended_at: null | string;
+    expected_arrival_time: string;
+    extra_tip: number;
+    extra_tip_created_at: null;
+    gross_price: number;
+    is_x: boolean;
+    location: string;
+    order_id: string;
+    paid: number;
+    paid_by: number;
+    point_paid: number;
+    price: number;
+    provider: Provider;
+    provider_comment: null;
+    provider_score: number;
+    refund: number;
+    requirement: null;
+    source_application: string;
+    started_at: null | string;
+    status: number;
+    user_comment: null;
+    user_score: number;
+    voucher_paid: number;
+    [property: string]: any;
+}
+
+export interface Category {
+    id: number;
+    name: string;
+    [property: string]: any;
+}
+
+export interface Details {
+    brokerCommission?: number;
+    cancelledNote?: string;
+    credit_card_id?: number | string;
+    duration: number;
+    fee: number | number;
+    hourlyPrice: number;
+    isX?: boolean | number;
+    logs?: Logs;
+    merchant?: Merchant;
+    payment_id?: number;
+    price: number;
+    providerPercentage?: number;
+    refuse_new_time?: number;
+    refusedBySystem: boolean;
+    refusedNote: string;
+    serviceCharge: number;
+    sourceApplication: string;
+    tip: number | null;
+    total: number;
+    transactionFee?: number;
+    transactionFeePercentage?: string;
+    travelTime?: number;
+    unit: string;
+    unitPrice: number;
+    voucherUsed: number;
+    [property: string]: any;
+}
+
+export interface Logs {
+    alertDatingExtension: string;
+    arrivedAt: string;
+    pay_by_cash: PayByCash;
+    [property: string]: any;
+}
+
+export interface PayByCash {
+    time: string;
+    [property: string]: any;
+}
+
+export interface Merchant {
+    merchant_id: number;
+    venue_id: number;
+    [property: string]: any;
+}
+
+export interface Provider {
+    avatar: string;
+    banana_id: string;
+    cover: string;
+    enablePayByCash: number;
+    gender: string;
+    id: number;
+    isMyFavorite: boolean;
+    matrices: string[];
+    name: string;
+    newbie: number;
+    passbook: null;
+    photos: Photo[];
+    thumbnails: Thumbnails;
+    videos: null;
+    [property: string]: any;
+}
+
+export interface Photo {
+    id: string;
+    is_erotic: number;
+    sorting: number;
+    url: string;
+    [property: string]: any;
+}
+
+export interface Thumbnails {
+    avatar: Avatar;
+    cover: Cover;
+    photos: Photos;
+    videos: string[];
+    [property: string]: any;
+}
+
+export interface Avatar {
+    "360x360": string;
+    "720x720": string;
+    [property: string]: any;
+}
+
+export interface Cover {
+    "360x360": string;
+    "720x720": string;
+    [property: string]: any;
+}
+
+export interface Photos {
+    "360x360": The360X360[];
+    "720x720": The720X720[];
+    [property: string]: any;
+}
+
+export interface The360X360 {
+    id: string;
+    is_erotic: number;
+    sorting: number;
+    url: string;
+    [property: string]: any;
+}
+
+export interface The720X720 {
+    id: string;
+    is_erotic: number;
+    sorting: number;
+    url: string;
+    [property: string]: any;
+}
+
+export interface Link {
+    active: boolean;
+    label: string;
+    url: null | string;
+    [property: string]: any;
+}
