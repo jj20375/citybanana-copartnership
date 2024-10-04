@@ -14,7 +14,7 @@ import dayjs from "dayjs";
 import { isValid } from "date-fns";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
-import { userNameSelector, userGenderSelector, setUserProfile } from "@/store-toolkit/stores/userStore";
+import { userNameSelector, userGenderSelector, getUserProfile } from "@/store-toolkit/stores/userStore";
 import { usePartnerStoreCodeSelector, usePartnerStoreVenueCodeSelector } from "@/store-toolkit/stores/partnerStore";
 import { RightNowActivityOrderFormInterface } from "../create-rightnowactivity-order/components/order/order-interface";
 import ContactWe from "../components/ContactWe";
@@ -24,7 +24,7 @@ import CreditCardForm from "../components/CreditCardForm";
 import PaymentMethodsRadio from "../components/PaymentMethodsRadio";
 import CreditCardListRadio from "../components/CreditCardListRadio";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
-import { GetCreditCardListAPI } from "@/api/userAPI/userAPI";
+import { GetCreditCardListAPI, UpdateUserProfileAPI } from "@/api/userAPI/userAPI";
 import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByCreditCardAPI, RightNowActivityOrderCreateByOtherAPI } from "@/api/bookingAPI/bookingAPI";
 import { RightNowActivityOrderCreateByCashAPIReqInterface, RightNowActivityOrderCreateByOtherAPIReqInterface } from "@/api/bookingAPI/bookingAPI-interfce";
 import { CreditCardDataInterface } from "@/interface/global";
@@ -32,6 +32,7 @@ import { RightNowActivityOrderCreateByCreditCardAPIReqInterface } from "@/api/bo
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderPayment.title");
+    const dispatch = useAppDispatch();
 
     const userStore = useAppSelector((state) => {
         return state.userStore;
@@ -202,6 +203,19 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     };
 
     /**
+     * 更新使用者資料
+     */
+    const updateUserProfile = async (data: { name: string; gender: string }) => {
+        try {
+            await UpdateUserProfileAPI(data);
+            dispatch(getUserProfile());
+        } catch (err) {
+            console.log("UpdateUserProfileAPI err => ", err);
+            throw err;
+        }
+    };
+
+    /**
      * submit 成功時往下一步
      * @param data
      */
@@ -220,6 +234,9 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             is_x: false,
             duration: order?.duration!,
         };
+        if (isVisitor) {
+            await updateUserProfile({ name: data.payment.contactName!, gender: data.payment.gender! });
+        }
         if (paymentMethodValue === "cash") {
             await orderCreateByCashMethod(sendData);
             // onNextStepButtonClick();

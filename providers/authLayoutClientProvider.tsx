@@ -3,7 +3,7 @@
 import { useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { UserProfileInterface } from "@/interface/user";
 import useUserStore from "@/store-zustand/userStore";
-import { setUserProfile, fetchGetFirebaseCustomToken, fetchFirebaseLogin } from "@/store-toolkit/stores/userStore";
+import { setUserProfile, fetchGetFirebaseCustomToken, fetchFirebaseLogin, setIsVisitor } from "@/store-toolkit/stores/userStore";
 import { setRightNowActivityConfiguration } from "@/store-toolkit/stores/orderStore";
 import { setClientUiSettings, setErrorMessageLang } from "@/store-toolkit/stores/utilityStore";
 import { useCallback, useEffect, useState } from "react";
@@ -40,6 +40,8 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
     if (user !== undefined) {
         setUser(user);
         dispatch(setUserProfile(user));
+        // 設定是否為首次註冊資料不完整會員 因為後續開單需要填寫個人資料
+        dispatch(setIsVisitor(user.newbie === 1 ? true : false));
     }
     dispatch(setRightNowActivityConfiguration(configurationSettingsData));
     dispatch(setClientUiSettings(clientUiSettings));

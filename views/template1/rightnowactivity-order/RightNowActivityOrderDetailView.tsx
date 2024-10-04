@@ -39,7 +39,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
         }[];
     };
     const backList = () => {
-        router.push("/");
+        router.push("/rightnowactivity-order/list/all");
     };
 
     // 新增服務商人數彈窗 dom

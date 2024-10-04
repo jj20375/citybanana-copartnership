@@ -48,9 +48,6 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
         return router.push("/create-rightnowactivity-order");
     };
 
-    // 不小按錯按鈕事件
-    const onSubmit = () => {};
-
     const RenderTitle = () => (
         <div className=" mb-[40px] font-bold">
             <Image
