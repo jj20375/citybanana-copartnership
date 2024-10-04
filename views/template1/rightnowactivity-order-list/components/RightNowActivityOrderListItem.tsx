@@ -63,8 +63,8 @@ export function OrderListItem({ lng, providerData, orderData, customClass }: { l
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
 
-    const goToDetail = (id: string) => {
-        router.push(`/rightnowactivity-order/${id}`);
+    const goToDetail = (rightNowActivityID: string) => {
+        router.push(`/order/${providerData.id}/${rightNowActivityID}`);
         return;
     };
 
@@ -118,7 +118,7 @@ export function OrderListItem({ lng, providerData, orderData, customClass }: { l
                 <Icon
                     className="text-3xl cursor-pointer text-gray-third text-right"
                     icon="iconamoon:arrow-right-2-light"
-                    onClick={() => goToDetail(orderData.id)}
+                    onClick={() => goToDetail(orderData.rightNowActivityID)}
                 />
             </div>
         </li>

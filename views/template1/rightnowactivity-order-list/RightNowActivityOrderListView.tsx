@@ -66,7 +66,7 @@ export default function OrderListView({ lng, status }: { lng: string; status: st
                 const list = res.data.map((item) => {
                     return {
                         id: item.order_id,
-                        rightNowActivityID: "",
+                        rightNowActivityID: item.demand?.demand_id || "",
                         name: item.description,
                         startDay: item.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(item.started_at).format("YYYY-MM-DD"),
                         startTime: item.started_at === null ? "" : dayjs(item.started_at).format("HH:mm"),
@@ -75,7 +75,7 @@ export default function OrderListView({ lng, status }: { lng: string; status: st
                         location: item.location,
                         total: item.details.total,
                         providerData: {
-                            cover: item.provider!.thumbnails !== undefined && item.provider!.thumbnails.cover !== undefined ? item.provider!.thumbnails.cover["360x360"] : item.provider!.cover!,
+                            cover: item.provider.thumbnails !== undefined && item.provider.thumbnails.cover !== undefined ? item.provider.thumbnails.cover["360x360"] : item.provider.cover!,
                             name: item.provider.name,
                             id: item.provider.banana_id,
                         },

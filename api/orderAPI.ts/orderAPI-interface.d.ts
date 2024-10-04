@@ -253,6 +253,7 @@ export interface FluffyCover {
 /**
  * 取得一般預訂單列表 api 回應參數
  */
+
 export interface GetOrderListAPIResInterface {
     current_page: number;
     data: Datum[];
@@ -261,7 +262,7 @@ export interface GetOrderListAPIResInterface {
     last_page: number;
     last_page_url: string;
     links: Link[];
-    next_page_url: string;
+    next_page_url: null;
     path: string;
     per_page: string;
     prev_page_url: null;
@@ -271,40 +272,41 @@ export interface GetOrderListAPIResInterface {
 }
 
 export interface Datum {
-    cash_receivable: number;
-    category: Category;
-    category_id: number;
-    closed_at: null | string;
-    created_at: string;
-    currency: string;
-    cut_due_time: null | string;
-    dating_extensions: string[];
+    cash_receivable?: number;
+    category?: Category;
+    category_id?: number;
+    closed_at?: null;
+    created_at?: string;
+    currency?: string;
+    cut_due_time?: null;
+    dating_extensions?: string[];
+    demand?: Demand;
     description: string;
-    details: Details;
-    district: string;
-    ended_at: null | string;
-    expected_arrival_time: string;
-    extra_tip: number;
-    extra_tip_created_at: null;
-    gross_price: number;
-    is_x: boolean;
+    details: DatumDetails;
+    district?: string;
+    ended_at?: string;
+    expected_arrival_time?: string;
+    extra_tip?: number;
+    extra_tip_created_at?: null;
+    gross_price?: number;
+    is_x?: boolean;
     location: string;
     order_id: string;
-    paid: number;
-    paid_by: number;
-    point_paid: number;
-    price: number;
+    paid?: number;
+    paid_by?: number;
+    point_paid?: number;
+    price?: number;
     provider: Provider;
-    provider_comment: null;
-    provider_score: number;
-    refund: number;
-    requirement: null;
-    source_application: string;
-    started_at: null | string;
-    status: number;
-    user_comment: null;
-    user_score: number;
-    voucher_paid: number;
+    provider_comment?: null;
+    provider_score?: number;
+    refund?: number;
+    requirement?: string;
+    source_application?: string;
+    started_at?: string;
+    status?: number;
+    user_comment?: null;
+    user_score?: number;
+    voucher_paid?: number;
     [property: string]: any;
 }
 
@@ -314,50 +316,82 @@ export interface Category {
     [property: string]: any;
 }
 
-export interface Details {
-    brokerCommission?: number;
-    cancelledNote?: string;
-    credit_card_id?: number | string;
+export interface Demand {
+    at_any_time: boolean;
+    demand_id: string;
+    description: string;
+    details: DemandDetails;
+    district: string;
+    ended_at: null;
+    hourly_pay: number;
+    id: number;
+    is_x: boolean;
+    laravel_through_key: number;
+    location: string;
+    my_enrolled_data: null;
+    my_enrolled_dating: null;
+    my_enrolled_status: null;
+    name: string;
+    paid_by: number;
+    requirement: string;
+    source_application: string;
+    started_at: null;
+    status: number;
+    [property: string]: any;
+}
+
+export interface DemandDetails {
+    acceptedVoucherUsed: number;
+    datingDemandFeePercentage: string;
     duration: number;
-    fee: number | number;
+    eachFee: number;
+    eachPrice: number;
+    eachProviderRemuneration: number;
+    eachTransactionFee: number;
+    eachVoucherUsed: number;
+    fee: number;
     hourlyPrice: number;
-    isX?: boolean | number;
-    logs?: Logs;
-    merchant?: Merchant;
-    payment_id?: number;
+    isCommissionPaidByProvider: string;
+    isX: number;
+    penalty: number;
+    pointPaid: number;
+    pointRefunded: number;
     price: number;
-    providerPercentage?: number;
-    refuse_new_time?: number;
-    refusedBySystem: boolean;
-    refusedNote: string;
+    prohibitVoucherForDatingDemand: string;
+    sourceApplication: string;
+    total: number;
+    transactionFeePercentage: string;
+    unit: "hour" | "day";
+    unitPrice: number;
+    voucherPaid: number;
+    voucherRefunded: number;
+    voucherUsed: number;
+    [property: string]: any;
+}
+
+export interface DatumDetails {
+    brokerCommission: number;
+    duration: number;
+    fee: number;
+    hourlyPrice: number;
+    isX: number;
+    logs: Logs;
+    price: number;
+    providerPercentage: number;
     serviceCharge: number;
     sourceApplication: string;
-    tip: number | null;
+    tip: number;
     total: number;
-    transactionFee?: number;
-    transactionFeePercentage?: string;
-    travelTime?: number;
+    transactionFee: number;
+    transactionFeePercentage: string;
+    travelTime: number;
     unit: string;
-    unitPrice: number;
     voucherUsed: number;
     [property: string]: any;
 }
 
 export interface Logs {
-    alertDatingExtension: string;
     arrivedAt: string;
-    pay_by_cash: PayByCash;
-    [property: string]: any;
-}
-
-export interface PayByCash {
-    time: string;
-    [property: string]: any;
-}
-
-export interface Merchant {
-    merchant_id: number;
-    venue_id: number;
     [property: string]: any;
 }
 
