@@ -405,6 +405,11 @@ export interface Provider {
     isMyFavorite: boolean;
     matrices: string[];
     name: string;
+    /**
+     * 判斷是否為首次註冊會員資料不完整會員（合作店家註冊)
+     * 1 = 資料不完整
+     * 再合作店家開單時 資料不完整會員 需補上暱稱與性別才能開單
+     */
     newbie: number;
     passbook: null;
     photos: Photo[];

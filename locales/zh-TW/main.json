@@ -195,7 +195,7 @@
             "title": "招募時間剩餘",
             "waitProvider": "等待服務商報名中",
             "label-changeRequiredProviderCount": "活動需求人數更改為",
-            "modalDescription": "更改後招募將重新倒數 <span className='text-primary'>{{val}}<span> 分鐘",
+            "changeRequiredProviderCount-modalDescription": "更改後招募將重新倒數",
             "travelTime": "抵達目的地需",
             "needRequiredProviderCount": "活動需求人數 {{val}} 人",
             "confirmed": "已確認"

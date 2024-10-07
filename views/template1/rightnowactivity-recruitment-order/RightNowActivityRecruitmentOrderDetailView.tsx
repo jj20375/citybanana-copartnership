@@ -24,8 +24,12 @@ import { type RightNowActivityOrderDetailProviderSigupCardInterface, RightNowAct
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
-import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
+import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum, canCancelRightNowActivityOrderStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
 import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
+import { differenceInSeconds } from "date-fns";
+import { usePathname, useRouter } from "next/navigation";
+import dayjs from "dayjs";
+
 /**
  * 即刻快閃報名訂單詳情
  * @param param0
@@ -89,6 +93,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const [isShowCancelAcceptedOrderConfirm, setIsShowCancelAcceptedOrderConfirm] = useState(false);
     // 顯示取消活動按鈕
     const [isShowCancelButton, setIsShowCancelButton] = useState(true);
+    // 到數計時秒數
+    const [countDownSecond, setCountDownSecond] = useState<number>(0);
 
     const [recruitmentContent, setRecruitmentContent] = useState(
         <RightNowActivityOrderLogoAnimation
@@ -116,15 +122,23 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         try {
             const res = await GetRightNowActivityOrderDetailAPI(data);
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
-            // 設定是否顯示取消訂單按鈕 當訂單狀態 小於2時 代表活動還沒開始
-            setIsShowCancelButton(res.status < 2);
+            const currentDate = new Date();
+            const dueAt = res.due_at;
+            // 設定招募倒數計時時間
+            setCountDownSecond(differenceInSeconds(dueAt, currentDate));
+            /**
+             * 活動還沒開始狀態 0,1
+             * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中 或 等於 1 報名額滿 時
+             * 扔然可以讓他取消單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
+             */
+            setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending, canCancelRightNowActivityOrderStatusEnum.RegistrationFull].includes(res.status));
             setOrder(res);
             setDisplayOrder({
                 datas: [
                     // 店家資料
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
                     // 活動開始時間
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at, column: "column-startDate" },
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at !== null ? dayjs(res.started_at).format("YYYY-MM-DD HH:mm") : null, column: "column-startDate" },
                     // 特殊需求備註
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
                     // 服務商需求數量
@@ -155,7 +169,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
                     const findJob = Array.isArray(item.user!.occupation) ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
                     const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
-                    console.log("item.user!.occupation =>", item.user!.occupation);
                     return {
                         id: item.id!,
                         name: item.user!.name!,
@@ -257,11 +270,11 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     values={orderTopContent?.datas}
                     customClass="border-b border-gray-light pb-[30px]"
                 />
-                {JSON.stringify(chooseValues)}
                 {/* 倒數計時區塊 與 選擇服務商報名區塊 */}
                 <RightNowActivityOrderRecruitment
                     lng={lng}
                     customClass="mt-[30px] pb-[30px]"
+                    conuntDownSecond={countDownSecond}
                     render={() => recruitmentContent}
                 />
                 <RightNowActivityOrderPaymentContent
@@ -304,6 +317,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     lng={lng}
                     orderID={order.demand_id}
                     currentProviderCount={order.provider_required}
+                    getOrder={getOrder}
                     ref={changeRequiredProviderCountRef}
                 />
             )}

@@ -3,7 +3,7 @@
 import { Modal, Select } from "antd";
 import { useState, useRef, useImperativeHandle, forwardRef, useEffect } from "react";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import { rightNowActivityProviderMaxRequiredSelector } from "@/store-toolkit/stores/orderStore";
 import ButtonBorderGradient from "../../components/ButtonBorderGradient";
 import { useTranslation } from "@/i18n/i18n-client";
@@ -20,7 +20,7 @@ const { Option } = Select;
 /**
  * 增加活動需求人數彈窗 ui
  */
-const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, orderID }: { lng: string; currentProviderCount: number; orderID: string }, ref: any) => {
+const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, orderID, getOrder }: { lng: string; currentProviderCount: number; orderID: string; getOrder?: Function | void }, ref: any) => {
     type FormValues = {
         form: {
             requiredProviderCount: number;
@@ -31,9 +31,11 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
     const [loading, setLoading] = useState(false);
     const state = useAppSelector((state) => state.orderStore);
     const [open, setOpen] = useState(false);
-    const [providerCount, setProviderCount] = useState(currentProviderCount);
+    const [providerCount, setProviderCount] = useState(currentProviderCount + 1);
     const minRequired = currentProviderCount;
     const maxRequired = rightNowActivityProviderMaxRequiredSelector(state);
+    // 動態即刻快閃招募時間
+    const rightNowActivityNowTimeDueAtMinute = process.env.NEXT_PUBLIC_NOW_TIME_DUE_AT_MINUTE;
 
     const formSchema = {
         requiredProviderCount: yup.number(),
@@ -87,8 +89,16 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
     };
 
     const router = useRouter();
+    const pathname = usePathname();
+
     const onNextStepButtonClick = () => {
         reset();
+        // 判斷是等待服務商報名頁面中去更改需求人數時 觸發 需重須取得即刻快閃單資料
+        if (pathname === `/${lng}/rightnowactivity-recruitment-order/${orderID}` && getOrder) {
+            getOrder(orderID);
+            return;
+        }
+        // 如果在開單成功後再修改訂單需求人數時 導頁回去 等待服務商報名畫面
         router.push(`/rightnowactivity-recruitment-order/${orderID}`);
     };
 
@@ -178,19 +188,20 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
                     <Option
                         key={value}
                         value={value}
+                        disabled={value === currentProviderCount}
                     >
                         {t("rightNowActivityOrder.requiredProviderCount.requiredCount", { count: value })}
                     </Option>
                 ))}
             </Select>
-            <Trans
-                t={t}
-                i18nKey={"rightNowActivityOrderRecruitmentDetail.recruitment.modalDescription"}
-                values={{ val: 60 }}
-            >
-                123
-            </Trans>
-            <p className="text-center mt-[10px] text-gray-third text-sm-content">{"(" + t("rightNowActivityOrderRecruitmentDetail.recruitment.modalDescription", { val: 60 }) + ")"}</p>
+
+            <p className="text-center mt-[10px] text-gray-third text-sm-content">
+                {t("rightNowActivityOrderRecruitmentDetail.recruitment.changeRequiredProviderCount-modalDescription")}
+                <strong className="text-primary ml-2">
+                    {rightNowActivityNowTimeDueAtMinute}
+                    {t("global.minute")}
+                </strong>
+            </p>
         </Modal>
     );
 });

@@ -38,6 +38,10 @@ const RecruitmentCountdown = forwardRef(({ initialSeconds, customClass }: { init
         return () => clearInterval(timerRef.current);
     }, [isCounting]);
 
+    useEffect(() => {
+        setSeconds(initialSeconds);
+    }, [initialSeconds]);
+
     const formatTime = (sec: number) => {
         const minutes = Math.floor(sec / 60);
         const seconds = sec % 60;

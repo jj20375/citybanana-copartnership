@@ -19,3 +19,11 @@ export enum rightNowActivityOrderEnrollersStatusEnum {
     // 已確認
     Confirmed = 1,
 }
+
+// 可取消即刻快閃訂單狀態
+export enum canCancelRightNowActivityOrderStatusEnum {
+    // 開放報名中
+    Pending = 0,
+    // 報名額滿
+    RegistrationFull = 1,
+}

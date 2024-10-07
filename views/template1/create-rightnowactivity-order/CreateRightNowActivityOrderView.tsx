@@ -37,25 +37,28 @@ import { isEmpty } from "@/service/utils";
 import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActivityOrder-service";
 import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByOtherAPI, RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI, RightNowActivityOrderCreateByCreditCardAPI } from "@/api/bookingAPI/bookingAPI";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
+import { getCookie } from "cookies-next";
 
 function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
-    const state = useAppSelector((state) => {
+    const token = getCookie("accessToken");
+    // 訂單 store
+    const orderStore = useAppSelector((state) => {
         return state.orderStore;
     });
     type FormValues = RightNowActivityOrderCreateFormInterface;
     // 即刻快閃最少每小時單價
-    const rightNowActivityHourMinPrice = rightNowActivityHourMinPriceSelector(state);
+    const rightNowActivityHourMinPrice = rightNowActivityHourMinPriceSelector(orderStore);
     // 即刻快閃最多每小時單價
-    const rightNowActivityHourMaxPrice = rightNowActivityHourMaxPriceSelector(state);
+    const rightNowActivityHourMaxPrice = rightNowActivityHourMaxPriceSelector(orderStore);
     // 即刻快閃最少招募人數
-    const rightNowActivityProviderMinRequired = rightNowActivityProviderMinRequiredSelector(state);
+    const rightNowActivityProviderMinRequired = rightNowActivityProviderMinRequiredSelector(orderStore);
     // 即刻快閃最多招募人數
-    const rightNowActivityProviderMaxRequired = rightNowActivityProviderMaxRequiredSelector(state);
+    const rightNowActivityProviderMaxRequired = rightNowActivityProviderMaxRequiredSelector(orderStore);
     // 即刻快閃最少預訂時數
-    const rightNowActivityHourMinDuration = rightNowActivityHourMinDurationSelector(state);
+    const rightNowActivityHourMinDuration = rightNowActivityHourMinDurationSelector(orderStore);
     // 即刻快閃最多預訂時數
-    const rightNowActivityHourMaxDuration = rightNowActivityHourMaxDurationSelector(state);
+    const rightNowActivityHourMaxDuration = rightNowActivityHourMaxDurationSelector(orderStore);
 
     const formSchema = yup.object({
         // 每小時單價驗證
@@ -135,7 +138,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     } = useForm<FormValues>({
         resolver: yupResolver(schema),
         defaultValues: {
-            order: { price: 0, duration: rightNowActivityDefaultHourDurationSelector(state), requiredProviderCount: rightNowActivityProviderMinRequired, timeType: "now", accept: true },
+            order: { price: 0, duration: rightNowActivityDefaultHourDurationSelector(orderStore), requiredProviderCount: rightNowActivityProviderMinRequired, timeType: "now", accept: true },
         },
     });
 
@@ -270,6 +273,12 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
     const onNextStepButtonClick = () => {
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
+        // 判斷有登入使用者無需透過簡訊驗證
+        if (token && !isEmpty(token)) {
+            const host = `${origin}/${lng}/rightnowactivity-order-payment`;
+            router.push(`${host}?${params}`);
+            return;
+        }
         const host = `${origin}/${lng}/phone-validation`;
         router.push(`${host}?${params}`);
     };

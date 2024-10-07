@@ -8,15 +8,14 @@ import RecruitmentCountdown from "./RightNowActivityOrderRecruitmentCountdown";
 /**
  * 報名畫面 ui
  */
-const RightNowActivityOrderRecruitment = memo(({ lng, customClass, render }: { lng: string; customClass?: string | void; render?: Function | void }) => {
+const RightNowActivityOrderRecruitment = memo(({ lng, customClass, render, conuntDownSecond }: { lng: string; customClass?: string | void; render?: Function | void; conuntDownSecond: number }) => {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderRecruitmentDetail.recruitment.title") + "：";
-    const recruitCountDownSeconds = 60 * 60;
 
     return (
         <div className={`${customClass}`}>
             <h6 className="text-lg-content text-gray-secondary text-center">{title}</h6>
-            <RecruitmentCountdown initialSeconds={recruitCountDownSeconds} />
+            <RecruitmentCountdown initialSeconds={conuntDownSecond} />
             {render ? render() : null}
         </div>
     );

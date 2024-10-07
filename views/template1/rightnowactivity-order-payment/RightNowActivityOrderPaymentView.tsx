@@ -15,7 +15,7 @@ import { isValid } from "date-fns";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { userNameSelector, userGenderSelector, getUserProfile } from "@/store-toolkit/stores/userStore";
-import { usePartnerStoreCodeSelector, usePartnerStoreVenueCodeSelector } from "@/store-toolkit/stores/partnerStore";
+import { usePartnerStoreCodeSelector, usePartnerStoreNameSelector, usePartnerStoreVenueCodeSelector } from "@/store-toolkit/stores/partnerStore";
 import { RightNowActivityOrderFormInterface } from "../create-rightnowactivity-order/components/order/order-interface";
 import ContactWe from "../components/ContactWe";
 import RightNowActivityOrderPaymentContactInput from "./components/RightNowActivityOrderPaymentContactInput";
@@ -45,6 +45,8 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const userGender = userGenderSelector(userStore);
     // 是否為訪客
     const isVisitor = useAppSelector((state) => state.userStore.isVisitor);
+    // 合作店家名稱
+    const partnerStoreName = usePartnerStoreNameSelector(partnerStore);
     // 合作店家代碼
     const partnerStoreCode = usePartnerStoreCodeSelector(partnerStore);
     // 合作店家地點代碼
@@ -57,6 +59,8 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const [showCreditCardForm, setShowCreditCardForm] = useState(false);
     // 即刻快閃訂單id
     const [orderID, setOrderID] = useState("");
+    // 動態即刻快閃招募時間
+    const rightNowActivityNowTimeDueAtMinute = process.env.NEXT_PUBLIC_NOW_TIME_DUE_AT_MINUTE;
 
     // 信用卡表單 dom
     const creditCardFormRef = useRef<any>();
@@ -225,8 +229,8 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             provider_required: order?.requiredProviderCount!,
             unit: order?.unit!,
             hourly_pay: order?.price!,
-            due_at: dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm"),
-            started_at: order?.startDate ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
+            due_at: order?.timeType !== "now" ? dayjs(order?.dueDate!).format("YYYY-MM-DD ") + dayjs(order?.dueTime!).format("HH:mm") : null,
+            started_at: order?.timeType !== "now" ? dayjs(order?.startDate!).format("YYYY-MM-DD ") + dayjs(order?.startTime!).format("HH:mm") : null,
             pay_voucher: 0,
             merchant_code: partnerStoreCode,
             venue_code: partnerStoreVenueCode,
@@ -301,15 +305,20 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             if (Object.keys(params).length > 0) {
                 setOrder(params);
                 setDisplayOrder({
-                    title: "海底撈火鍋-京站店",
+                    title: partnerStoreName,
                     datas: [
                         {
                             label: t("rightNowActivityOrderPayment.column-startDate"),
-                            value: isValid(params.startDate) ? dayjs(params.startTime).format("YYYY-MM-DD HH:mm:ss") : t("rightNowActivityOrderPayment.startTime-now"),
+                            value: params.timeType === "now" ? t("rightNowActivityOrderPayment.startTime-now") : isValid(params.startDate) ? dayjs(params.startTime).format("YYYY-MM-DD HH:mm:ss") : t("rightNowActivityOrderPayment.startTime-now"),
                         },
                         {
                             label: t("rightNowActivityOrderPayment.column-dueDate"),
-                            value: isValid(params.dueDate) ? dayjs(params.dueTime).format("YYYY-MM-DD HH:mm:ss") : t("rightNowActivityOrderPayment.dueTime-now", { minute: 60 }),
+                            value:
+                                params.timeType === "now"
+                                    ? t("rightNowActivityOrderPayment.dueTime-now", { minute: rightNowActivityNowTimeDueAtMinute })
+                                    : isValid(params.dueDate)
+                                    ? dayjs(params.dueTime).format("YYYY-MM-DD HH:mm:ss")
+                                    : t("rightNowActivityOrderPayment.dueTime-now", { minute: rightNowActivityNowTimeDueAtMinute }),
                         },
                         {
                             label: t("rightNowActivityOrderPayment.column-duration"),
@@ -358,6 +367,16 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             onNextStepButtonClick();
         }
     }, [orderID]);
+
+    // 監聽店家名稱有更動時觸發 因為 ajax 會有延遲
+    useEffect(() => {
+        if (displayOrder && Array.isArray(displayOrder.datas)) {
+            setDisplayOrder({
+                title: partnerStoreName,
+                datas: displayOrder.datas,
+            });
+        }
+    }, [partnerStoreName]);
 
     return (
         <>

@@ -6,7 +6,7 @@ export interface RightNowActivityOrderCreateByCashAPIReqInterface {
     hourly_pay: number; // 單位單價 每小時或每天單價
     district?: AreaInterface; // iso 3166 區域代碼
     location?: string; // 會面地點
-    due_at: string; // 招募截止時間
+    due_at?: string | null; // 招募截止時間
     started_at?: null | string | void; // 活動開始時間
     duration: number; // 活動時長 時數或天數
     description?: string | null | void; // 活動描述
