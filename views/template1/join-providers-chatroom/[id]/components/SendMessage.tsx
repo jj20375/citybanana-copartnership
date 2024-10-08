@@ -78,10 +78,10 @@ const SendMessage = forwardRef(({ lng }: { lng: string }, ref: any) => {
                     receiveUserId: chatReceiver.id,
                     receiveUserName: chatReceiver.name,
                     loginUserId,
-
                     message,
                     isProvider: false,
                 });
+                reset();
             } catch (err) {
                 throw { title: "sendMessageAPI err =>", err };
             }

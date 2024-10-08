@@ -19,7 +19,7 @@ export function middleware(req: NextRequest) {
     res.headers.append("Access-Control-Allow-Methods", "GET,DELETE,PATCH,POST,PUT");
     res.headers.append("Access-Control-Allow-Headers", "X-CSRF-Token, X-Requested-With, Accept, Accept-Version, Content-Length, Content-MD5, Content-Type, Date, X-Api-Version");
 
-    console.log("middleware work =>");
+    console.log("middleware work =>", req.nextUrl);
     let lang;
     if (req.cookies.has(cookieName)) lang = acceptLanguage.get(req.cookies.get(cookieName)!.value);
     if (!lang) lang = acceptLanguage.get(req.headers.get("Accept-Language"));

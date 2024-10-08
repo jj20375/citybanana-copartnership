@@ -52,8 +52,9 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     const dispatch = useAppDispatch();
     const userStore = useAppSelector((state) => state.userStore);
     const chatStore = useAppSelector((state) => state.chatStore);
-
-    const id = userBananaIdSelector(userStore);
+    // 判斷是否 firebase 登入成功
+    const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
+    const userID = userBananaIdSelector(userStore);
     // 聊天對象資料
     const chatReceiver = chatStore.chatReceiver;
 
@@ -116,7 +117,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     // 滾動事件觸發載入歷史訊息
     const fetchMoreData = async () => {
         try {
-            let snapshot = await firebaseConnectRef(`chats/${id}/${receiverID}`).orderByKey().endBefore(messagePaginationKey).limitToLast(messageLimit).once("value");
+            let snapshot = await firebaseConnectRef(`chats/${userID}/${receiverID}`).orderByKey().endBefore(messagePaginationKey).limitToLast(messageLimit).once("value");
 
             //判斷有值時才執行
             if (snapshot.val() === null) {
@@ -155,8 +156,8 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     };
 
     const getMessages = () => {
-        console.log("messages id receiverID =>", id, receiverID, `chats/${id}/${receiverID}`);
-        firebaseConnectRef(`chats/${id}/${receiverID}`)
+        console.log("messages id receiverID =>", userID, receiverID, `chats/${userID}/${receiverID}`);
+        firebaseConnectRef(`chats/${userID}/${receiverID}`)
             .orderByKey()
             .limitToLast(messageLimit)
             .on("value", async (snapshot: any) => {
@@ -180,7 +181,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
 
     const getReceiverData = useCallback(async () => {
         try {
-            const doc = await firebaseDbDoc(`chat_rooms/${id}/users/${receiverID}`).get();
+            const doc = await firebaseDbDoc(`chat_rooms/${userID}/users/${receiverID}`).get();
             if (doc.exists) {
                 const userData: UserProfileInterface = doc.data().userData;
                 console.log("get receiver data =>", userData);
@@ -189,6 +190,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                         id: userData.banana_id!,
                         name: userData.name!,
                         avatar: userData.thumbnails ? userData.thumbnails?.avatar["360x360"] : "",
+                        readedAt: doc.data().readedAt,
                     })
                 );
             }
@@ -199,7 +201,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
 
     // 監聽聊天對象資料
     const listenerReceiver = () => {
-        firebaseDbDoc(`chat_rooms/${id}/users/${receiverID}`).onSnapshot(
+        firebaseDbDoc(`chat_rooms/${userID}/users/${receiverID}`).onSnapshot(
             async (snapshot: any) => {
                 // 未取得聊天對象資料時 將聊天對象資料設定為預設值 且不往下執行
                 if (!snapshot.exists) {
@@ -211,6 +213,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     id: receiverData.banana_id!,
                     name: receiverData.name!,
                     avatar: receiverData.thumbnails ? receiverData.thumbnails?.avatar["360x360"] : "",
+                    readedAt: snapshot.data().readedAt,
                 };
                 // 判斷有未確認訂單資料時 新增此資料到聊天對像
                 if (snapshot.data().unconfirmedOrder) {
@@ -224,7 +227,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                 // 判斷當前聊天對象時有未讀訊息時 要清空未讀訊息
                 if (snapshot.data().unReadMessageCount > 0) {
                     // 取得指定對象中所有聊天對象未讀訊息總計
-                    let userUnReadMessageCount: number | boolean = await firebaseGetChatRoomUnReadMessageCountTotal(id);
+                    let userUnReadMessageCount: number | boolean = await firebaseGetChatRoomUnReadMessageCountTotal(userID);
                     /**
                      * 此部分先省略 如發生真的未建立聊天對象時 再補上
                      */
@@ -239,11 +242,11 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     // }
                     // 更新 chat_rooms 中指定對象 所有未讀訊息數量
                     if (typeof userUnReadMessageCount === "number") {
-                        await firebaseUpdateUserUnReadMessageCount(id, userUnReadMessageCount - snapshot.data().unReadMessageCount < 0 ? 0 : userUnReadMessageCount - snapshot.data().unReadMessageCount);
+                        await firebaseUpdateUserUnReadMessageCount(userID, userUnReadMessageCount - snapshot.data().unReadMessageCount < 0 ? 0 : userUnReadMessageCount - snapshot.data().unReadMessageCount);
                     }
 
                     // 更新 firebase 聊天對象未讀訊息為 0
-                    await firebaseMessageReaded(id, receiverData.banana_id);
+                    await firebaseMessageReaded(userID, receiverData.banana_id);
                 }
             },
             (error: any) => {
@@ -253,12 +256,12 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     };
 
     useEffect(() => {
-        getReceiverData();
-        listenerReceiver();
-        setTimeout(() => {
+        if (userID !== "" && isFirebaseAuth) {
+            getReceiverData();
+            listenerReceiver();
             getMessages();
-        }, 1000);
-    }, []);
+        }
+    }, [userID, isFirebaseAuth]);
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
@@ -311,6 +314,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                                             key={message.id}
                                             lng={lng}
                                             message={message}
+                                            providerData={chatReceiver}
                                         />
                                     );
                                 }
@@ -320,6 +324,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                                             key={message.id}
                                             lng={lng}
                                             message={message}
+                                            providerData={chatReceiver}
                                         />
                                     );
                                 }
@@ -329,6 +334,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                                             key={message.id}
                                             lng={lng}
                                             message={message}
+                                            providerData={chatReceiver}
                                         />
                                     );
                                 }
@@ -338,6 +344,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                                             key={message.id}
                                             lng={lng}
                                             message={message}
+                                            providerData={chatReceiver}
                                         />
                                     );
                                 }
@@ -347,6 +354,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                                             key={message.id}
                                             lng={lng}
                                             message={message}
+                                            providerData={chatReceiver}
                                         />
                                     );
                                 }

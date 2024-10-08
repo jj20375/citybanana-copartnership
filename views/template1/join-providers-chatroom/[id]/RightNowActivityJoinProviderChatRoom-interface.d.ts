@@ -5,27 +5,25 @@ export interface MessageInterface {
     userId: string;
     content: string;
     type?: string | void;
-    createdAt: string;
-    orderData?: {
-        // 訂單結束時間
-        endedAt?: string;
-        // 訂單開始時間
-        startedAt?: string;
-        // 城市
-        district?: AreaInterface;
-        // 地點
-        location?: string;
-        // 出席費用
-        price?: number;
-        // 判斷是否現金付款
-        paidBy?: 1;
-        // 時數
-        duration?: number;
-        // 備註
-        note?: string;
-        // 活動內容
-        description?: string;
-    };
+    createdAt: number;
+    // 訂單結束時間
+    endedAt?: string;
+    // 訂單開始時間
+    startedAt?: string;
+    // 城市
+    district?: AreaInterface;
+    // 地點
+    location?: string;
+    // 出席費用
+    price?: number;
+    // 判斷是否現金付款
+    paidBy?: 1;
+    // 時數
+    duration?: number;
+    // 備註
+    note?: string;
+    // 活動內容
+    description?: string;
     // 經緯度資料
     lat?: string;
     // 經緯度資料

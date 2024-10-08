@@ -254,6 +254,18 @@
         "validation": {
             "message_requiredErrMessage": "請輸入訊息",
             "message_minErrMessage": "最少需要{{val}}個字"
+        },
+        "orderType": {
+            "cancelExtendOrderByUser": "取消續約",
+            "cancelExtendOrderByProvider": "婉拒續約",
+            "acceptExtendOrderByProvider": "接受續約",
+            "cancelOrderByProvider": "婉拒預訂",
+            "cancelOrderByUser": "取消預訂",
+            "cancelOrderBySystem": "系統自動婉拒預訂",
+            "cancelOrderByUserAndFeePay": "臨時取消預訂",
+            "acceptOrderByProvider": "接受預訂",
+            "startDating": "預訂的行程開始囉！\n讓我們在城市中追求美好的時刻",
+            "completeDating": "您的行程結束囉！\n歡迎幫我評分，謝謝您!\n祝福您有個美好的一天"
         }
     },
     "messageOrderStatusType": {

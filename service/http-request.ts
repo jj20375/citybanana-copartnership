@@ -1,4 +1,5 @@
-import { getCookie } from "cookies-next";
+import { getCookie, deleteCookie } from "cookies-next";
+import { redirect } from "next/navigation";
 export default async function useMyFetch(url: string, options: any) {
     // 判斷是 formData 形式上傳資料時 不需要指定 Content-Type
     if (typeof options.headers === "object" && Object.keys(options.headers).length > 0 && options.headers.isFormData) {
@@ -22,9 +23,15 @@ export default async function useMyFetch(url: string, options: any) {
 
     try {
         const resData = await fetch(url, options);
+        const json = await resData.json();
+        if (resData.status === 401 && json.message === "Unauthenticated.") {
+            deleteCookie("accessToken");
+            redirect("/");
+            return;
+        }
         if (resData.status >= 200 && resData.status < 400) {
             try {
-                return await resData.json();
+                return json;
             } catch (err) {
                 console.log("json error =>", err);
                 throw err;

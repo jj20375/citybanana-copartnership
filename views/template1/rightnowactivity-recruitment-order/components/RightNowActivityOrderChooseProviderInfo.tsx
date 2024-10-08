@@ -91,7 +91,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
                     height={10}
                     alt="message"
                     className="ml-5 cursor-pointer"
-                    onClick={() => goToChatRoom(String(providerData.id))}
+                    onClick={() => goToChatRoom(String(providerData.providerID))}
                     style={{ width: "25px", height: "auto" }}
                 />
             </div>

@@ -8,6 +8,7 @@ import { Checkbox, GetProp, Radio, type RadioChangeEvent } from "antd";
 import RightNowActivityOrderProviderCarouselModal from "./RightNowActivityOrderProviderCarouselModal";
 // 確認付款彈窗
 import RightNowActivityOrderConfirmPaymentModal from "./RightNowActivityOrderConfirmPaymentModal";
+import { rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
 /**
  * 服務商申請加入即刻快閃活動區塊 ui
  */
@@ -68,14 +69,19 @@ const RightNowActivityOrderProviderSignUp = memo(
         const [acceptProviders, setAcceptPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
         // 未選擇報名服務商
         const [unchooseProviders, setUnchooseProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
+        // 被拒絕的服務商
+        const [rejectedProviders, setRejectedPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
         useEffect(() => {
             if (Array.isArray(providers)) {
                 // 取得已接受報名服務商資料
-                const accept = providers.filter((item) => item.enrollerStatus === 1);
+                const accept = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Confirmed);
                 setAcceptPrviders(accept);
                 // 取得未接受報名服務商資料
-                const unchoose = providers.filter((item) => item.enrollerStatus === 0);
+                const unchoose = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.UnConfirmed);
                 setUnchooseProviders(unchoose);
+                // 取得被拒絕的服務商資料
+                const rejected = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Rejected);
+                setRejectedPrviders(rejected);
             }
         }, [providers]);
 
@@ -90,6 +96,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                         <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.confirmed-acceptProviders", { val: checkedProviders })}</h5>
                         {acceptProviders.map((data, index) => (
                             <RightNowActivityOrderSignUpCard
+                                key={data.id + "-" + "checkedProviders"}
                                 customClass={`${index !== acceptProviders.length - 1 && "mb-[15px]"}`}
                                 lng={lng}
                                 providerCardData={data}
@@ -174,6 +181,33 @@ const RightNowActivityOrderProviderSignUp = memo(
                             </>
                         )}
                     </div>
+                )}
+                {Array.isArray(rejectedProviders) && rejectedProviders.length > 0 && (
+                    <>
+                        <div className="mb-5">
+                            {rejectedProviders.map((data, index) => (
+                                <div
+                                    key={data.id + "-" + "rejectedProviders"}
+                                    onClick={openProviderCarouselModal}
+                                    className="cursor-pointer"
+                                >
+                                    <RightNowActivityOrderSignUpCard
+                                        customClass={`${index !== rejectedProviders.length - 1 && "mb-[15px]"}`}
+                                        lng={lng}
+                                        providerCardData={data}
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                        <RightNowActivityOrderProviderCarouselModal
+                            ref={chooseProviderCarouseModalRef}
+                            lng={lng}
+                            providerIds={values}
+                            setProviderIds={setValues}
+                            providers={rejectedProviders}
+                            comments={comments}
+                        />
+                    </>
                 )}
                 <div className="flex justify-center text-[15px] mt-[30px]">
                     <p className="mr-2 text-gray-primary">{t("rightNowActivityOrderRecruitmentDetail.recruitment.needRequiredProviderCount", { val: providerRequiredCount })},</p>

@@ -18,6 +18,8 @@ export enum rightNowActivityOrderEnrollersStatusEnum {
     UnConfirmed = 0,
     // 已確認
     Confirmed = 1,
+    // 被拒絕
+    Rejected = -1,
 }
 
 // 可取消即刻快閃訂單狀態

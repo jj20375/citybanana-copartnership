@@ -40,7 +40,7 @@ const SendGPSMessage = memo(({ lng }: { lng: string }) => {
             setLoading(false);
             setShowDialog(false);
         } catch (err) {
-            self.errorCallback({ err });
+            console.log("SendChatGPSMessageAPI err => ", err);
             setLoading(false);
         }
     };

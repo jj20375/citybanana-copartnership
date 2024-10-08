@@ -29,6 +29,8 @@ import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowAct
 import { differenceInSeconds } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import dayjs from "dayjs";
+import { firebaseDbCollection } from "@/lib/firebase/firebase-hooks";
+import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 
 /**
  * 即刻快閃報名訂單詳情
@@ -44,6 +46,12 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const partnerStore = useAppSelector((state) => state.partnerStore);
     // 合作店家名稱
     const partnerStoreName = usePartnerStoreNameSelector(partnerStore);
+    // userStore
+    const userStore = useAppSelector((state) => state.userStore);
+    // 使用者 ID
+    const userID = userBananaIdSelector(userStore);
+    // 判斷是否 firebase 登入成功
+    const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
 
     // 新增服務商人數彈窗 dom
     const changeRequiredProviderCountRef = useRef<any>();
@@ -115,17 +123,71 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         return t("rightNowActivityOrder.price", { val: 0 });
     }, [displayOrder]);
 
+    let unsuscribeNotify: any = null;
+    /**
+     * 監聽通知訊息 確認服務商報名狀態
+     *
+     */
+    const listenNotify = async () => {
+        const notifyRef = firebaseDbCollection(`notification/${userID}/datas`);
+        console.log("work listen notify", userID);
+        unsuscribeNotify = notifyRef.where("mark", "in", ["a_01", "a_02", "a_03", "a_04"]).onSnapshot(
+            (snapshot: any) => {
+                // console.log("work listen notify 2", snapshot);
+                snapshot.forEach(async (doc: any) => {
+                    // console.log("work listen notify 3 =>", doc.data());
+                });
+                snapshot.docChanges().forEach(async (change: any) => {
+                    if (change.type === "added") {
+                        console.log("新通知: ", change.doc.data());
+                        if (orderID === change.doc.data().details.demand.demand_id) {
+                            console.log("work listen notify 4 =>", change.doc.id);
+                            await getOrder(orderID);
+                        }
+                    }
+                    if (change.type === "modified") {
+                        console.log("更改通知: ", change.doc.data());
+                    }
+                    if (change.type === "removed") {
+                        console.log("刪除通知: ", change.doc.data());
+                    }
+                });
+            },
+            (error: any) => {
+                console.log("監聽即刻快閃通知失敗", userID, error);
+            }
+        );
+    };
+
+    useEffect(() => {
+        if (isFirebaseAuth) {
+            listenNotify();
+        }
+        return () => {
+            if (unsuscribeNotify) {
+                unsuscribeNotify();
+            }
+        };
+    }, [isFirebaseAuth]);
+
     /**
      * 取得訂單資料
      */
     const getOrder = useCallback(async (data: string) => {
         try {
             const res = await GetRightNowActivityOrderDetailAPI(data);
-            console.log("GetRightNowActivityOrderDetailAPI => ", res);
+            // console.log("GetRightNowActivityOrderDetailAPI => ", res);
             const currentDate = new Date();
             const dueAt = res.due_at;
-            // 設定招募倒數計時時間
-            setCountDownSecond(differenceInSeconds(dueAt, currentDate));
+            const countDownSecond = differenceInSeconds(dueAt, currentDate);
+            // 判斷大於現在時間時才進行倒數
+            if (countDownSecond > 0) {
+                // 設定招募倒數計時時間
+                setCountDownSecond(countDownSecond);
+            } else {
+                // 設定目前非等待服務商報名狀態
+                setIsWaitProviderApply(false);
+            }
             /**
              * 活動還沒開始狀態 0,1
              * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中 或 等於 1 報名額滿 時
@@ -189,6 +251,10 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     };
                 });
                 setProviders(setDatas);
+            } else {
+                setProviders([]);
+                // 設定目前非等待服務商報名狀態
+                setIsWaitProviderApply(true);
             }
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
@@ -231,7 +297,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         }
     }, [displayOrder]);
     useEffect(() => {
-        if (providers.length > 0 && order) {
+        console.log("isWaitProviderApply =>", isWaitProviderApply);
+        if ((providers.length > 0 && order) || (!isWaitProviderApply && order)) {
             setRecruitmentContent(
                 <RightNowActivityOrderProviderSignUp
                     lng={lng}
@@ -245,8 +312,15 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     setParentValues={setChooseValues}
                 />
             );
+        } else {
+            setRecruitmentContent(
+                <RightNowActivityOrderLogoAnimation
+                    lng={lng}
+                    customClass="pb-[30px] border-b border-gray-light"
+                />
+            );
         }
-    }, [providers]);
+    }, [providers, isWaitProviderApply]);
 
     /**
      * 因為有時候合作店家 api 還沒有載入到資料
@@ -290,13 +364,16 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     />
                 )}
                 <div className="flex flex-col">
-                    <button
-                        onClick={openChangeRequiredProviderCountModal}
-                        type="button"
-                        className="text-primary border border-primary rounded-md h-[45px] flex items-center justify-center"
-                    >
-                        {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
-                    </button>
+                    {/* 判斷是否顯示修改服務商數量按鈕 */}
+                    {isShowCancelButton && (
+                        <button
+                            onClick={openChangeRequiredProviderCountModal}
+                            type="button"
+                            className="text-primary border border-primary rounded-md h-[45px] flex items-center justify-center"
+                        >
+                            {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
+                        </button>
+                    )}
                     {/* 判斷是否顯示取消活動按鈕 */}
                     {isShowCancelButton && (
                         <button

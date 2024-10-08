@@ -73,4 +73,6 @@ export interface ChatReceiverInterface {
     confirmedOrder?: orderDataType;
     // 未確認訂單
     unconfirmedOrder?: orderDataType;
+    // 已讀時間
+    readedAt?: number;
 }

@@ -14,6 +14,8 @@ export interface UserStore {
     isProvider: boolean;
     // 判斷是否為訪客身份(代表首次註冊)
     isVisitor: boolean;
+    // 判斷 firebase 是否為登入狀態
+    isFirebaseAuth: boolean;
 }
 
 const initialState: UserStore | any = {
@@ -27,6 +29,8 @@ const initialState: UserStore | any = {
     isProvider: false,
     // 判斷是否為訪客身份(代表首次註冊)
     isVisitor: false,
+    // 判斷 firebase 是否為登入狀態
+    isFirebaseAuth: false,
 };
 
 // const dispatch = useAppDispatch();
@@ -90,6 +94,10 @@ export const userSlice = createSlice({
         getAuth: (state: any, action) => {
             console.info("getAuth state =>", state, action);
         },
+        // 設定 firebase 登入狀態
+        setIsFirebaseAuth: (state: any, action: PayloadAction<boolean>) => {
+            state.isFirebaseAuth = action.payload;
+        },
     },
     extraReducers: (builder) => {
         // 增加關於fetch data有關三個狀態
@@ -101,12 +109,22 @@ export const userSlice = createSlice({
                 console.log("fetchGetFirebaseCustomToken payload =>", action.payload);
                 state.isLoading = false; // fetch 成功
             })
+            // 取得 firebase 登入 token 失敗
             .addCase(fetchGetFirebaseCustomToken.rejected, (state, action) => {
                 state.isLoading = false; // fetch失敗
+                state.isFirebaseAuth = false;
                 console.log("fetchGetFirebaseCustomToken error =>", action.error);
             })
+            // 登入 firebase 成功
             .addCase(fetchFirebaseLogin.fulfilled, (state, action) => {
                 console.log("fetchFirebaseLogin payload =>", action.payload);
+                state.isFirebaseAuth = true;
+                setFirebaseToken({ expiresTime: 60 * 60 });
+            })
+            // 登入 firebase 失敗
+            .addCase(fetchFirebaseLogin.rejected, (state, action) => {
+                console.log("fetchFirebaseLogin payload =>", action.payload);
+                state.isFirebaseAuth = false;
                 setFirebaseToken({ expiresTime: 60 * 60 });
             })
             // 取得 user profile 成功

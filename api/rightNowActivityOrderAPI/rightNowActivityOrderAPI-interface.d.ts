@@ -591,3 +591,10 @@ export interface Link {
     url: null | string;
     [property: string]: any;
 }
+
+/**
+ * 即刻快閃單以付款金額
+ */
+export interface GetRightNowActivityOrderPaidAPIResInterface {
+    amount: number;
+}
