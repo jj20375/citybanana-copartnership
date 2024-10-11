@@ -143,7 +143,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
      */
     const getRightNowActivityOrder = useCallback(async (data: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI(data);
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
             setOrder(res);
             setDisplayOrder({
                 datas: [
@@ -193,7 +193,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                             enrollerStatus: item.status,
                             job: findJob,
                             providerID: item.user!.banana_id,
-                            orderID: item.dating !== null ? item.dating.order_id : "",
+                            orderID: item.dating !== null && typeof item.dating === "object" ? item.dating.order_id : "",
                         };
                     })
                     .find((item) => item.providerID === providerID);

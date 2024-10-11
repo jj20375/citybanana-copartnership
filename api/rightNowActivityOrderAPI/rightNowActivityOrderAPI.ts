@@ -2,6 +2,7 @@ import useMyFetch from "@/service/http-request";
 import type {
     ChangeRightNowActivityProviderRequiredAPIReqInterface,
     ChangeRightNowActivityProviderRequiredAPIResInterface,
+    GetRightNowActivityOrderDetailAPIReqInterface,
     GetRightNowActivityOrderDetailAPIResInterface,
     GetRightNowActivityOrderListAPIResInterface,
     GetRightNowActivityOrderPaidAPIResInterface,
@@ -13,7 +14,12 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
 /**
  * 取得即刻快閃單一訂單資料
  */
-export async function GetRightNowActivityOrderDetailAPI(orderID: string): Promise<GetRightNowActivityOrderDetailAPIResInterface> {
+export async function GetRightNowActivityOrderDetailAPI({ orderID, params }: { orderID: string; params?: GetRightNowActivityOrderDetailAPIReqInterface }): Promise<GetRightNowActivityOrderDetailAPIResInterface> {
+    if (params) {
+        return useMyFetch(`${apiURL}/my/demands/datings/${orderID}?${qs.stringify(params)}`, {
+            method: "get",
+        });
+    }
     return useMyFetch(`${apiURL}/my/demands/datings/${orderID}`, {
         method: "get",
     });

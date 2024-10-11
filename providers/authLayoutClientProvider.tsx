@@ -32,12 +32,12 @@ function IntervalCount() {
     return null;
 }
 
-export default function DefaultLayoutClient({ user, configurationSettingsData, clientUiSettings, children }: { user: UserProfileInterface; configurationSettingsData: any; clientUiSettings: any; children: React.ReactNode }) {
+export default function DefaultLayoutClient({ user, configurationSettingsData, clientUiSettings, children }: { user?: UserProfileInterface | null; configurationSettingsData: any; clientUiSettings: any; children: React.ReactNode }) {
     console.log("rerender client layout");
     const dispatch = useAppDispatch();
     const setUser = useUserStore((state) => state.setUser);
 
-    if (user !== undefined) {
+    if (user) {
         setUser(user);
         dispatch(setUserProfile(user));
         // 設定是否為首次註冊資料不完整會員 因為後續開單需要填寫個人資料

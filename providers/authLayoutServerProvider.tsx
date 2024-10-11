@@ -8,6 +8,7 @@ import { cookies } from "next/headers";
 
 import SWRConfigProvider from "@/providers/swrConfigProvider";
 import { refreshToken } from "@/service/actions";
+import { UserProfileInterface } from "@/interface/user";
 
 export default async function AuthLayoutServerProvider({ children }: { children: React.ReactNode }) {
     const token = cookies().get("accessToken")?.value;
@@ -21,8 +22,9 @@ export default async function AuthLayoutServerProvider({ children }: { children:
                 console.log("DefaultLayoutServerPage GetUserProfileAPI err =>", err);
             }
         }
+        return null;
     }
-    const user = await getUserProfile();
+    const user: UserProfileInterface | null = await getUserProfile();
 
     /**
      * 取得顯示設定或是其他設定值
@@ -31,6 +33,7 @@ export default async function AuthLayoutServerProvider({ children }: { children:
     async function getConfigurationSettings() {
         try {
             const data = await GetConfigurationSetingsAPI();
+            console.log("data.configurations =>", data.configurations);
             return data.configurations;
         } catch (err) {
             console.log("GetUiOrConfigurationSetingsAPI =>", err);
@@ -64,7 +67,7 @@ export default async function AuthLayoutServerProvider({ children }: { children:
     // }
     // 前台顯示設定
     const clientUiSettings = await getClientUiSettings();
-    console.log("clientUiSettings =>", clientUiSettings);
+    console.log("user =>", user);
     // 重新整理 token 避免過期
     const refreshToken = await import("@/service/actions").then((module) => module.refreshToken);
 

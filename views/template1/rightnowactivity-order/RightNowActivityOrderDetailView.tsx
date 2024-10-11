@@ -101,7 +101,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
      */
     const getOrder = useCallback(async (data: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI(data);
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
             setOrder(res);
             setDisplayOrder({
                 datas: [

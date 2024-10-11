@@ -83,7 +83,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
      */
     const getOrder = useCallback(async (data: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI(data);
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
             setOrder(res);
             setDisplayOrder({
                 datas: [

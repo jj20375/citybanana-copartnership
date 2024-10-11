@@ -61,12 +61,14 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     const userStore = useAppSelector((state) => {
         return state.userStore;
     });
+    // 判斷是否 firebase 登入成功
+    const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
+    const userID = userBananaIdSelector(userStore);
 
-    const id = userBananaIdSelector(userStore);
     const serviceChatId = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
 
     const listenChatUsers = async () => {
-        const chatUsersRef = firebaseDbCollection(`chat_rooms/${id}/users`);
+        const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
         chatUsersRef.onSnapshot((docs: any) => {
             docs.docChanges().forEach((change: any) => {
                 // 當有新增資料時會觸發
@@ -86,21 +88,31 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     };
 
     const updataChatRooms = (chatRoomData: ChatRoomInterface) => {
-        const index = chatrooms?.findIndex((chatroom) => chatroom.userData.banana_id === chatRoomData.userData.banana_id);
-        if (index === -1 && Array.isArray(chatrooms)) {
-            let arr: any = chatrooms;
-            arr[index] = chatRoomData;
-            arr = _.orderBy("lastMsgAt", "asc");
-            setChatRooms(arr);
-        } else if (Array.isArray(chatrooms)) {
-            let arr: any = chatrooms;
-            arr = _.orderBy("lastMsgAt", "asc");
-            setChatRooms([...arr, chatRoomData]);
+        if (Array.isArray(chatrooms) && chatrooms.length > 0) {
+            const index = chatrooms?.findIndex((chatroom) => {
+                if (chatroom.userData !== undefined && chatRoomData.userData != undefined) {
+                    // console.log("chatRoomData.userData =>", chatRoomData.userData);
+                    return chatroom.userData.banana_id === chatRoomData.userData.banana_id;
+                }
+                return -1;
+            });
+            if (index === -1 && Array.isArray(chatrooms)) {
+                let arr: any = chatrooms;
+                arr[index] = chatRoomData;
+                arr = _.orderBy("lastMsgAt", "asc");
+                console.log("-1 arr =>", arr);
+                setChatRooms(arr);
+            } else if (Array.isArray(chatrooms)) {
+                let arr: any = chatrooms;
+                arr = _.orderBy("lastMsgAt", "asc");
+                console.log("1 arr =>", arr);
+                setChatRooms([...arr, chatRoomData]);
+            }
         }
     };
 
     const fetchMoreData = async () => {
-        const chatUsersRef = firebaseDbCollection(`chat_rooms/${id}/users`);
+        const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
         // 判斷最後一頁時不往下執行
         if (chatRoomsPaginationKey === "end") {
             return;
@@ -128,7 +140,7 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     };
 
     const getUsers = async () => {
-        const chatUsersRef = firebaseDbCollection(`chat_rooms/${id}/users`);
+        const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
         try {
             // 聊天對象名單 collection
             let queryUsers: any = await chatUsersRef.orderBy("lastMsgAt", "asc").limit(paginationLimit).get();
@@ -164,8 +176,10 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     }, []);
 
     useEffect(() => {
-        fetchData();
-    }, [fetchData]);
+        if (userID !== "" && isFirebaseAuth) {
+            fetchData();
+        }
+    }, [userID, isFirebaseAuth]);
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">

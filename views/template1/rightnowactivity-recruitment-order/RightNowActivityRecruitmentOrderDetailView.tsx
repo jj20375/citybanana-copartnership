@@ -130,7 +130,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
      */
     const listenNotify = async () => {
         const notifyRef = firebaseDbCollection(`notification/${userID}/datas`);
-        console.log("work listen notify", userID);
         unsuscribeNotify = notifyRef.where("mark", "in", ["a_01", "a_02", "a_03", "a_04"]).onSnapshot(
             (snapshot: any) => {
                 // console.log("work listen notify 2", snapshot);
@@ -175,7 +174,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
      */
     const getOrder = useCallback(async (data: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI(data);
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data, params: { with_review: "1" } });
             // console.log("GetRightNowActivityOrderDetailAPI => ", res);
             const currentDate = new Date();
             const dueAt = res.due_at;
@@ -211,6 +210,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: res.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
                 ],
             });
+            // 判斷有服務商報名時觸發
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 /**
                  * 當有顯示取消活動按鈕 不執行 否則為以下規則
@@ -229,8 +229,22 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
 
                 // 設定服務商資料
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
+                    // 職業
                     const findJob = Array.isArray(item.user!.occupation) ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
+                    // 判斷是否為快閃皇后
                     const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
+                    // 評論
+                    const comments: RightNowActivityOrderProviderCommentInterface[] | null = Array.isArray(item.user?.dating_reviews)
+                        ? item.user.dating_reviews.map((data) => {
+                              return {
+                                  name: data.reviewer_name,
+                                  avatar: data.reviewer_avatar,
+                                  rate: data.score,
+                                  content: data.comment,
+                              };
+                          })
+                        : null;
+
                     return {
                         id: item.id!,
                         name: item.user!.name!,
@@ -248,6 +262,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         area: item.user!.district!,
                         enrollerStatus: item.status,
                         providerID: item.user!.banana_id,
+                        comments,
                     };
                 });
                 setProviders(setDatas);
@@ -304,7 +319,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     lng={lng}
                     orderID={order.demand_id}
                     providers={providers}
-                    comments={comments}
                     checkedProviders={checkedProviders}
                     providerRequiredCount={order.provider_required}
                     isSigleChoose={false}

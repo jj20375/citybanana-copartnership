@@ -16,6 +16,7 @@ import type { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightN
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
+import { canCancelRightNowActivityOrderStatusEnum, rightNowActivityOrderEnrollersStatusEnum, rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/rightnowactivity-order-enum";
 
 /**
  * 即刻快閃訂單建立成功詳細資料
@@ -44,9 +45,12 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
     // 已接受報名服務商
     const [acceptProviders, setAcceptPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
-
     // 新增服務商人數彈窗 dom
     const changeRequiredProviderCountRef = useRef<any>();
+    // 顯示取消活動按鈕
+    const [isShowCancelButton, setIsShowCancelButton] = useState(true);
+    // 判斷是否顯示連同已經確認的服務商一般訂單一起取消的選擇框
+    const [isShowCancelAcceptedOrderConfirm, setIsShowCancelAcceptedOrderConfirm] = useState(false);
 
     // 開啟修改服務商人數彈窗
     const openChangeRequiredProviderCountModal = () => {
@@ -62,7 +66,7 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     };
 
     const RenderTitle = () => (
-        <div className=" mb-[40px] font-bold">
+        <div className="mb-[40px] font-bold">
             <Image
                 src="/img/icons/order-create-success.svg"
                 alt="order create success"
@@ -77,18 +81,22 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
 
     const RenderButton = () => (
         <div className="flex flex-col">
-            <button
-                onClick={openChangeRequiredProviderCountModal}
-                className="border border-primary text-primary h-[45px] w-full mb-[15px]"
-            >
-                {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
-            </button>
-            <button
-                onClick={openCancelOrderModal}
-                className="border border-gray-third text-gray-third h-[45px] w-full"
-            >
-                {t("global.cancel-activity")}
-            </button>
+            {isShowCancelButton && (
+                <button
+                    onClick={openChangeRequiredProviderCountModal}
+                    className="border border-primary text-primary h-[45px] w-full mb-[15px] rounded"
+                >
+                    {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
+                </button>
+            )}
+            {isShowCancelButton && (
+                <button
+                    onClick={openCancelOrderModal}
+                    className="border border-gray-third text-gray-third h-[45px] w-full rounded"
+                >
+                    {t("global.cancel-activity")}
+                </button>
+            )}
         </div>
     );
     /**
@@ -96,7 +104,14 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
      */
     const getOrder = useCallback(async (data: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI(data);
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
+            /**
+             * 活動還沒開始狀態 0,1
+             * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中 或 等於 1 報名額滿 時
+             * 扔然可以讓他取消單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
+             */
+            setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending, canCancelRightNowActivityOrderStatusEnum.RegistrationFull].includes(res.status));
+
             setOrder(res);
             setDisplayOrder({
                 datas: [
@@ -115,6 +130,21 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 ],
             });
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
+                /**
+                 * 當有顯示取消活動按鈕 不執行 否則為以下規則
+                 * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態大於或等於2 時 扔然可以讓他取消
+                 * 單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
+                 */
+                if (!isShowCancelButton) {
+                    setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
+                }
+                /**
+                 * 判斷是否顯示已經確認的服務商在取消活動時
+                 * 連同已確認的一般預訂單一起取消
+                 * enrollers 裡面的 status = 1 代表已確認服務商
+                 */
+                setIsShowCancelAcceptedOrderConfirm(res.enrollers.some((item) => item.status === rightNowActivityOrderEnrollersStatusEnum.Confirmed));
+
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
                     const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
                     console.log("item.user!.occupation =>", item.user!.occupation);
@@ -192,7 +222,7 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 lng={lng}
                 rightNowActivityID={orderID}
                 description={t("rightNowActivityOrderRecruitmentDetail.cancel.description")}
-                isShowCancelAcceptedOrderConfirm={true}
+                isShowCancelAcceptedOrderConfirm={isShowCancelAcceptedOrderConfirm}
                 confirmText={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox")}
                 confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
                 ref={cancelOrderModalRef}

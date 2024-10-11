@@ -12,6 +12,7 @@ import RightNowActivityOrderPaymentContent from "../rightnowactivity-recruitment
 import RightNowActivityOrderTotal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderTotal";
 import { tmc } from "@/service/utils";
 import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
+import { usePathname } from "next/navigation";
 
 type DisplayOrder = {
     datas: {
@@ -66,6 +67,7 @@ export default function RightNowActivityOrderDetail({
         setOrderPaymentContent({
             datas: displayOrder.datas.filter((data) => displayOrderPaymentKeys.includes(data.column)),
         });
+        console.log("usePathname =>", usePathname);
     }, []);
     return (
         <>

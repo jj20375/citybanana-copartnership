@@ -19,7 +19,6 @@ const RightNowActivityOrderProviderSignUp = memo(
         providers,
         checkedProviders,
         providerRequiredCount,
-        comments,
         isSigleChoose,
         parentValues,
         setParentValues,
@@ -29,7 +28,6 @@ const RightNowActivityOrderProviderSignUp = memo(
         providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
         checkedProviders: number;
         providerRequiredCount: number;
-        comments?: RightNowActivityOrderProviderCommentInterface[] | void;
         isSigleChoose: boolean;
         parentValues: string[];
         setParentValues: Function;
@@ -136,7 +134,6 @@ const RightNowActivityOrderProviderSignUp = memo(
                                         providerIds={[value]}
                                         setProviderIds={setValue}
                                         providers={unchooseProviders}
-                                        comments={comments}
                                     />
                                 </Radio.Group>
                             </>
@@ -175,7 +172,6 @@ const RightNowActivityOrderProviderSignUp = memo(
                                         providerIds={values}
                                         setProviderIds={setValues}
                                         providers={unchooseProviders}
-                                        comments={comments}
                                     />
                                 </Checkbox.Group>
                             </>
@@ -205,7 +201,6 @@ const RightNowActivityOrderProviderSignUp = memo(
                             providerIds={values}
                             setProviderIds={setValues}
                             providers={rejectedProviders}
-                            comments={comments}
                         />
                     </>
                 )}

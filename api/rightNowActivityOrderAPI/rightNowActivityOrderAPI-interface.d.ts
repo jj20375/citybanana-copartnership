@@ -1,4 +1,11 @@
 /**
+ * 取得即刻快閃單一訂單資料 api 請求參數
+ */
+export interface GetRightNowActivityOrderDetailAPIReqInterface {
+    // 判斷是否取得 評論資料 1=關聯評論資料
+    with_review?: "1" | void;
+}
+/**
  * 取得即刻快閃單一訂單資料 api 回應參數
  */
 export interface GetRightNowActivityOrderDetailAPIResInterface {
@@ -8,7 +15,7 @@ export interface GetRightNowActivityOrderDetailAPIResInterface {
     currency: string;
     demand_id: string;
     description: string;
-    details: RequestDetails;
+    details: Details;
     district: string;
     due_at: string;
     ended_at: null;
@@ -35,26 +42,24 @@ export interface GetRightNowActivityOrderDetailAPIResInterface {
     source_application: string;
     started_at: null;
     status: number;
-    user: RequestUser;
+    user: GetRightNowActivityOrderDetailAPIResInterfaceUser;
     user_id: number;
     [property: string]: any;
 }
 
-export interface RequestDetails {
+export interface Details {
     acceptedVoucherUsed: number;
-    credit_card_id: string;
     datingDemandFeePercentage: string;
     duration: number;
     eachFee: number;
     eachPrice: number;
     eachProviderRemuneration: number;
-    eachTransactionFee: number;
     eachVoucherUsed: number;
     fee: number;
     hourlyPrice: number;
     isCommissionPaidByProvider: string;
     isX: boolean;
-    merchant: PurpleMerchant;
+    merchant: Merchant;
     penalty: number;
     pointPaid: number;
     pointRefunded: number;
@@ -71,23 +76,23 @@ export interface RequestDetails {
     [property: string]: any;
 }
 
-export interface PurpleMerchant {
+export interface Merchant {
     merchant_id: number;
     venue_id: number;
     [property: string]: any;
 }
 
 export interface Enroller {
-    created_at: string;
-    dating: null | Dating;
-    dating_demand_id: number;
-    dating_id: number | null;
-    hourly_pay: number;
-    id: number;
+    created_at?: string;
+    dating?: Dating;
+    dating_demand_id?: number;
+    dating_id?: null | string;
+    hourly_pay?: number;
+    id?: number;
     status: number;
-    travel_time: number;
-    user: EnrollerUser;
-    user_id: number;
+    travel_time?: number;
+    user?: EnrollerUser;
+    user_id?: number;
     [property: string]: any;
 }
 
@@ -103,35 +108,8 @@ export interface Dating {
     point_paid: number;
     refund: number;
     source_application: string;
+    status: number;
     voucher_paid: number;
-    [property: string]: any;
-}
-
-export interface DatingDetails {
-    brokerCommission: number;
-    credit_card_id: string;
-    duration: number;
-    fee: number;
-    hourlyPrice: number;
-    isX: boolean;
-    merchant: FluffyMerchant;
-    payment_id: number;
-    price: number;
-    providerPercentage: number;
-    serviceCharge: number;
-    sourceApplication: string;
-    tip: number;
-    total: number;
-    transactionFee: number;
-    transactionFeePercentage: string;
-    travelTime: number;
-    unit: string;
-    [property: string]: any;
-}
-
-export interface FluffyMerchant {
-    merchant_id: number;
-    venue_id: number;
     [property: string]: any;
 }
 
@@ -140,6 +118,7 @@ export interface EnrollerUser {
     badges: Badge[];
     banana_id: string;
     cover: string;
+    dating_reviews: DatingReview[];
     description: string;
     enablePayByCash: number;
     gender: string;
@@ -147,11 +126,6 @@ export interface EnrollerUser {
     isMyFavorite: boolean;
     matrices: string[];
     name: string;
-    /**
-     * 判斷是否為首次註冊會員資料不完整會員（合作店家註冊)
-     * 1 = 資料不完整
-     * 再合作店家開單時 資料不完整會員 需補上暱稱與性別才能開單
-     */
     newbie: number;
     occupation: PurpleOccupation[];
     passbook: null;
@@ -163,9 +137,9 @@ export interface EnrollerUser {
 }
 
 export interface Badge {
-    id: number;
-    name: string;
-    pivot: BadgePivot;
+    id?: number;
+    name?: string;
+    pivot?: BadgePivot;
     [property: string]: any;
 }
 
@@ -175,10 +149,20 @@ export interface BadgePivot {
     [property: string]: any;
 }
 
+export interface DatingReview {
+    comment: null | string;
+    reviewer: null;
+    reviewer_avatar: string;
+    reviewer_name: string;
+    score: number;
+    user_id: number;
+    [property: string]: any;
+}
+
 export interface PurpleOccupation {
     description?: string;
-    id: string;
-    name: string;
+    id?: string;
+    name?: string;
     [property: string]: any;
 }
 
@@ -232,7 +216,7 @@ export interface Purple720X720 {
     [property: string]: any;
 }
 
-export interface RequestUser {
+export interface GetRightNowActivityOrderDetailAPIResInterfaceUser {
     address: string;
     age: number;
     avatar: string;
@@ -261,11 +245,6 @@ export interface RequestUser {
     matrices: string[];
     media: Media;
     name: string;
-    /**
-     * 判斷是否為首次註冊會員資料不完整會員（合作店家註冊)
-     * 1 = 資料不完整
-     * 再合作店家開單時 資料不完整會員 需補上暱稱與性別才能開單
-     */
     newbie: number;
     occupation: FluffyOccupation[];
     online: number;
@@ -495,7 +474,7 @@ export interface Details {
     sourceApplication: string;
     total: number;
     transactionFeePercentage: string;
-    unit: string;
+    unit: "day" | "hour";
     unitPrice: number;
     voucherPaid: number;
     voucherRefunded: number;

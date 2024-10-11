@@ -23,7 +23,7 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     // 描述
     description?: string;
     // 報價方式 以小時或天
-    unit?: "hour" | "day";
+    unit: "hour" | "day";
     // 身高
     height?: number;
     // 體重
@@ -52,20 +52,21 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     providerID?: string;
     // 一般訂單 ID
     orderID?: string;
+    // 服務商評論
+    comments?: RightNowActivityOrderProviderCommentInterface[] | void | null | undefined;
 }
 
 /**
  * 即刻快閃服務商評論資料
  */
 export interface RightNowActivityOrderProviderCommentInterface {
-    id: string | number;
     name: string;
     // 大頭照
     avatar: string;
     // 評分
     rate: number;
     // 內容
-    content: string;
+    content: string | null;
     // 時間
-    createdAt: string;
+    createdAt?: string | void;
 }

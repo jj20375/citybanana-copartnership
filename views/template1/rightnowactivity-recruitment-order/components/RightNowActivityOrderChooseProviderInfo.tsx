@@ -12,7 +12,7 @@ import { CarouselByProviderComments, CarouselByProviderCommentItem } from "./Rig
 /**
  * 選擇服務商幻燈片服務商個人介紹資料 ui
  */
-const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comments }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface; comments?: RightNowActivityOrderProviderCommentInterface[] | void }) => {
+const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface }) => {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
     const providerInit: string[] = [];
@@ -121,13 +121,13 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
                     <p className="ml-2 text-[12px] text-gray-primary">{providerData.rate}</p>
                 </div>
                 <div className="mb-[15px]">
-                    {Array.isArray(comments) && (
+                    {Array.isArray(providerData.comments) && (
                         <CarouselByProviderComments
-                            items={comments}
+                            items={providerData.comments}
                             key="carouselComments"
                             renderItem={({ item, isSnapPoint }: { item: RightNowActivityOrderProviderCommentInterface; isSnapPoint: any }) => (
                                 <CarouselByProviderCommentItem
-                                    key={item.id}
+                                    key={isSnapPoint + item.name + String(item.content)}
                                     isSnapPoint={isSnapPoint}
                                 >
                                     <div className="border border-gray-third p-[9px] rounded-md text-gray-third mr-5">
@@ -141,7 +141,6 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, comme
                                                 className="rounded-full"
                                             />
                                             <p className="text-lg-content text-gray-primary ml-[10px] flex-1">{item.name}</p>
-                                            <div className="text-sm-content text-gray-third">{item.createdAt}</div>
                                         </div>
                                         <div className="my-[8px]">
                                             <Rate
