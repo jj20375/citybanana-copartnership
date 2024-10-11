@@ -1,6 +1,7 @@
 import { SencChatMessageAPIInterface } from "@/interface/chats";
 import useMyFetch from "@/service/http-request";
 import type { GetProp, UploadFile, UploadProps } from "antd";
+import { SetReceiverChatRoomAPIReqInterface } from "./chatAPI-interface";
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
 
@@ -36,4 +37,13 @@ export async function ChatUploadAttachmentsAPI(file: any): Promise<{ url: string
     result.append("file", file as FileType);
     return useMyFetch(`${apiURL}/chat/attachments`, { method: "post", body: result, headers: { isFormData: true } });
 }
+// 上傳聊天室圖片路徑
 export const ChatUploadAttachmentsAPIURL = `${apiURL}/chat/attachments`;
+
+/**
+ * 設定聊天對象資料
+ */
+export async function SetReceiverChatRoomAPI(data: SetReceiverChatRoomAPIReqInterface) {
+    console.log("SetReceiverChatRoomAPI body =>", data);
+    return useMyFetch(`${apiNestJSURL}/chats/send-receiver-chatroom-data`, { method: "post", body: JSON.stringify(data) });
+}

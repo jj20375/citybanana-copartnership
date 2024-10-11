@@ -14,6 +14,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 
 // 使用 loadash 指定 key 排序方法
 import * as _ from "lodash";
+import { SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
+import { SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
 
 /**
  * 待赴約服務商聊天列表 ui
@@ -34,13 +36,32 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     const router = useRouter();
     const dispatch = useAppDispatch();
 
+    const userStore = useAppSelector((state) => {
+        return state.userStore;
+    });
+    const userID = userBananaIdSelector(userStore);
+
     const [orderId, setOrderId] = useState<string>("1");
     const [chatrooms, setChatRooms] = useState<ChatRoomInterface[]>();
     const [chatRoomsPaginationKey, setChatRoomsPaginationKey] = useState<any>(0);
     const paginationLimit = 15;
 
+    /**
+     * 設定聊天對象資料
+     * @param data
+     */
+    const setReceiverChatRoom = async (data: SetReceiverChatRoomAPIReqInterface) => {
+        try {
+            const res = await SetReceiverChatRoomAPI(data);
+            console.log("SetReceiverChatRoomAPI =>", res);
+        } catch (err) {
+            console.log("SetReceiverChatRoomAPI err =>", err);
+            throw err;
+        }
+    };
+
     // 導頁去與服務商1對1聊天
-    const goToChatRoom = ({ id, name }: { id: string; name: string }) => {
+    const goToChatRoom = async ({ id, name }: { id: string; name: string }) => {
         // 設定聊天對象資料
         dispatch(
             setChatReceiver({
@@ -48,6 +69,12 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
                 name,
             })
         );
+        // 設定聊天對象資料
+        await setReceiverChatRoom({
+            loginUserId: userID,
+            receiveUserId: id,
+            isProvider: false,
+        });
         router.push(`/join-providers-chatroom/${id}`);
         return;
     };
@@ -58,12 +85,8 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
         return;
     };
 
-    const userStore = useAppSelector((state) => {
-        return state.userStore;
-    });
     // 判斷是否 firebase 登入成功
     const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
-    const userID = userBananaIdSelector(userStore);
 
     const serviceChatId = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
 

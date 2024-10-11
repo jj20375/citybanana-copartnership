@@ -14,7 +14,7 @@ import { RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI } from 
 /**
  * 確認付款彈窗 ui
  */
-const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, providers, providerIds }: { lng: string; orderID: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; providerIds?: string[] | void }, ref) => {
+const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, paymentMethod, providers, providerIds }: { lng: string; orderID: string; paymentMethod: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; providerIds?: string[] | void }, ref) => {
     const router = useRouter();
     const { t } = useTranslation(lng, "main");
     const [loading, setLoading] = useState(false);
@@ -98,9 +98,15 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, pro
         setLoading(true);
         try {
             const res = await RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI({ ids });
-            setOpen(false);
-            setCreditCard3DVerifyForm(res.data.response.Result);
             console.log("choose providers to payment and create orders API success =>", res);
+            // 判斷使用現金付款方式 不導向金流 3d 驗證
+            console.log("paymentMethod =>", paymentMethod);
+            if (paymentMethod === "cash") {
+                setOpen(false);
+                return;
+            }
+            // 導向金流 3d 驗證
+            setCreditCard3DVerifyForm(res.data.response.Result);
         } catch (err) {
             console.error("choose providers to payment and create orders API error =>", err);
             // 處理錯誤

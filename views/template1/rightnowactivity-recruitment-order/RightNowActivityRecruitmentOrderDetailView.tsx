@@ -103,6 +103,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const [isShowCancelButton, setIsShowCancelButton] = useState(true);
     // 到數計時秒數
     const [countDownSecond, setCountDownSecond] = useState<number>(0);
+    // 設定付款方式
+    const [paymentMethod, setPaymentMethod] = useState<string>("");
 
     const [recruitmentContent, setRecruitmentContent] = useState(
         <RightNowActivityOrderLogoAnimation
@@ -194,6 +196,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
              */
             setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending, canCancelRightNowActivityOrderStatusEnum.RegistrationFull].includes(res.status));
             setOrder(res);
+            // 設定付款方式
+            setPaymentMethod(res.paid_by === 1 ? "cash" : "other");
             setDisplayOrder({
                 datas: [
                     // 店家資料
@@ -324,6 +328,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     isSigleChoose={false}
                     parentValues={chooseValues}
                     setParentValues={setChooseValues}
+                    paymentMethod={paymentMethod}
                 />
             );
         } else {

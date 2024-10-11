@@ -6,14 +6,39 @@ import Image from "next/image";
 import { tmc } from "@/service/utils";
 import { useRouter } from "next/navigation";
 import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
+import { useAppSelector } from "@/store-toolkit/storeToolkit";
+import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
+import { SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
+import { SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
 /**
  * 訂單上方服務商資料區塊 ui
  */
 const OrderByProviderContent = memo(({ lng, providerData, orderData, customClass }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface; orderData: GetRightNowActivityOrderDetailAPIResInterface; customClass?: string | void }) => {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
+    const userStore = useAppSelector((state) => state.userStore);
+    const userID = userBananaIdSelector(userStore);
+    /**
+     * 設定聊天對象資料
+     * @param data
+     */
+    const setReceiverChatRoom = async (data: SetReceiverChatRoomAPIReqInterface) => {
+        try {
+            const res = await SetReceiverChatRoomAPI(data);
+            console.log("SetReceiverChatRoomAPI =>", res);
+        } catch (err) {
+            console.log("SetReceiverChatRoomAPI err =>", err);
+            throw err;
+        }
+    };
 
-    const goToChatroom = (receiverID: string) => {
+    const goToChatroom = async (receiverID: string) => {
+        // 設定聊天對象資料
+        await setReceiverChatRoom({
+            loginUserId: userID,
+            receiveUserId: receiverID,
+            isProvider: false,
+        });
         if (providerData.orderID) {
             const origin = window.location.origin;
             const params = new URLSearchParams({ orderID: orderData.demand_id }).toString();

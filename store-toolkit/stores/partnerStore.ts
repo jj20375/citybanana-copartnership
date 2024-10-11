@@ -17,14 +17,25 @@ const initialState: PartnerStoreInterFace | any = {
 
 // 使用createAsyncThunk來處理api的操作
 export const getPartnerStoreInfo = createAsyncThunk("getPartnerStoreInfo", async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }) => {
-    console.log("getPartnerStoreInfo params =>", merchantCode, venueCode);
-    try {
-        const data = await GetPartnerStoreInfoAPI({ merchantCode, venueCode });
-        console.log("GetPartnerStoreInfoAPI =>", data);
-        return data;
-    } catch (error) {
-        console.log("GetPartnerStoreInfoAPI err =>", error);
-        throw error;
+    if (getCookie("merchantCode")) {
+        console.log("getPartnerStoreInfo params =>", merchantCode, venueCode);
+        try {
+            const data = await GetPartnerStoreInfoAPI({ merchantCode: getCookie("merchantCode")!, venueCode: getCookie("venueCode") });
+            console.log("GetPartnerStoreInfoAPI =>", data);
+            return data;
+        } catch (error) {
+            console.log("GetPartnerStoreInfoAPI err =>", error);
+            throw error;
+        }
+    } else {
+        try {
+            const data = await GetPartnerStoreInfoAPI({ merchantCode, venueCode });
+            console.log("GetPartnerStoreInfoAPI =>", data);
+            return data;
+        } catch (error) {
+            console.log("GetPartnerStoreInfoAPI err =>", error);
+            throw error;
+        }
     }
 });
 

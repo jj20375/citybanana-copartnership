@@ -8,6 +8,10 @@ import { Rate } from "antd";
 import { useRouter } from "next/navigation";
 // 服務商評論 carousel
 import { CarouselByProviderComments, CarouselByProviderCommentItem } from "./RightNowActivityOrderProviderCommentsCarousel";
+import { SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
+import { SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
+import { useAppSelector } from "@/store-toolkit/storeToolkit";
+import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 
 /**
  * 選擇服務商幻燈片服務商個人介紹資料 ui
@@ -15,6 +19,9 @@ import { CarouselByProviderComments, CarouselByProviderCommentItem } from "./Rig
 const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface }) => {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
+    const userStore = useAppSelector((state) => state.userStore);
+    const userID = userBananaIdSelector(userStore);
+
     const providerInit: string[] = [];
 
     if (providerData.area) {
@@ -32,7 +39,29 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
         providerInit.push(providerData.height + t("global.height"));
     }
 
-    const goToChatRoom = (id: string) => router.push(`/join-providers-chatroom/${id}`);
+    /**
+     * 設定聊天對象資料
+     * @param data
+     */
+    const setReceiverChatRoom = async (data: SetReceiverChatRoomAPIReqInterface) => {
+        try {
+            const res = await SetReceiverChatRoomAPI(data);
+            console.log("SetReceiverChatRoomAPI =>", res);
+        } catch (err) {
+            console.log("SetReceiverChatRoomAPI err =>", err);
+            throw err;
+        }
+    };
+
+    const goToChatRoom = async (id: string) => {
+        // 設定聊天對象資料
+        await setReceiverChatRoom({
+            loginUserId: userID,
+            receiveUserId: id,
+            isProvider: false,
+        });
+        router.push(`/join-providers-chatroom/${id}`);
+    };
 
     function ProviderLevel() {
         return (

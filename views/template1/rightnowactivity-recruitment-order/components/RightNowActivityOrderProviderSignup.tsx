@@ -22,6 +22,7 @@ const RightNowActivityOrderProviderSignUp = memo(
         isSigleChoose,
         parentValues,
         setParentValues,
+        paymentMethod,
     }: {
         lng: string;
         orderID: string;
@@ -31,6 +32,7 @@ const RightNowActivityOrderProviderSignUp = memo(
         isSigleChoose: boolean;
         parentValues: string[];
         setParentValues: Function;
+        paymentMethod: string;
     }) => {
         const { t } = useTranslation(lng, "main");
 
@@ -229,6 +231,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                     providers={providers}
                     providerIds={isSigleChoose ? [value] : values}
                     orderID={orderID}
+                    paymentMethod={paymentMethod}
                 />
             </>
         );
