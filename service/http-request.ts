@@ -31,17 +31,23 @@ export default async function useMyFetch(url: string, options: any) {
         }
         if (resData.status >= 200 && resData.status < 400) {
             try {
+                console.log("http work");
                 return json;
             } catch (err) {
                 console.log("json error =>", err);
                 throw err;
             }
         } else {
-            throw resData;
+            console.log("http false", json);
+            throw json;
         }
     } catch (err: any) {
-        const errData = await err.json();
-        console.log("myFetch error =>", errData);
-        throw errData;
+        // if (err) {
+        //     const errData = await err.json();
+        //     console.log("myFetch error =>", errData);
+        //     return errData;
+        // }
+        console.log("http false2", err);
+        throw err;
     }
 }

@@ -17,6 +17,7 @@ import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAP
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import { message as messagePop } from "antd";
+import { showApiErrorMethod } from "@/service/utils";
 
 /**
  * 一般訂單取消詳細資料
@@ -68,23 +69,12 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
             await OrderUndoCancelAPI(orderID);
             router.push(`/order/${providerID}/${rightNowActivityID}`);
         } catch (err: any) {
-            if (err && err.error && err.error.error && errorMessageLang[err.error.error]) {
-                let lang = "";
-                if (lng === "zh-TW") {
-                    lang = "tw";
-                } else {
-                    lang = "en";
-                }
-                messagePop.open({
-                    type: "error",
-                    content: errorMessageLang[err.error.error].message[lang],
-                });
-            } else {
-                messagePop.open({
-                    type: "error",
-                    content: t("global.apiError"),
-                });
-            }
+            showApiErrorMethod({
+                apiErr: err,
+                errorMessageLang,
+                lng: lng === "zh-TW" ? "tw" : "en",
+                globalErrMessage: t("global.apiError"),
+            });
             throw err;
         }
     };

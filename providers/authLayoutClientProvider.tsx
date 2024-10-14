@@ -8,7 +8,7 @@ import { setRightNowActivityConfiguration } from "@/store-toolkit/stores/orderSt
 import { setClientUiSettings, setErrorMessageLang } from "@/store-toolkit/stores/utilityStore";
 import { useCallback, useEffect, useState } from "react";
 import { refreshToken, refreshFirebaseToken } from "@/service/actions";
-import { isOnAuthStateChange } from "@/lib/firebase/firebase-hooks";
+import { firebaseAuth, firebaseMessaging, firebaseOnlineSet, firebaseOnlineSetDetachListeners, isOnAuthStateChange } from "@/lib/firebase/firebase-hooks";
 import WindowResizeContext from "@/context/windowResizeContext";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
 import { getPartnerStoreInfo } from "@/store-toolkit/stores/partnerStore";
@@ -63,10 +63,25 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
 
     useEffect(() => {
         // 判斷有 token 在執行 取得 firebase token
-        if (getCookie("accessToken")) {
+        if (getCookie("accessToken") && user) {
             dispatch(fetchGetFirebaseCustomToken()).then((res: any) => {
                 dispatch(fetchFirebaseLogin(res.payload.token));
-                isOnAuthStateChange();
+                firebaseAuth().onAuthStateChanged(async (userData: any) => {
+                    if (userData === null) {
+                        console.log("work firebase auth error", userData);
+                        firebaseOnlineSetDetachListeners();
+                    } else {
+                        firebaseOnlineSet(user, user.banana_id!);
+                        console.log("firebase userData =>", userData);
+                        const messaging = firebaseMessaging();
+                        firebaseMessaging().onMessage(
+                            (payload: any) => {
+                                console.log("message fcm client", payload);
+                            },
+                            (e: any) => {}
+                        );
+                    }
+                });
             });
         }
         // 判斷有店家代碼時 取得店家資料
@@ -76,6 +91,31 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
 
         // 取得錯誤語系檔
         getErrorMessageLang();
+
+        const handleBeforeUnload = (event: any) => {
+            console.log("User is leaving the page (close/refresh)");
+            event.preventDefault();
+            event.returnValue = ""; // 显示提示信息
+        };
+
+        const handleVisibilityChange = () => {
+            if (document.visibilityState === "hidden") {
+                console.log("User is leaving the tab");
+            } else {
+                console.log("User is back on the page");
+            }
+        };
+
+        window.addEventListener("beforeunload", handleBeforeUnload);
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        return () => {
+            if (user) {
+                firebaseOnlineSetDetachListeners(user.banana_id, false);
+            }
+            window.removeEventListener("beforeunload", handleBeforeUnload);
+            document.removeEventListener("visibilitychange", handleVisibilityChange);
+        };
     }, []);
     return (
         <>

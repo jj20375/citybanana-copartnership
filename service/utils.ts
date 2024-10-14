@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { message as messagePop } from "antd";
 
 //判斷是否為空值或空物件
 export const isEmpty = (value: any) => {
@@ -99,4 +100,23 @@ export const formatCardExpiryDate = (value: string | any) => {
  */
 export function tmc(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
+}
+
+/**
+ * api Error
+ * 顯示 api 回應錯誤
+ */
+export function showApiErrorMethod({ apiErr, errorMessageLang, lng, globalErrMessage }: { apiErr: any; errorMessageLang: any; lng: string; globalErrMessage: string }) {
+    if (apiErr && apiErr.error && apiErr.error.error && errorMessageLang[apiErr.error.error]) {
+        messagePop.open({
+            type: "error",
+            content: errorMessageLang[apiErr.error.error].message[lng],
+        });
+        return;
+    } else {
+        messagePop.open({
+            type: "error",
+            content: globalErrMessage,
+        });
+    }
 }

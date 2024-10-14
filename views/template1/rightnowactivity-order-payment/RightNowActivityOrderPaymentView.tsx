@@ -9,7 +9,7 @@ import TitleCompoent from "../components/TitleComponent";
 import { useSearchParams, useRouter } from "next/navigation";
 import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActivityOrder-service";
 import { RightNowActivityOrderPaymentFormInterface } from "./rightnowactivity-order-payment-interface";
-import { isEmpty } from "@/service/utils";
+import { isEmpty, showApiErrorMethod } from "@/service/utils";
 import dayjs from "dayjs";
 import { isValid } from "date-fns";
 import Image from "next/image";
@@ -28,11 +28,15 @@ import { GetCreditCardListAPI, UpdateUserProfileAPI } from "@/api/userAPI/userAP
 import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByCreditCardAPI, RightNowActivityOrderCreateByOtherAPI } from "@/api/bookingAPI/bookingAPI";
 import { RightNowActivityOrderCreateByCashAPIReqInterface, RightNowActivityOrderCreateByOtherAPIReqInterface } from "@/api/bookingAPI/bookingAPI-interfce";
 import { CreditCardDataInterface } from "@/interface/global";
-import { RightNowActivityOrderCreateByCreditCardAPIReqInterface } from "@/api/bookingAPI/bookingCreditCarAPI-interface";
+import type { RightNowActivityOrderCreateByCreditCardAPIReqInterface } from "@/api/bookingAPI/bookingCreditCarAPI-interface";
+import { message } from "antd";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderPayment.title");
     const dispatch = useAppDispatch();
+
+    // 錯誤語系檔
+    const errorMessageLang = useAppSelector((state) => state.utilityStore.errorMessageLang);
 
     const userStore = useAppSelector((state) => {
         return state.userStore;
@@ -143,6 +147,12 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             }
             console.log("GetCreditCardListAPI data =>", data);
         } catch (err) {
+            showApiErrorMethod({
+                apiErr: err,
+                errorMessageLang,
+                lng: lng === "zh-TW" ? "tw" : "en",
+                globalErrMessage: t("global.apiError"),
+            });
             console.log("GetCreditCardListAPI err =>", err);
             throw err;
         }
@@ -157,6 +167,12 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             // 設定即刻快閃id
             setOrderID(res.demand.demand_id);
         } catch (err) {
+            showApiErrorMethod({
+                apiErr: err,
+                errorMessageLang,
+                lng: lng === "zh-TW" ? "tw" : "en",
+                globalErrMessage: t("global.apiError"),
+            });
             console.log("RightNowActivityOrderCreateByCashAPI err => ", err);
             throw err;
         }
@@ -173,6 +189,12 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             const res = await RightNowActivityOrderCreateByCreditCardAPI(data);
             console.log("RightNowActivityOrderCreateByCreditCardAPI => ", res);
         } catch (err) {
+            showApiErrorMethod({
+                apiErr: err,
+                errorMessageLang,
+                lng: lng === "zh-TW" ? "tw" : "en",
+                globalErrMessage: t("global.apiError"),
+            });
             console.log("RightNowActivityOrderCreateByCreditCardAPI err => ", err);
             throw err;
         }
