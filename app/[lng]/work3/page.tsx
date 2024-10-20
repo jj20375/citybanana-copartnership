@@ -5,8 +5,8 @@ import { LoginUserAPI, GetIndexAPI } from "@/api/userAPI/userAPI";
 import { useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { setAuthState } from "@/store-toolkit/stores/authStore";
 import { setIsProvider, setUserProfile } from "@/store-toolkit/stores/userStore";
-import { setToken } from "@/service/actions";
 import { usePathname } from "next/navigation";
+import { setClientToken } from "@/service/actions-client";
 
 async function getData() {
     try {
@@ -23,7 +23,7 @@ function FormPage() {
             console.log("login data =>", data);
             dispatch(setUserProfile(data.user));
             dispatch(setIsProvider(data.user.role !== 0 ? true : false));
-            setToken({
+            setClientToken({
                 token: data.access_token,
                 expiresTime: data.expires_in,
             });

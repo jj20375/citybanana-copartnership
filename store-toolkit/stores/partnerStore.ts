@@ -1,6 +1,5 @@
 import { createSlice, createAsyncThunk, createDraftSafeSelector } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import { setFirebaseToken } from "@/service/actions";
 import { firebaseLogin } from "@/lib/firebase/firebase-hooks";
 import { GetPartnerStoreInfoAPI } from "@/api/partnerStoreAPI/partnerStoreAPI";
 import type { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";

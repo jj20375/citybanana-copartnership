@@ -2,6 +2,7 @@ import acceptLanguage from "accept-language";
 import { fallbackLang, languages, cookieName } from "@/i18n/i18n-settings";
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { redirectTypeMiddleware } from "@/config/middleware.config";
 
 acceptLanguage.languages(languages);
 
@@ -25,6 +26,10 @@ export function middleware(req: NextRequest) {
     if (!lang) lang = acceptLanguage.get(req.headers.get("Accept-Language"));
     if (!lang) lang = fallbackLang;
 
+    const token = req.cookies.getAll();
+
+    console.log("middletoken token =>", token);
+
     // Redirect if lng in path is not supported
     if (!languages.some((loc) => req.nextUrl.pathname.startsWith(`/${loc}`)) && !req.nextUrl.pathname.startsWith("/_next")) {
         // 判斷圖片路徑 不加上 語系前綴
@@ -32,10 +37,30 @@ export function middleware(req: NextRequest) {
             return NextResponse.redirect(new URL(`/${lang}${req.nextUrl.pathname}`, req.url));
         }
     }
-    if (req.headers.has("referer")) {
+
+    // 設定語系檔進入cookie
+    function setLangInCookies() {
         const refererUrl = new URL(req.headers.get("referer")!);
+        // 取得當前網址語系
         const lngInReferer = languages.find((l) => refererUrl.pathname.startsWith(`/${l}`));
-        if (lngInReferer) res.cookies.set(cookieName, lngInReferer);
+        if (lngInReferer) {
+            res.cookies.set(cookieName, lngInReferer);
+        }
+    }
+
+    // 判斷需要導頁時觸發
+    if (req.nextUrl.pathname === `/${lang}/rd`) {
+        if (req.headers.has("referer")) {
+            console.log("referer =>", req.headers.has("referer"), req.nextUrl.pathname);
+            // 設定語系進入 cookie
+            setLangInCookies();
+        }
+        return redirectTypeMiddleware(req, NextResponse, lang);
+    }
+    if (req.headers.has("referer")) {
+        console.log("work referer");
+        // 設定語系進入 cookie
+        setLangInCookies();
         return res;
     }
 

@@ -4,14 +4,22 @@ import { GetUserProfileAPI } from "@/api/userAPI/userAPI";
 import { GetConfigurationSetingsAPI, GetClientUiSettingsAPI } from "@/api/utilsAPI";
 import { GetPartnerStoreInfoAPI } from "@/api/partnerStoreAPI/partnerStoreAPI";
 import AuthLayoutClientProvider from "@/providers/authLayoutClientProvider";
-import { cookies } from "next/headers";
+import { cookies, headers } from "next/headers";
 
 import SWRConfigProvider from "@/providers/swrConfigProvider";
-import { refreshToken } from "@/service/actions";
 import { UserProfileInterface } from "@/interface/user";
 
 export default async function AuthLayoutServerProvider({ children }: { children: React.ReactNode }) {
     const token = cookies().get("accessToken")?.value;
+    console.log("have token =>", token);
+
+    const headersList = headers();
+    const url = headersList.get("referer") || headersList.get("host");
+
+    // 在 headers 中手动解析 URL 并获取 pathname
+    const pathname = url ? new URL(url).pathname : "";
+
+    console.log("server layout pathname =>", pathname);
 
     async function getUserProfile() {
         if (token) {
@@ -33,7 +41,6 @@ export default async function AuthLayoutServerProvider({ children }: { children:
     async function getConfigurationSettings() {
         try {
             const data = await GetConfigurationSetingsAPI();
-            console.log("data.configurations =>", data.configurations);
             return data.configurations;
         } catch (err) {
             console.log("GetUiOrConfigurationSetingsAPI =>", err);
@@ -67,20 +74,23 @@ export default async function AuthLayoutServerProvider({ children }: { children:
     // }
     // 前台顯示設定
     const clientUiSettings = await getClientUiSettings();
-    console.log("user =>", user);
     // 重新整理 token 避免過期
-    const refreshToken = await import("@/service/actions").then((module) => module.refreshToken);
+    // const refreshToken = await import("@/service/actions-client").then((module) => module.refreshToken);
 
-    await refreshToken({ expiresTime: Number(cookies().get("expiresTime")?.value), token });
+    // await refreshToken({ expiresTime: Number(cookies().get("expiresTime")?.value), token });
     return (
         <SWRConfigProvider>
-            <AuthLayoutClientProvider
-                user={user}
-                configurationSettingsData={configurationSettingsData}
-                clientUiSettings={clientUiSettings}
-            >
-                {children}
-            </AuthLayoutClientProvider>
+            {pathname === "/zh-TW/rd" ? (
+                <div>{children}</div>
+            ) : (
+                <AuthLayoutClientProvider
+                    user={user}
+                    configurationSettingsData={configurationSettingsData}
+                    clientUiSettings={clientUiSettings}
+                >
+                    {children}
+                </AuthLayoutClientProvider>
+            )}
         </SWRConfigProvider>
     );
 }

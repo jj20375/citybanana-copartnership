@@ -1,20 +1,23 @@
-import { getCookie, deleteCookie } from "cookies-next";
+"use server";
+
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-export default async function useMyFetch(url: string, options: any) {
+export default async function useMyServerFetch(url: string, options: any) {
+    const token = cookies().get("accessToken")?.value;
     // 判斷是 formData 形式上傳資料時 不需要指定 Content-Type
     if (typeof options.headers === "object" && Object.keys(options.headers).length > 0 && options.headers.isFormData) {
         options.headers["Accept"] = "application/json, text/plain, */*";
-        if (getCookie("accessToken") || options.token) {
-            const token = getCookie("accessToken") ?? options.token;
-            options.headers.Authorization = `Bearer ${token}`;
+        if (token || options.token) {
+            const sendToken = token ?? options.token;
+            options.headers.Authorization = `Bearer ${sendToken}`;
         }
     } else {
         options.headers = {};
         options.headers["Content-Type"] = "application/json";
         options.headers["Accept"] = "application/json, text/plain, */*";
-        if (getCookie("accessToken") || options.token) {
-            const token = getCookie("accessToken") ?? options.token;
-            options.headers.Authorization = `Bearer ${token}`;
+        if (token || options.token) {
+            const sendToken = token ?? options.token;
+            options.headers.Authorization = `Bearer ${sendToken}`;
         }
     }
 
@@ -26,7 +29,7 @@ export default async function useMyFetch(url: string, options: any) {
         // console.log("resData =>", resData);
         const json = await resData.json();
         if (resData.status === 401 && json.message === "Unauthenticated.") {
-            deleteCookie("accessToken");
+            cookies().delete("accessToken");
             redirect("/");
             return;
         }

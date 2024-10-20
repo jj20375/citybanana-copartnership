@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, createDraftSafeSelector } from "@reduxjs
 import { GetFirebaseCustomTokenAPI, GetUserProfileAPI } from "@/api/userAPI/userAPI";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { UserProfileInterface } from "@/interface/user";
-import { setFirebaseToken } from "@/service/actions";
+import { setFirebaseToken } from "@/service/actions-client";
 import { getCookie } from "cookies-next";
 import { cookies } from "next/headers";
 import { firebaseLogin } from "@/lib/firebase/firebase-hooks";

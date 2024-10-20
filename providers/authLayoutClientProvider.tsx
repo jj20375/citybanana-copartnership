@@ -7,7 +7,7 @@ import { setUserProfile, fetchGetFirebaseCustomToken, fetchFirebaseLogin, setIsV
 import { setRightNowActivityConfiguration } from "@/store-toolkit/stores/orderStore";
 import { setClientUiSettings, setErrorMessageLang } from "@/store-toolkit/stores/utilityStore";
 import { useCallback, useEffect, useState } from "react";
-import { refreshToken, refreshFirebaseToken } from "@/service/actions";
+import { refreshToken, refreshFirebaseToken } from "@/service/actions-client";
 import { firebaseAuth, firebaseMessaging, firebaseOnlineSet, firebaseOnlineSetDetachListeners, isOnAuthStateChange } from "@/lib/firebase/firebase-hooks";
 import WindowResizeContext from "@/context/windowResizeContext";
 import { setCookie, getCookie, deleteCookie } from "cookies-next";
@@ -64,6 +64,7 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
     useEffect(() => {
         // 判斷有 token 在執行 取得 firebase token
         if (getCookie("accessToken") && user) {
+            console.log("client token =>", getCookie("accessToken"));
             dispatch(fetchGetFirebaseCustomToken()).then((res: any) => {
                 dispatch(fetchFirebaseLogin(res.payload.token));
                 firebaseAuth().onAuthStateChanged(async (userData: any) => {
@@ -73,7 +74,6 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
                     } else {
                         firebaseOnlineSet(user, user.banana_id!);
                         console.log("firebase userData =>", userData);
-                        const messaging = firebaseMessaging();
                         firebaseMessaging().onMessage(
                             (payload: any) => {
                                 console.log("message fcm client", payload);

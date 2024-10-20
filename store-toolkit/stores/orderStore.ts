@@ -47,7 +47,7 @@ export const rightNowActivityDueAtLimitSelector = createDraftSafeSelector(select
 export const rightNowActivityProviderMinRequiredSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => Number(_.find(state, { key: "demand_provider_min_required" }).value));
 
 // 即刻快閃最多招募人數
-export const rightNowActivityProviderMaxRequiredSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => Number(_.find(state, { key: "demand_provider_max_required" }).value));
+export const rightNowActivityProviderMaxRequiredSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => (_.find(state, { key: "demand_provider_max_required" }) !== undefined ? Number(_.find(state, { key: "demand_provider_max_required" }).value) : 0));
 
 // 即刻快閃開放區域
 export const rightNowActivityOpenAreasSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => JSON.parse(_.find(state, { key: "demand_open_areas" }).value));

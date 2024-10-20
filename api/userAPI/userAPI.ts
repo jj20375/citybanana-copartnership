@@ -2,6 +2,7 @@ import useMyFetch from "@/service/http-request";
 import useSWR from "swr";
 import type { UpdateUserProfileAPIReqInterface, UserCreditCardListAPIResInterface } from "./userCredit-interface";
 import { UserProfileInterface } from "@/interface/user";
+import useMyServerFetch from "@/service/http-request-server";
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
 
@@ -78,6 +79,26 @@ export async function GetIndexAPI2() {
  */
 export async function GetCreditCardListAPI(): Promise<UserCreditCardListAPIResInterface> {
     return await useMyFetch(`${apiNestJSURL}/credit-card`, {
+        method: "get",
+    });
+}
+
+/**
+ * 透過簡訊發送即刻快閃單連結時 取得使用者身份
+ */
+export async function GetSmsLinkByRightNowActivityOrderToGetUserTokenAPI(verifyCode: string) {
+    console.log("verifyCOde =>", verifyCode);
+    return await useMyFetch(`${apiURL}/partner/demands/${verifyCode}`, {
+        method: "get",
+    });
+}
+
+/**
+ * 透過簡訊發送即刻快閃單連結時 取得使用者身份
+ */
+export async function ServerGetSmsLinkByRightNowActivityOrderToGetUserTokenAPI(verifyCode: string) {
+    console.log("verifyCOde =>", verifyCode);
+    return await useMyServerFetch(`${apiURL}/partner/demands/${verifyCode}`, {
         method: "get",
     });
 }

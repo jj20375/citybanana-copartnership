@@ -21,7 +21,7 @@ import { isEmpty } from "@/service/utils";
 import { TWPhoneRegex, SmsValidateCodeRegex } from "@/config/regex.config";
 import type { GetVerificationCodeAPIReqInterface, VerificationSMSCodeAPIReqInterface } from "@/api/authAPI/authAPI-interface";
 import { GetVerificationCodeAPI, VerificationSMSCodeAPI } from "@/api/authAPI/authAPI";
-import { setToken } from "@/service/actions";
+import { setClientToken } from "@/service/actions-client";
 import { useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { getUserProfile, setIsVisitor } from "@/store-toolkit/stores/userStore";
 
@@ -218,7 +218,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             const data = await VerificationSMSCodeAPI(form);
             clearForm();
             console.log("VerificationSMSCodeAPI data =>", data);
-            setToken({
+            setClientToken({
                 token: data.access_token,
                 expiresTime: data.expires_in,
             });
