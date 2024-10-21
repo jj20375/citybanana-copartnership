@@ -16,6 +16,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import * as _ from "lodash";
 import { SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
 import { SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
+import ServiceChatRoom from "../components/ServiceChatoom";
 
 /**
  * 待赴約服務商聊天列表 ui
@@ -88,8 +89,11 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     // 判斷是否 firebase 登入成功
     const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
 
-    const serviceChatId = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
+    const serviceChatID = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
 
+    /**
+     * 監聽其他聊天對象
+     */
     const listenChatUsers = async () => {
         const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
         chatUsersRef.onSnapshot((docs: any) => {
@@ -110,6 +114,10 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
         });
     };
 
+    /**
+     * 更新聊天室資料
+     * @param chatRoomData
+     */
     const updataChatRooms = (chatRoomData: ChatRoomInterface) => {
         if (Array.isArray(chatrooms) && chatrooms.length > 0) {
             const index = chatrooms?.findIndex((chatroom) => {
@@ -149,7 +157,7 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
             }
             let result: any = [...chatrooms];
             queryUsers.forEach((item: any) => {
-                if (item.id !== serviceChatId) {
+                if (item.id !== serviceChatID) {
                     result = [...result, item.data()];
                 }
             });
@@ -175,7 +183,7 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
             }
             let result: any = [];
             queryUsers.forEach((item: any) => {
-                if (item.id !== serviceChatId) {
+                if (item.id !== serviceChatID) {
                     result = [...result, item.data()];
                 }
             });
@@ -209,6 +217,11 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
             <h1 className="text-md-title font-bold text-center">{t("rightNowActivityJoinProvidersChatRoom.title")}</h1>
             <div className="border border-gray-light rounded-md mt-[40px]">
                 <h3 className="text-lg-content font-semibold text-center py-[16px] border-b border-b-gray-light">{t("rightNowActivityJoinProvidersChatRoom.watingProviders")}</h3>
+                <ServiceChatRoom
+                    lng={lng}
+                    serviceChatID={serviceChatID!}
+                />
+                <h2 className="pl-[15px] mt-[15px] mb-[5px]">服務商</h2>
                 <ul
                     id="scrollableDiv"
                     style={{

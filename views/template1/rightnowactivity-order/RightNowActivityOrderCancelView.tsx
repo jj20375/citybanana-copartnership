@@ -155,7 +155,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            {displayOrder && acceptProviders ? (
+            {displayOrder && acceptProviders && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}

@@ -22,9 +22,22 @@ export async function setToken(request: StoreTokenRequest) {
     if (!isEmpty(request.expiresTime)) {
         console.log("expiresTime =>", dayjs().add(request.expiresTime!, "second").format("YYYY-MM-DD HH:mm:ss"));
     }
-    cookies().set("accessToken", request.token!, {
-        maxAge: request.expiresTime ?? 60 * 60 * 24 * 30,
-        httpOnly: true,
-        path: "/",
-    });
+    try {
+        cookies().set("accessToken", request.token!, {
+            maxAge: request.expiresTime ?? 60 * 60 * 24 * 30,
+            httpOnly: true,
+            path: "/",
+        });
+        console.log("set token api success");
+    } catch (err) {
+        console.log("set token api err =>", err);
+    }
+    // 設定 token 過期時間 refresh token 預留用
+    if (request.expiresTime) {
+        cookies().set("expiresTime", String(request.expiresTime), {
+            maxAge: request.expiresTime ?? 60 * 60 * 24 * 30,
+            httpOnly: true,
+            path: "/",
+        });
+    }
 }

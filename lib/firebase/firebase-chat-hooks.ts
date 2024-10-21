@@ -117,3 +117,45 @@ export const firebaseUpdateUserUnReadMessageCount = async (userID: string, unRea
         return err;
     }
 };
+
+/**
+ * 取得登入者與客服聊天未讀訊息數量統計
+ * @param { type String(字串) } userID 登入使用者id
+ * @param
+ */
+export const firebaseGetUserByServiceChatUnReadMessageCount = async (userID: string) => {
+    const serviceChatID = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
+    try {
+        let serviceChat = await firebaseAPP.doc(`chat_rooms/${userID}/users/${serviceChatID}`).get();
+        // 判斷沒有找到客服聊天對象時 回傳預設值0
+        if (!serviceChat.exists) {
+            return 0;
+        }
+        return serviceChat.data().unReadMessageCount;
+    } catch (err) {
+        console.log("取得登入者與客服聊天未讀訊息數量統計失敗", err);
+        return false;
+    }
+};
+
+/**
+ * 更新登入者與客服聊天室未讀訊息總計數量
+ * @param { type String(字串) } userID 登入使用者id
+ * @returns
+ */
+export const firebaseUpdateUserUnReadMessageCountByServiceChat = async (userID: string) => {
+    // 登入者與客服聊天對象未讀訊息總計數量
+    let serviceChatUnReadCount = await firebaseGetUserByServiceChatUnReadMessageCount(userID);
+    // 取得登入者與客服聊天對象未讀訊息數量綜計失敗時 不往下執行
+    if (serviceChatUnReadCount === false) {
+        console.log("取得客服聊天訊息統計失敗");
+        return;
+    }
+    try {
+        // 更新登入者與客服聊天室未讀訊息總計數量
+        await firebaseAPP.doc(`chat_rooms/${userID}/`).update({ unReadMessageCountByServiceChat: serviceChatUnReadCount, updatedAt: dayjs().valueOf() });
+    } catch (err) {
+        console.log("更新登入者與客服聊天室未讀訊息總計數量失敗", err);
+        return err;
+    }
+};

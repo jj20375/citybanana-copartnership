@@ -16,15 +16,19 @@ interface StoreTokenRequest {
  * @param request
  */
 export async function setClientToken(request: StoreTokenRequest) {
-    console.log("setClientToken =>", request.token);
-    setCookie("accessToken", request.token!, { maxAge: request.expiresTime ?? 60 * 60 * 24 * 30 });
+    setCookie("accessToken", request.token!, { httpOnly: false, maxAge: request.expiresTime ?? 60 * 60 * 24 * 30 });
+    // 設定 token 過期時間 refresh token 預留用
+    if (request.expiresTime) {
+        setCookie("expiresTime", request.expiresTime, { httpOnly: false, maxAge: request.expiresTime });
+    }
 }
 
 /**
  * 設定 firebase 重取時間
  * @param request
  */
-export async function setFirebaseToken(request: StoreTokenRequest) {
+export async function setFirebaseTokenExpriesTime(request: StoreTokenRequest) {
+    // 設定 token 過期時間 refresh token 預留用
     setCookie("expiresFirebaseTokenTime", request.expiresTime, {
         maxAge: request.expiresTime ?? 60 * 60,
         httpOnly: false,

@@ -52,6 +52,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     const dispatch = useAppDispatch();
     const userStore = useAppSelector((state) => state.userStore);
     const chatStore = useAppSelector((state) => state.chatStore);
+    const serviceChatID = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
     // 判斷是否 firebase 登入成功
     const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
     const userID = userBananaIdSelector(userStore);
@@ -161,6 +162,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
             .orderByKey()
             .limitToLast(messageLimit)
             .on("value", async (snapshot: any) => {
+                console.log("getMessages =>", snapshot.val());
                 // 判斷是否有資料
                 if (snapshot && typeof snapshot.val === "function" && snapshot.val() !== null) {
                     // 將物件資料整理成陣列格式
@@ -183,15 +185,26 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
             const doc = await firebaseDbDoc(`chat_rooms/${userID}/users/${receiverID}`).get();
             if (doc.exists) {
                 const userData: UserProfileInterface = doc.data().userData;
-                console.log("get receiver data =>", userData);
-                dispatch(
-                    setChatReceiver({
-                        id: userData.banana_id!,
-                        name: userData.name!,
-                        avatar: userData.thumbnails ? userData.thumbnails?.avatar["360x360"] : "",
-                        readedAt: doc.data().readedAt,
-                    })
-                );
+                if (receiverID === serviceChatID) {
+                    console.log("serviceChatID=>", serviceChatID);
+                    dispatch(
+                        setChatReceiver({
+                            id: userData.banana_id!,
+                            name: userData.name!,
+                            avatar: "/img/logos/logo_type1.svg",
+                            readedAt: doc.data().readedAt,
+                        })
+                    );
+                } else {
+                    dispatch(
+                        setChatReceiver({
+                            id: userData.banana_id!,
+                            name: userData.name!,
+                            avatar: userData.thumbnails ? userData.thumbnails?.avatar["360x360"] : "",
+                            readedAt: doc.data().readedAt,
+                        })
+                    );
+                }
             }
         } catch (err) {
             console.log("getReceiverData err =>", err);
@@ -199,7 +212,6 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     }, []);
 
     useEffect(() => {
-        let unsuscribeMessages: any = null;
         let unsuscribelistenerReceiver: any = null;
         if (userID !== "" && isFirebaseAuth) {
             getReceiverData();

@@ -132,7 +132,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                             enrollerStatus: item.status,
                             job: findJob,
                             providerID: item.user!.banana_id,
-                            orderID: item.dating !== null ? item.dating.order_id : "",
+                            orderID: item.dating !== null && item.dating !== undefined ? item.dating.order_id : "",
                         };
                     })
                     .find((item) => item.providerID === providerID);
