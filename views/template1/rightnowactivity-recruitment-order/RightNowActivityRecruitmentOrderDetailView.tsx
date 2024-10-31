@@ -17,13 +17,14 @@ import RightNowActivityOrderProviderSignUp from "./components/RightNowActivityOr
 import RightNowActivityOrderCancelModal from "./components/RightNowActivityOrderCancelModal";
 // 聯絡我們 ui
 import ContactWe from "../components/ContactWe";
+
 // 即刻快閃總計
 import RightNowActivityOrderTotal from "./components/RightNowActivityOrderTotal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "./rightnowactivity-order-interface";
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
-import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
+import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
+import { getPartnerStoreInfo } from "@/store-toolkit/stores/partnerStore";
 import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum, canCancelRightNowActivityOrderStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
 import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 import { differenceInSeconds } from "date-fns";
@@ -31,6 +32,8 @@ import { usePathname, useRouter } from "next/navigation";
 import dayjs from "dayjs";
 import { firebaseDbCollection } from "@/lib/firebase/firebase-hooks";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
+import RightNowActivityOrderRecruitmentPendingTitle from "./components/RightNowActivityOrderRecruitmentPendingTitle";
+import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 
 /**
  * 即刻快閃報名訂單詳情
@@ -42,10 +45,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
 
     const title = t("rightNowActivityOrderRecruitmentDetail.title");
 
-    // 合作店家資料
-    const partnerStore = useAppSelector((state) => state.partnerStore);
-    // 合作店家名稱
-    const partnerStoreName = usePartnerStoreNameSelector(partnerStore);
+    const dispatch = useAppDispatch();
+
     // userStore
     const userStore = useAppSelector((state) => state.userStore);
     // 使用者 ID
@@ -93,8 +94,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
     // 選擇服務商資料
     const [chooseValues, setChooseValues] = useState([]);
-    // 服務商評論資料
-    const [comments, setComments] = useState<RightNowActivityOrderProviderCommentInterface[]>([]);
     // 判斷是否等待服務商報名中
     const [isWaitProviderApply, setIsWaitProviderApply] = useState(true);
     // 判斷是否顯示連同已經確認的服務商一般訂單一起取消的選擇框
@@ -116,7 +115,9 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const total = useMemo(() => {
         if (order) {
             const price = order.hourly_pay;
-            const duration = order.duration;
+            const duration = order.details.duration;
+            console.log("price =>", price);
+            console.log("duration =>", duration, order);
             if (price === 0) {
                 return t("rightNowActivityOrder.price", { val: price, customPriceByDetail: price });
             }
@@ -140,7 +141,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                 });
                 snapshot.docChanges().forEach(async (change: any) => {
                     if (change.type === "added") {
-                        console.log("新通知: ", change.doc.data());
+                        // console.log("新通知: ", change.doc.data());
                         if (orderID === change.doc.data().details.demand.demand_id) {
                             console.log("work listen notify 4 =>", change.doc.id);
                             await getOrder(orderID);
@@ -172,11 +173,19 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     }, [isFirebaseAuth]);
 
     /**
+     * 取得店家資料
+     */
+    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
+        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
+        return payload;
+    };
+
+    /**
      * 取得訂單資料
      */
-    const getOrder = useCallback(async (data: string) => {
+    const getOrder = async (orderID: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data, params: { with_review: "1" } });
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: orderID, params: { with_review: "1" } });
             // console.log("GetRightNowActivityOrderDetailAPI => ", res);
             const currentDate = new Date();
             const dueAt = res.due_at;
@@ -198,22 +207,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
             setOrder(res);
             // 設定付款方式
             setPaymentMethod(res.paid_by === 1 ? "cash" : "other");
-            setDisplayOrder({
-                datas: [
-                    // 店家資料
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
-                    // 活動開始時間
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at !== null ? dayjs(res.started_at).format("YYYY-MM-DD HH:mm") : null, column: "column-startDate" },
-                    // 特殊需求備註
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
-                    // 服務商需求數量
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
-                    // 活動時長 時數或天數
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
-                    // 付款方式
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: res.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
-                ],
-            });
             // 判斷有服務商報名時觸發
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 /**
@@ -267,6 +260,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         enrollerStatus: item.status,
                         providerID: item.user!.banana_id,
                         comments,
+                        description: item.user!.description,
                     };
                 });
                 setProviders(setDatas);
@@ -275,9 +269,42 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                 // 設定目前非等待服務商報名狀態
                 setIsWaitProviderApply(true);
             }
+            return res;
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
+        }
+    };
+
+    const fetchData = useCallback(async () => {
+        try {
+            const [fetchOrder] = await Promise.all([getOrder(orderID)]);
+            const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
+            console.log("fetchStore =>", fetchStore);
+            if (fetchOrder && fetchStore) {
+                setDisplayOrder({
+                    datas: [
+                        // 店家資料
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: fetchStore.merchant.name, column: "column-store" },
+                        // 活動開始時間
+                        {
+                            label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : fetchOrder.started_at !== null ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : "",
+                            column: "column-startDate",
+                        },
+                        // 特殊需求備註
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement === null ? "" : fetchOrder.requirement, column: "column-note" },
+                        // 服務商需求數量
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
+                        // 活動時長 時數或天數
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
+                        // 付款方式
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
+                    ],
+                });
+            }
+        } catch (err) {
+            console.log("fetchData err=>", err);
         }
     }, []);
 
@@ -289,23 +316,17 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         return 0;
     }, [providers]);
 
-    useEffect(() => {
-        getOrder(orderID);
-    }, []);
+    // 顯示服務商報名區塊
+    const showProviderSignup = useMemo(() => {
+        if (order && (order.status < rightNowActivityOrderStatusByMemberEnum.Rejected || (order.status >= rightNowActivityOrderStatusByMemberEnum.Rejected && Array.isArray(order.enrollers) && order.enrollers.length > 0))) {
+            return true;
+        }
+        return false;
+    }, [order]);
 
     useEffect(() => {
-        setComments(
-            Array.from({ length: 10 }).map((_, i) => ({
-                id: `comment-${i}`,
-                name: "test2-" + i,
-                avatar: `https://picsum.photos/id/${i + 10}/300/300`,
-                rate: 4.5,
-                content:
-                    "Lorem Ipsum，也称乱数假文或者哑元文本， 是印刷及排版领域所常用的虚拟文字。由于曾经一台匿名的打印机刻意打乱了一盒印刷字体从而造出一本字体样品书，Lorem Ipsum从西元15世纪起就被作为此领域的标准文本使用。它不仅延续了五个世纪，还通过了电子排版的挑战，其雏形却依然保存至今。在1960年代，”Leatraset”公司发布了印刷着Lorem Ipsum段落的纸张，从而广泛普及了它的使用。最近，计算机桌面出版软件”Aldus PageMaker”也通过同样的方式使Lorem Ipsum落入大众的视野。",
-                createdAt: "2024/02/25",
-            }))
-        );
-    }, []);
+        fetchData();
+    }, [fetchData]);
 
     useEffect(() => {
         if (displayOrder && Array.isArray(displayOrder.datas)) {
@@ -315,8 +336,9 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
             });
         }
     }, [displayOrder]);
+
     useEffect(() => {
-        console.log("isWaitProviderApply =>", isWaitProviderApply);
+        // 判斷有服務商報名時顯示服務商報名列表
         if ((providers.length > 0 && order) || (!isWaitProviderApply && order)) {
             setRecruitmentContent(
                 <RightNowActivityOrderProviderSignUp
@@ -325,7 +347,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     providers={providers}
                     checkedProviders={checkedProviders}
                     providerRequiredCount={order.provider_required}
-                    isSigleChoose={false}
                     parentValues={chooseValues}
                     setParentValues={setChooseValues}
                     paymentMethod={paymentMethod}
@@ -341,54 +362,53 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         }
     }, [providers, isWaitProviderApply]);
 
-    /**
-     * 因為有時候合作店家 api 還沒有載入到資料
-     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
-     */
-    useEffect(() => {
-        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
-            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
-            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
-            setDisplayOrder(newDatas);
-        }
-    }, [partnerStoreName, displayOrder]);
-
     return (
         <>
             <TitleCompoent title={title} />
             <div className="mx-auto max-w-[400px] mt-[40px]">
+                {/* 倒數計時與狀態標題跟描述 */}
+                {order && (
+                    <RightNowActivityOrderRecruitmentPendingTitle
+                        lng={lng}
+                        order={order}
+                    />
+                )}
                 <RightNowActivityOrderTopContent
                     showButton={true}
                     lng={lng}
                     values={orderTopContent?.datas}
-                    customClass="border-b border-gray-light pb-[30px]"
+                    customClass="border-b border-gray-light pb-[30px] px-5"
                 />
-                {/* 倒數計時區塊 與 選擇服務商報名區塊 */}
-                <RightNowActivityOrderRecruitment
-                    lng={lng}
-                    customClass="mt-[30px] pb-[30px]"
-                    conuntDownSecond={countDownSecond}
-                    render={() => recruitmentContent}
-                />
+                {/* 選擇服務商報名區塊 */}
+                {showProviderSignup && (
+                    <RightNowActivityOrderRecruitment
+                        lng={lng}
+                        customClass="mt-[80px] pb-[30px] px-5"
+                        conuntDownSecond={countDownSecond}
+                        render={() => recruitmentContent}
+                    />
+                )}
+
                 <RightNowActivityOrderPaymentContent
                     lng={lng}
                     values={orderPaymentContent?.datas}
-                    customClass="border-b border-gray-light py-[30px]"
+                    customClass="border-b border-gray-light py-[30px] px-5"
                 />
                 {order && (
                     <RightNowActivityOrderTotal
                         lng={lng}
                         total={total}
                         price={order.hourly_pay}
+                        customClass="px-5"
                     />
                 )}
-                <div className="flex flex-col">
+                <div className="flex flex-col px-5">
                     {/* 判斷是否顯示修改服務商數量按鈕 */}
                     {isShowCancelButton && (
                         <button
                             onClick={openChangeRequiredProviderCountModal}
                             type="button"
-                            className="text-primary border border-primary rounded-md h-[45px] flex items-center justify-center"
+                            className="text-white border bg-primary border-primary rounded-md h-[45px] flex items-center justify-center"
                         >
                             {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
                         </button>
@@ -404,7 +424,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         </button>
                     )}
                 </div>
-                <ContactWe lng={lng} />
                 <div className="h-[123px] w-full"></div>
             </div>
             {/* 增加需求人數確認彈窗 */}

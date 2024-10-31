@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { OrderCancelAPI, RightNowActivityOrderCancelAndCancelAcceptedOrderAPI, RightNowActivityOrderCancelAPI } from "@/api/bookingAPI/bookingAPI";
 import { Spin } from "antd";
 import { LoadingOutlined } from "@ant-design/icons";
+import { useAppSelector } from "@/store-toolkit/storeToolkit";
+import { showApiErrorMethod } from "@/service/utils";
 
 /**
  * 取消活動彈窗 ui
@@ -32,6 +34,9 @@ const RightNowActivityOrderCancelModal = forwardRef(
         ref: any
     ) => {
         const { t } = useTranslation(lng, "main");
+        // 錯誤語系檔
+        const errorMessageLang = useAppSelector((state) => state.utilityStore.errorMessageLang);
+
         const router = useRouter();
         const [open, setOpen] = useState(false);
         const [loading, setLoading] = useState(false);
@@ -115,6 +120,12 @@ const RightNowActivityOrderCancelModal = forwardRef(
                 console.log("RightNowActivityOrderCancelAPI => ", res);
             } catch (err) {
                 console.log("RightNowActivityOrderCancelAPI err => ", err);
+                showApiErrorMethod({
+                    apiErr: err,
+                    errorMessageLang,
+                    lng: lng === "zh-TW" ? "tw" : "en",
+                    globalErrMessage: t("global.apiError"),
+                });
                 throw err;
             } finally {
                 setLoading(false);
@@ -129,6 +140,12 @@ const RightNowActivityOrderCancelModal = forwardRef(
                 console.log("RightNowActivityOrderCancelAndCancelAcceptedOrderAPI => ", res);
             } catch (err) {
                 console.log("RightNowActivityOrderCancelAndCancelAcceptedOrderAPI err => ", err);
+                showApiErrorMethod({
+                    apiErr: err,
+                    errorMessageLang,
+                    lng: lng === "zh-TW" ? "tw" : "en",
+                    globalErrMessage: t("global.apiError"),
+                });
                 throw err;
             } finally {
                 setLoading(false);

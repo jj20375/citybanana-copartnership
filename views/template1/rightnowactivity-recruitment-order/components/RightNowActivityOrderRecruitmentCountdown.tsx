@@ -1,54 +1,49 @@
 import { useState, useRef, useImperativeHandle, forwardRef, useEffect } from "react";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 
 /**
  * 招募截止時間倒數計時
  */
-const RecruitmentCountdown = forwardRef(({ initialSeconds, customClass }: { initialSeconds: number; customClass?: string | void }, ref: any) => {
-    const [seconds, setSeconds] = useState(initialSeconds);
-    const [isCounting, setIsCounting] = useState(true);
-    const timerRef = useRef<any>(null);
+const RecruitmentCountdown = forwardRef(({ targetDate, customClass }: { targetDate: Date; customClass?: string | void }, ref: any) => {
+    dayjs.extend(duration);
 
-    useImperativeHandle(ref, () => ({
-        startCountdown: () => {
-            if (!isCounting) {
-                setIsCounting(true);
+    // 設置倒數的目標時間（可以修改為你想要的時間）
+    const endTime = dayjs(targetDate);
+    const [timeRemaining, setTimeRemaining] = useState("00:00:00");
+    // 用來清除 setInterval 變數
+    const [intervalId, setIntervalId] = useState<null | any>(null);
+
+    const updateCountdown = () => {
+        const now = dayjs();
+        const duration = dayjs.duration(endTime.diff(now));
+
+        // 格式化時間為 時:分:秒
+        const hours = String(duration.hours()).padStart(2, "0");
+        const minutes = String(duration.minutes()).padStart(2, "0");
+        const seconds = String(duration.seconds()).padStart(2, "0");
+
+        setTimeRemaining(`${hours}:${minutes}:${seconds}`);
+
+        // 若倒數結束，則清除計時器
+        if (duration.asMilliseconds() <= 0) {
+            if (intervalId) {
+                clearInterval(intervalId);
             }
-        },
-        cancelCountdown: () => {
-            clearInterval(timerRef.current);
-            setIsCounting(false);
-            setSeconds(initialSeconds); // Reset to initial value
-        },
-    }));
-
-    useEffect(() => {
-        if (isCounting) {
-            timerRef.current = setInterval(() => {
-                setSeconds((prevSeconds) => {
-                    if (prevSeconds <= 1) {
-                        clearInterval(timerRef.current);
-                        setIsCounting(false);
-                        return 0;
-                    }
-                    return prevSeconds - 1;
-                });
-            }, 1000);
+            setTimeRemaining("00:00:00");
         }
-
-        return () => clearInterval(timerRef.current);
-    }, [isCounting]);
-
-    useEffect(() => {
-        setSeconds(initialSeconds);
-    }, [initialSeconds]);
-
-    const formatTime = (sec: number) => {
-        const minutes = Math.floor(sec / 60);
-        const seconds = sec % 60;
-        return `${minutes}:${seconds < 10 ? "0" : ""}${seconds}`;
     };
 
-    return <div className={`${customClass} text-center text-[48px] text-primary`}>{isCounting ? formatTime(seconds) : ""}</div>;
+    useEffect(() => {
+        setIntervalId(setInterval(updateCountdown, 1000));
+        return () => {
+            if (intervalId) {
+                clearInterval(intervalId);
+            }
+        };
+    }, [targetDate]);
+
+    return <div className={`${customClass} text-[28px]`}>{timeRemaining}</div>;
 });
 
 export default RecruitmentCountdown;

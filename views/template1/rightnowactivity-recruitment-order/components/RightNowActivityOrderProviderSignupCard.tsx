@@ -9,20 +9,10 @@ import Image from "next/image";
  */
 const RightNowActivityOrderSignUpCard = memo(({ lng, providerCardData, customClass }: { lng: string; providerCardData: RightNowActivityOrderDetailProviderSigupCardInterface; customClass?: string | void }) => {
     const { t } = useTranslation(lng, "main");
-    const providerInit: string[] = [];
 
-    if (providerCardData.weight) {
-        providerInit.push(providerCardData.age + t("global.age"));
-    }
-    if (providerCardData.weight) {
-        providerInit.push(providerCardData.weight + t("global.weight"));
-    }
-    if (providerCardData.height) {
-        providerInit.push(providerCardData.height + t("global.height"));
-    }
     return (
         <div className={`${customClass} border border-gray-light rounded-md`}>
-            <div className="flex items-center">
+            <div className="flex">
                 <div className="flex-1 relative">
                     <Image
                         className="rounded-tl-md rounded-bl-md object-cover w-full h-full"
@@ -31,15 +21,13 @@ const RightNowActivityOrderSignUpCard = memo(({ lng, providerCardData, customCla
                         height={300}
                         alt="provider logo"
                     />
-                    <div className="absolute bottom-0 PrimaryGradient rounded-bl-md w-full text-white h-[25px] flex items-center leading-none justify-center text-[11px]">
-                        {t("global.price", { val: providerCardData.price }) + t("global.moneyUnit")} / {t("global.priceUnit.hour")}
-                    </div>
                 </div>
-                <div className="flex-1 px-[10px]">
-                    <div className="flex items-center mb-[8px]">
+                <div className="flex-1 px-[10px] mt-2 flex-col flex">
+                    <div className="mb-[8px]">
+                        {/* <pre>{JSON.stringify(providerCardData, null, 4)}</pre> */}
                         <h5 className="pr-5 text-lg-content font-bold text-gray-primary">{providerCardData.name}</h5>
                         {providerCardData.rate && (
-                            <>
+                            <div className="flex items-start mt-2">
                                 <span className="pr-[2.5px]">
                                     <Image
                                         src="/img/icons/rate.svg"
@@ -49,30 +37,23 @@ const RightNowActivityOrderSignUpCard = memo(({ lng, providerCardData, customCla
                                         style={{ width: "10px", height: "auto" }}
                                     />
                                 </span>
-                                <span className="text-[12px] text-gray-primary font-bold">{providerCardData.rate}</span>
-                            </>
+                                <span className="text-[12px] text-gray-primary font-bold leading-none">{providerCardData.rate}</span>
+                            </div>
+                        )}
+                        {providerCardData.isNowTime ? (
+                            <p className="line-clamp-3 text-xs-content text-gray-primary mt-[7px]">{t("rightNowActivityOrderRecruitmentDetail.recruitment.providerTravelTime", { val: providerCardData.travelTime ? providerCardData.travelTime : "" })}</p>
+                        ) : (
+                            <p className="line-clamp-3 text-xs-content text-gray-primary mt-[7px]">{providerCardData.description}</p>
                         )}
                     </div>
-                    <ul className="flex text-[8px]">
-                        {providerInit.map((item, index) => (
-                            <li
-                                key={item}
-                                className={`${index === providerInit.length - 1 ? "pl-2" : "border-r pr-2"} ${index % 2 !== 0 ? "pl-2" : ""} text-[#535353]`}
-                            >
-                                {item}
-                            </li>
-                        ))}
-                    </ul>
-                    <p className="line-clamp-4 text-xs-content text-gray-primary mt-[7px]">{providerCardData.description}</p>
-                    {providerCardData.isNowTime && (
-                        <div className="flex text-xs-content font-bold mt-[7px]">
-                            <p className="text-gray-primary flex-1">{t("rightNowActivityOrderRecruitmentDetail.recruitment.travelTime")}</p>
-                            <p className="text-primary flex-1 text-right">
-                                {providerCardData.travelTime}
-                                {t("global.minute")}
-                            </p>
+                    <div className="text-[10px] flex-grow-0 h-full flex items-end font-bold mb-2">
+                        <div className="flex items-center">
+                            <span className="text-primary">{t("rightNowActivityOrder.price", { val: providerCardData.price }) + t("global.moneyUnit")} </span>
+                            <span className="mx-1">/</span>
+                            <span>{t("global.priceUnit.hour")}</span>
+                            <button className="bg-primary text-white rounded w-[78px] h-[25px] ml-2">選擇</button>
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </div>

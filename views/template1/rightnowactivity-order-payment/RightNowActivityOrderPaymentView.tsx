@@ -25,13 +25,14 @@ import PaymentMethodsRadio from "../components/PaymentMethodsRadio";
 import CreditCardListRadio from "../components/CreditCardListRadio";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
 import { GetCreditCardListAPI, UpdateUserProfileAPI } from "@/api/userAPI/userAPI";
-import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByCreditCardAPI, RightNowActivityOrderCreateByOtherAPI } from "@/api/bookingAPI/bookingAPI";
+import { RightNowActivityOrderCancelAPI, RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByCreditCardAPI, RightNowActivityOrderCreateByOtherAPI } from "@/api/bookingAPI/bookingAPI";
 import { RightNowActivityOrderCreateByCashAPIReqInterface, RightNowActivityOrderCreateByOtherAPIReqInterface } from "@/api/bookingAPI/bookingAPI-interfce";
 import { CreditCardDataInterface } from "@/interface/global";
 import type { RightNowActivityOrderCreateByCreditCardAPIReqInterface } from "@/api/bookingAPI/bookingCreditCarAPI-interface";
 import { message } from "antd";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
+    const router = useRouter();
     const title = t("rightNowActivityOrderPayment.title");
     const dispatch = useAppDispatch();
 
@@ -166,6 +167,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             const res = await RightNowActivityOrderCreateByCashAPI(data);
             // 設定即刻快閃id
             setOrderID(res.demand.demand_id);
+            onNextStepButtonClick();
         } catch (err) {
             showApiErrorMethod({
                 apiErr: err,
@@ -187,6 +189,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const chooseCreditCardCreateOrder = async (data: RightNowActivityOrderCreateByCreditCardAPIReqInterface) => {
         try {
             const res = await RightNowActivityOrderCreateByCreditCardAPI(data);
+            onNextStepButtonClick();
             console.log("RightNowActivityOrderCreateByCreditCardAPI => ", res);
         } catch (err) {
             showApiErrorMethod({
@@ -199,23 +202,46 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             throw err;
         }
     };
+
+    /**
+     * 取消即刻快閃單
+     */
+    const cancelOrder = async (orderID: string) => {
+        try {
+            await RightNowActivityOrderCancelAPI(orderID);
+        } catch (err) {
+            showApiErrorMethod({
+                apiErr: err,
+                errorMessageLang,
+                lng: lng === "zh-TW" ? "tw" : "en",
+                globalErrMessage: t("global.apiError"),
+            });
+            console.log("RightNowActivityOrderCancelAPI err => ", err);
+            throw err;
+        }
+    };
     /**
      * 使用非現金付款開單
      */
     const orderCreateByOtherMethod = async (data: RightNowActivityOrderCreateByOtherAPIReqInterface) => {
         try {
             const res = await RightNowActivityOrderCreateByOtherAPI(data);
+            console.log("orderCreateByOtherMethod => ", res);
             // 設定即刻快閃id
             setOrderID(res.demand.demand_id);
             // 判斷有顯示新增信用卡表單時才觸發 代表為新增信用卡付款模式
+            console.log("showCreditCardForm =>", showCreditCardForm);
             if (showCreditCardForm) {
+                // 因為要等待 api 跑完 所以等待 1秒後 再打下一隻 api
                 setTimeout(() => {
                     createCreditCardUseCreateOrder();
                 }, 1000);
                 return;
             }
+
             // 判斷使用指定信用卡開單才觸發
             if (creditCardChooseValue !== "create" && showChooseCreditCardDom && typeof creditCardChooseValue === "string") {
+                // 因為要等待 api 跑完 所以等待 1秒後 再打下一隻 api
                 setTimeout(() => {
                     chooseCreditCardCreateOrder({ demand_id: res.demand.demand_id, credit_card_id: creditCardChooseValue, is_default: false });
                 }, 1000);
@@ -263,6 +289,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         if (isVisitor) {
             await updateUserProfile({ name: data.payment.contactName!, gender: data.payment.gender! });
         }
+        console.log("paymentMethodValue =>", paymentMethodValue);
         if (paymentMethodValue === "cash") {
             await orderCreateByCashMethod(sendData);
             // onNextStepButtonClick();
@@ -277,7 +304,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
     };
 
-    const router = useRouter();
     const onNextStepButtonClick = () => {
         reset();
         const origin = window.location.origin;
@@ -383,12 +409,6 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             return;
         }
     }, [paymentMethodValue, showChooseCreditCard, creditCardChooseValue]);
-
-    useEffect(() => {
-        if (orderID !== "") {
-            onNextStepButtonClick();
-        }
-    }, [orderID]);
 
     // 監聽店家名稱有更動時觸發 因為 ajax 會有延遲
     useEffect(() => {

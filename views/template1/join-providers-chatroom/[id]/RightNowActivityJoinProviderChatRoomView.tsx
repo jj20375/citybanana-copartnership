@@ -242,7 +242,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     }
                     dispatch(setChatReceiver(setReceiverData));
                     // 判斷當前聊天對象時有未讀訊息時 要清空未讀訊息
-                    if (snapshot.data().unReadMessageCount > 0) {
+                    if (snapshot.data().unReadMessageCount > 0 && receiverID !== serviceChatID) {
                         // 取得指定對象中所有聊天對象未讀訊息總計
                         let userUnReadMessageCount: number | boolean = await firebaseGetChatRoomUnReadMessageCountTotal(userID);
                         /**

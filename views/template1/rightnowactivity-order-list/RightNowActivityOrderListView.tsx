@@ -8,7 +8,7 @@ import { tmc } from "@/service/utils";
 import { GetRightNowActivityOrderListAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import dayjs from "dayjs";
 import { GetOrderListAPI } from "@/api/orderAPI.ts/orderAPI";
-import { rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/order-enum";
+import { orderStatusByMemberEnum } from "@/status-enum/order-enum";
 import { useRouter } from "next/navigation";
 
 export default function OrderListView({ lng, status }: { lng: string; status: string }) {
@@ -97,11 +97,11 @@ export default function OrderListView({ lng, status }: { lng: string; status: st
         }
         // 取得進行中一般訂單列表
         if (status === "starting") {
-            getOrderList({ status: [rightNowActivityOrderStatusByMemberEnum.InProgress], limit: 100 });
+            getOrderList({ status: [orderStatusByMemberEnum.InProgress], limit: 100 });
         }
         // 取得待赴約一般訂單列表
         if (status === "waiting") {
-            getOrderList({ status: [rightNowActivityOrderStatusByMemberEnum.Confirmed], limit: 100 });
+            getOrderList({ status: [orderStatusByMemberEnum.Confirmed], limit: 100 });
         }
         setCurrentTab(status);
     }, [status]);

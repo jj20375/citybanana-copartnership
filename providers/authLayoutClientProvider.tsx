@@ -84,6 +84,7 @@ export default function DefaultLayoutClient({ user, configurationSettingsData, c
                 });
             });
         }
+
         // 判斷有店家代碼時 取得店家資料
         if (getCookie("merchantCode")) {
             dispatch(getPartnerStoreInfo({ merchantCode: getCookie("merchantCode")!, venueCode: getCookie("venueCode")! }));

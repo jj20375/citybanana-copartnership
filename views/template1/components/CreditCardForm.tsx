@@ -10,6 +10,7 @@ import { formatCardExpiryDate, formatCardNumber, isEmpty } from "@/service/utils
 import { useCallback, useEffect, useState, forwardRef, useImperativeHandle } from "react";
 import styles from "@/styles/CreditCardForm.module.scss";
 import { RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI } from "@/api/bookingAPI/bookingAPI";
+import { useSearchParams, useRouter } from "next/navigation";
 /**
  * 信用卡表單 ui
  * @param { type String(字串) } lng 語系
@@ -18,6 +19,7 @@ import { RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI } from "@
 
 const CreditCardForm = forwardRef(({ lng, required, customClass, orderID }: { lng: string; required: boolean; customClass?: string | void; orderID: string }, ref: any) => {
     const { t } = useTranslation(lng, "main");
+    const router = useRouter();
 
     type FormValues = CreditCardDataInterface;
 
@@ -159,6 +161,11 @@ const CreditCardForm = forwardRef(({ lng, required, customClass, orderID }: { ln
         // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
     };
 
+    const onNextStepButtonClick = () => {
+        reset();
+        router.push(`/rightnowactivity-recruitment-order/${orderID}`);
+    };
+
     /**
      * 使用新增信用卡建立即刻快閃單
      */
@@ -171,8 +178,10 @@ const CreditCardForm = forwardRef(({ lng, required, customClass, orderID }: { ln
             is_default: true,
         };
         console.log("sendData =>", sendData);
+
         try {
             const data = await RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI(sendData);
+            onNextStepButtonClick();
             console.log("RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI =>", data);
         } catch (err) {
             console.log("RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI err =>", err);

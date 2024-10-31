@@ -485,6 +485,8 @@ export interface Details {
 export interface Merchant {
     merchant_id: number;
     venue_id: number;
+    merchant_code: string;
+    venue_code: string;
     [property: string]: any;
 }
 

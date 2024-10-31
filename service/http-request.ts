@@ -42,7 +42,7 @@ export default async function useMyFetch(url: string, options: any) {
             console.log("http false", resData.status, json);
             // return;
             // throw json;
-            throw { json };
+            throw { ...json };
         }
     } catch (err: any) {
         // if (err) {

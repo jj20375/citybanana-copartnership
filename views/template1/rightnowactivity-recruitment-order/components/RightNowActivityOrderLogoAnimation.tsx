@@ -23,7 +23,7 @@ const RightNowActivityOrderRecruitmentLogoAnimation = memo(({ lng, customClass }
                     <span className={`absolute inline-flex w-full h-full bg-red-200 rounded-full ${styles.ping2}`}></span>
                     <span className={`absolute inline-flex w-full h-full bg-red-200 rounded-full ${styles.ping3}`}></span>
                 </div>
-                <h5 className="animate-pulse text-primary text-sm-title font-semibold text-center">{t("rightNowActivityOrderRecruitmentDetail.recruitment.waitProvider")}</h5>
+                <h5 className="animate-pulse text-gray-primary text-sm-title font-semibold text-center">{t("rightNowActivityOrderRecruitmentDetail.recruitment.waitProvider")}</h5>
             </div>
         </div>
     );

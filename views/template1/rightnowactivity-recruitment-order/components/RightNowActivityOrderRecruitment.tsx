@@ -12,13 +12,7 @@ const RightNowActivityOrderRecruitment = memo(({ lng, customClass, render, conun
     const { t } = useTranslation(lng, "main");
     const title = t("rightNowActivityOrderRecruitmentDetail.recruitment.title") + "：";
 
-    return (
-        <div className={`${customClass}`}>
-            {conuntDownSecond > 0 && <h6 className="text-lg-content text-gray-secondary text-center">{title}</h6>}
-            {conuntDownSecond > 0 && <RecruitmentCountdown initialSeconds={conuntDownSecond} />}
-            {render ? render() : null}
-        </div>
-    );
+    return <div className={`${customClass}`}>{render ? render() : null}</div>;
 });
 
 export default RightNowActivityOrderRecruitment;

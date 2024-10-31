@@ -2,7 +2,6 @@
 import { lazy, Suspense } from "react";
 import { GetUserProfileAPI } from "@/api/userAPI/userAPI";
 import { GetConfigurationSetingsAPI, GetClientUiSettingsAPI } from "@/api/utilsAPI";
-import { GetPartnerStoreInfoAPI } from "@/api/partnerStoreAPI/partnerStoreAPI";
 import AuthLayoutClientProvider from "@/providers/authLayoutClientProvider";
 import { cookies, headers } from "next/headers";
 
@@ -61,17 +60,6 @@ export default async function AuthLayoutServerProvider({ children }: { children:
         }
     }
 
-    // async function getPartnerStoreInfo() {
-    //     if (merchantCode) {
-    //         try {
-    //             const data = await GetPartnerStoreInfoAPI({ merchantCode, venueCode });
-    //             console.log("getPartnerStoreInfoAPI Data =>", data);
-    //         } catch (error) {
-    //             console.log("merchantCode =>", merchantCode);
-    //             console.error("getPartnerStoreInfoAPI error =>", error);
-    //         }
-    //     }
-    // }
     // 前台顯示設定
     const clientUiSettings = await getClientUiSettings();
     // 重新整理 token 避免過期

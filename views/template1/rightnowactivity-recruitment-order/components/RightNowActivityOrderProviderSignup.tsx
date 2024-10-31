@@ -9,6 +9,9 @@ import RightNowActivityOrderProviderCarouselModal from "./RightNowActivityOrderP
 // 確認付款彈窗
 import RightNowActivityOrderConfirmPaymentModal from "./RightNowActivityOrderConfirmPaymentModal";
 import { rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
+import Image from "next/image";
+import styles from "../styles/RightNowActivityOrderRecruitmentLogoAnimation.module.scss";
+import { tmc } from "@/service/utils";
 /**
  * 服務商申請加入即刻快閃活動區塊 ui
  */
@@ -19,7 +22,6 @@ const RightNowActivityOrderProviderSignUp = memo(
         providers,
         checkedProviders,
         providerRequiredCount,
-        isSigleChoose,
         parentValues,
         setParentValues,
         paymentMethod,
@@ -29,7 +31,6 @@ const RightNowActivityOrderProviderSignUp = memo(
         providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
         checkedProviders: number;
         providerRequiredCount: number;
-        isSigleChoose: boolean;
         parentValues: string[];
         setParentValues: Function;
         paymentMethod: string;
@@ -91,6 +92,7 @@ const RightNowActivityOrderProviderSignUp = memo(
 
         return (
             <>
+                {/* 已接受服務商列表  */}
                 {Array.isArray(acceptProviders) && acceptProviders.length > 0 && (
                     <div className="mb-5">
                         <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.confirmed-acceptProviders", { val: checkedProviders })}</h5>
@@ -104,82 +106,35 @@ const RightNowActivityOrderProviderSignUp = memo(
                         ))}
                     </div>
                 )}
-                {isSigleChoose ? (
-                    <div>
-                        {Array.isArray(unchooseProviders) && (
-                            <>
-                                <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
-                                <Radio.Group
-                                    onChange={onChange}
-                                    value={value}
+                {/* 未選擇服務商列表  */}
+                <div>
+                    {Array.isArray(unchooseProviders) && (
+                        <>
+                            <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
+
+                            {unchooseProviders.map((data, index) => (
+                                <div
+                                    key={data.id + "-" + "more1"}
+                                    onClick={openProviderCarouselModal}
                                 >
-                                    {unchooseProviders.map((data, index) => (
-                                        <Radio
-                                            value={data.id}
-                                            key={data.id + "-" + "single"}
-                                        >
-                                            <div
-                                                onClick={openProviderCarouselModal}
-                                                key={data.id + "-" + "single1"}
-                                            >
-                                                <RightNowActivityOrderSignUpCard
-                                                    customClass={`${index !== unchooseProviders.length - 1 && "mb-[15px]"}`}
-                                                    lng={lng}
-                                                    providerCardData={data}
-                                                />
-                                            </div>
-                                        </Radio>
-                                    ))}
-                                    <RightNowActivityOrderProviderCarouselModal
-                                        ref={chooseProviderCarouseModalRef}
+                                    <RightNowActivityOrderSignUpCard
+                                        customClass={`${index !== unchooseProviders.length - 1 && "mb-[15px]"}`}
                                         lng={lng}
-                                        providerIds={[value]}
-                                        setProviderIds={setValue}
-                                        providers={unchooseProviders}
+                                        providerCardData={data}
                                     />
-                                </Radio.Group>
-                            </>
-                        )}
-                    </div>
-                ) : (
-                    <div>
-                        {Array.isArray(unchooseProviders) && (
-                            <>
-                                <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
-                                <Checkbox.Group
-                                    style={{ width: "100%" }}
-                                    value={values}
-                                    onChange={onChangeValues}
-                                >
-                                    {unchooseProviders.map((data, index) => (
-                                        <Checkbox
-                                            value={data.id}
-                                            key={data.id + "-" + "more"}
-                                        >
-                                            <div
-                                                key={data.id + "-" + "more1"}
-                                                onClick={openProviderCarouselModal}
-                                            >
-                                                <RightNowActivityOrderSignUpCard
-                                                    customClass={`${index !== unchooseProviders.length - 1 && "mb-[15px]"}`}
-                                                    lng={lng}
-                                                    providerCardData={data}
-                                                />
-                                            </div>
-                                        </Checkbox>
-                                    ))}
-                                    <RightNowActivityOrderProviderCarouselModal
-                                        ref={chooseProviderCarouseModalRef}
-                                        lng={lng}
-                                        providerIds={values}
-                                        setProviderIds={setValues}
-                                        providers={unchooseProviders}
-                                    />
-                                </Checkbox.Group>
-                            </>
-                        )}
-                    </div>
-                )}
+                                </div>
+                            ))}
+                            <RightNowActivityOrderProviderCarouselModal
+                                ref={chooseProviderCarouseModalRef}
+                                lng={lng}
+                                providerIds={values}
+                                setProviderIds={setValues}
+                                providers={unchooseProviders}
+                            />
+                        </>
+                    )}
+                </div>
+                {/* 被婉拒服務商列表  */}
                 {Array.isArray(rejectedProviders) && rejectedProviders.length > 0 && (
                     <>
                         <div className="mb-5">
@@ -206,13 +161,17 @@ const RightNowActivityOrderProviderSignUp = memo(
                         />
                     </>
                 )}
-                <div className="flex justify-center text-[15px] mt-[30px]">
-                    <p className="mr-2 text-gray-primary">{t("rightNowActivityOrderRecruitmentDetail.recruitment.needRequiredProviderCount", { val: providerRequiredCount })},</p>
-                    <p className="text-gray-primary">
-                        {t("rightNowActivityOrderRecruitmentDetail.recruitment.confirmed")}
-                        <span className="mx-2 text-primary">{checkedProviders}</span>
-                        {t("global.people")}
-                    </p>
+
+                <div className="flex items-center justify-center mt-[24px]">
+                    <Image
+                        src="/img/rightNowActivity/waiting-provider-signup.png"
+                        width={30}
+                        height={30}
+                        style={{ width: "30px", height: "auto" }}
+                        alt="Waiting provider signup"
+                        className={tmc(["mr-2", styles.spin])}
+                    />
+                    <p className="font-bold text-gray-primary text-lg-content">{t("rightNowActivityOrderRecruitmentDetail.recruitment.waitingForOtherProviderSignup")}</p>
                 </div>
                 <div
                     className="my-[15px]"
@@ -229,7 +188,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                     ref={paymentConfirmModalRef}
                     lng={lng}
                     providers={providers}
-                    providerIds={isSigleChoose ? [value] : values}
+                    providerIds={values}
                     orderID={orderID}
                     paymentMethod={paymentMethod}
                 />

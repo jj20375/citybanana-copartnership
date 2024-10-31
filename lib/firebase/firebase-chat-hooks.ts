@@ -125,6 +125,7 @@ export const firebaseUpdateUserUnReadMessageCount = async (userID: string, unRea
  */
 export const firebaseGetUserByServiceChatUnReadMessageCount = async (userID: string) => {
     const serviceChatID = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
+    console.log("firebaseGetUserByServiceChatUnReadMessageCount serviceChatID =>", serviceChatID);
     try {
         let serviceChat = await firebaseAPP.doc(`chat_rooms/${userID}/users/${serviceChatID}`).get();
         // 判斷沒有找到客服聊天對象時 回傳預設值0

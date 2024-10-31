@@ -30,6 +30,13 @@
         "sendMessage": "傳送訊息",
         "apiError": "系統內部錯誤"
     },
+    "footer": {
+        "menus": {
+            "menu_1": "即刻快閃",
+            "menu_2": "聯絡我們",
+            "menu_3": "訂單"
+        }
+    },
     "provider": {
         "us": "個人介紹",
         "responseRate": "活動回應率",
@@ -193,12 +200,18 @@
         "button-addRequiredProviderCount": "增加活動需求人數",
         "recruitment": {
             "title": "招募時間剩餘",
-            "waitProvider": "等待服務商報名中",
+            "dueAtDescription": "服務商須於 {{val}} 前完成報名",
+            "waitProvider": "正在等待服務商報名中",
             "label-changeRequiredProviderCount": "活動需求人數更改為",
             "changeRequiredProviderCount-modalDescription": "更改後招募將重新倒數",
             "travelTime": "抵達目的地需",
             "needRequiredProviderCount": "活動需求人數 {{val}} 人",
-            "confirmed": "已確認"
+            "confirmed": "已確認",
+            "totalNote": "實際金額以成立訂單為主",
+            "waitingForOtherProviderSignup": "正在等待其他服務商報名中...",
+            "rejectedForProviderSignup": "本場活動無人報名或超過可選擇時間",
+            "activeOrder": "即刻快閃訂單已成立，祝福您的活動一切順利",
+            "providerTravelTime": "服務商預計到達時間 {{ val }} 分鐘"
         },
         "cancel": {
             "description": "確定要讓此活動停止報名嗎？",
@@ -279,5 +292,14 @@
         "status_acceptOrderByProvider": "接受預訂，很高興參與您的活動，我們那時見",
         "status_startDating": "預訂的行程開始囉！讓我們在城市中追求美好的時刻",
         "completeDating": "您的行程結束囉！歡迎幫我評分，謝謝您 !!祝福您有個美好的一天"
+    },
+    "rightNowActivityOrderStatus": {
+        "rightNowActivityOrderStatusByMemberEnum": {
+            "0": "開放報名中",
+            "1": "報名額滿",
+            "2": "報名截止",
+            "-1": "活動取消",
+            "-2": "活動已完成"
+        }
     }
 }

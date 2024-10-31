@@ -54,7 +54,7 @@ export const partnerSlice = createSlice({
             // 取得合作店家 api 資料中
             .addCase(getPartnerStoreInfo.pending, (state) => {})
             // 取得合作店家 api 成功事件
-            .addCase(getPartnerStoreInfo.fulfilled, (state, action) => {
+            .addCase(getPartnerStoreInfo.fulfilled, (state, action): GetPartnerStoreInfoAPIResInterface => {
                 state.partnerStoreInfo = action.payload;
                 if (action.payload) {
                     if (action.payload.merchant && action.payload.merchant.code) {
@@ -64,6 +64,7 @@ export const partnerSlice = createSlice({
                         setCookie("venueCode", action.payload.venue.code);
                     }
                 }
+                return state.payload;
             })
             // 取得合作店家 api 失敗事件
             .addCase(getPartnerStoreInfo.rejected, (state, action) => {
