@@ -167,7 +167,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             const res = await RightNowActivityOrderCreateByCashAPI(data);
             // 設定即刻快閃id
             setOrderID(res.demand.demand_id);
-            onNextStepButtonClick();
+            return res;
         } catch (err) {
             showApiErrorMethod({
                 apiErr: err,
@@ -189,7 +189,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const chooseCreditCardCreateOrder = async (data: RightNowActivityOrderCreateByCreditCardAPIReqInterface) => {
         try {
             const res = await RightNowActivityOrderCreateByCreditCardAPI(data);
-            onNextStepButtonClick();
+            onNextStepButtonClick(res.demand.demand_id);
             console.log("RightNowActivityOrderCreateByCreditCardAPI => ", res);
         } catch (err) {
             showApiErrorMethod({
@@ -286,13 +286,14 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
             is_x: false,
             duration: order?.duration!,
         };
+        // 判斷是初始訪客 沒有帳號情況下需要更新使用者資料
         if (isVisitor) {
             await updateUserProfile({ name: data.payment.contactName!, gender: data.payment.gender! });
         }
         console.log("paymentMethodValue =>", paymentMethodValue);
         if (paymentMethodValue === "cash") {
-            await orderCreateByCashMethod(sendData);
-            // onNextStepButtonClick();
+            const res = await orderCreateByCashMethod(sendData);
+            onNextStepButtonClick(res.demand.demand_id);
             return;
         }
         await orderCreateByOtherMethod(sendData);
@@ -304,7 +305,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
     };
 
-    const onNextStepButtonClick = () => {
+    const onNextStepButtonClick = (orderID: string) => {
         reset();
         const origin = window.location.origin;
         const params = new URLSearchParams(order as any).toString();
