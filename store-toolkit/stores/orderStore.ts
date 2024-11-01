@@ -4,16 +4,31 @@ import type { RootState } from "../storeToolkit";
 // collection 陣列 中指定 key 找到陣列資料方法
 import * as _ from "lodash";
 
+interface OrderStore {
+    // 即刻快閃開單設定值
+    rightNowActivityConfiguration: { [property: string]: any }[] | [];
+    // 選擇報名服務商名單 id
+    chooseProviders: string[] | [];
+}
+
+const initialState: OrderStore = {
+    // 即刻快閃開單設定值
+    rightNowActivityConfiguration: [],
+    // 選擇報名服務商名單 id
+    chooseProviders: [],
+};
+
 export const orderSlice = createSlice({
     name: "orderSlice",
-    initialState: {
-        // 即刻快閃開單設定值
-        rightNowActivityConfiguration: [],
-    },
+    initialState,
     reducers: {
         // 設定即刻快閃開單設定值資料
         setRightNowActivityConfiguration: (state, action: PayloadAction<any>) => {
             state.rightNowActivityConfiguration = action.payload;
+        },
+        // 設定報名服務商名單
+        setChooseProviders: (state, action: PayloadAction<string[]>) => {
+            state.chooseProviders = action.payload;
         },
     },
 });
@@ -82,5 +97,5 @@ export const rightNowActivityDefaultHourPriceSelector = createDraftSafeSelector(
 // 即刻快閃每天單價選項
 export const rightNowActivityDefaultDayPriceSelector = createDraftSafeSelector(selectRightNowActivityConfiguration, (state) => JSON.parse(_.find(state, { key: "demand_default_day_price" }).value));
 
-export const { setRightNowActivityConfiguration } = orderSlice.actions;
+export const { setRightNowActivityConfiguration, setChooseProviders } = orderSlice.actions;
 export const orderReducer = orderSlice.reducer;

@@ -10,15 +10,19 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { useRouter, useSearchParams } from "next/navigation";
 import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "../rightnowactivity-order-interface";
 import { RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI } from "@/api/bookingAPI/bookingAPI";
+import { useAppSelector } from "@/store-toolkit/storeToolkit";
 
 /**
  * 確認付款彈窗 ui
  */
-const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, paymentMethod, providers, providerIds }: { lng: string; orderID: string; paymentMethod: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; providerIds?: string[] | void }, ref) => {
+const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, paymentMethod, providers }: { lng: string; orderID: string; paymentMethod: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[] }, ref) => {
     const router = useRouter();
     const { t } = useTranslation(lng, "main");
     const [loading, setLoading] = useState(false);
     const [open, setOpen] = useState(false);
+
+    const chooseProviders: string[] = useAppSelector((state) => state.orderStore.chooseProviders);
+
     useImperativeHandle(ref, () => ({
         openModal: () => {
             setOpen(true);
@@ -47,14 +51,14 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, pay
 
     // 選擇服務商名稱
     const chooseNames = useMemo(() => {
-        if (Array.isArray(providerIds)) {
+        if (Array.isArray(chooseProviders) && chooseProviders.length > 0) {
             return providers
-                .filter((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => providerIds.includes(provider.id as string))
+                .filter((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => chooseProviders.includes(provider.id as string))
                 .map((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => provider.name)
                 .join(", ");
         }
         return "";
-    }, [providerIds]);
+    }, [chooseProviders]);
 
     const {
         register,
@@ -137,10 +141,10 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, pay
     };
 
     useEffect(() => {
-        if (Array.isArray(providerIds)) {
-            setValue("form.providerIds", providerIds);
+        if (Array.isArray(chooseProviders)) {
+            setValue("form.providerIds", chooseProviders);
         }
-    }, [providerIds]);
+    }, [chooseProviders]);
 
     useEffect(() => {
         if (creditCard3DVerifyForm !== "" && creditCard3DVerifyForm.length > 2) {
@@ -196,7 +200,7 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, pay
             >
                 <div className="text-[#1E1E1E] text-[15px]">
                     <span>{t("paymentConfirm.confirm-1")}</span>
-                    {Array.isArray(providerIds) && <strong className="text-primary">「{chooseNames}」</strong>}
+                    {Array.isArray(chooseProviders) && <strong className="text-primary">「{chooseNames}」</strong>}
                     <span>{t("paymentConfirm.confirm-2")}</span>
                     <p>{t("paymentConfirm.confirm-3")}</p>
                 </div>

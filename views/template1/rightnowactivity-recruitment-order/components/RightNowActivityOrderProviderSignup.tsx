@@ -12,45 +12,18 @@ import { rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnow
 import Image from "next/image";
 import styles from "../styles/RightNowActivityOrderRecruitmentLogoAnimation.module.scss";
 import { tmc } from "@/service/utils";
+import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
+import { setChooseProviders } from "@/store-toolkit/stores/orderStore";
 /**
  * 服務商申請加入即刻快閃活動區塊 ui
  */
 const RightNowActivityOrderProviderSignUp = memo(
-    ({
-        lng,
-        orderID,
-        providers,
-        checkedProviders,
-        providerRequiredCount,
-        parentValues,
-        setParentValues,
-        paymentMethod,
-    }: {
-        lng: string;
-        orderID: string;
-        providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
-        checkedProviders: number;
-        providerRequiredCount: number;
-        parentValues: string[];
-        setParentValues: Function;
-        paymentMethod: string;
-    }) => {
+    ({ lng, orderID, providers, checkedProviders, providerRequiredCount, paymentMethod }: { lng: string; orderID: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; checkedProviders: number; providerRequiredCount: number; paymentMethod: string }) => {
         const { t } = useTranslation(lng, "main");
 
-        const [value, setValue] = useState(parentValues[0]);
+        const dispatch = useAppDispatch();
+        const chooseProviders = useAppSelector((state) => state.orderStore.chooseProviders);
 
-        const onChange = (e: RadioChangeEvent) => {
-            console.log("radio checked", e.target.value);
-            setValue(e.target.value);
-            setParentValues([e.target.value]);
-        };
-
-        const [values, setValues] = useState<string[]>(parentValues);
-        const onChangeValues = (checkedValues: string[]) => {
-            console.log("checked = ", checkedValues);
-            setValues(checkedValues);
-            setParentValues(checkedValues);
-        };
         // 選擇服務商彈窗 dom
         const chooseProviderCarouseModalRef = useRef<any>();
 
@@ -87,8 +60,16 @@ const RightNowActivityOrderProviderSignUp = memo(
         }, [providers]);
 
         const disabledChooseButton = useMemo(() => {
-            return (unchooseProviders && unchooseProviders.length === 0) || (values.length === 0 && value !== "") || (value === "" && values.length !== 0);
-        }, [unchooseProviders, value, values]);
+            return chooseProviders.length === 0;
+        }, [chooseProviders]);
+
+        // 判斷是否為現金付款
+        const isCashPay = useMemo(() => {
+            if (paymentMethod === "cash") {
+                return true;
+            }
+            return false;
+        }, [paymentMethod]);
 
         return (
             <>
@@ -101,7 +82,9 @@ const RightNowActivityOrderProviderSignUp = memo(
                                 key={data.id + "-" + "checkedProviders"}
                                 customClass={`${index !== acceptProviders.length - 1 && "mb-[15px]"}`}
                                 lng={lng}
+                                isCashPay={isCashPay}
                                 providerCardData={data}
+                                openProviderCarouselModal={openProviderCarouselModal}
                             />
                         ))}
                     </div>
@@ -113,22 +96,19 @@ const RightNowActivityOrderProviderSignUp = memo(
                             <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
 
                             {unchooseProviders.map((data, index) => (
-                                <div
-                                    key={data.id + "-" + "more1"}
-                                    onClick={openProviderCarouselModal}
-                                >
+                                <div key={data.id + "-" + "more1"}>
                                     <RightNowActivityOrderSignUpCard
                                         customClass={`${index !== unchooseProviders.length - 1 && "mb-[15px]"}`}
                                         lng={lng}
+                                        isCashPay={isCashPay}
                                         providerCardData={data}
+                                        openProviderCarouselModal={openProviderCarouselModal}
                                     />
                                 </div>
                             ))}
                             <RightNowActivityOrderProviderCarouselModal
                                 ref={chooseProviderCarouseModalRef}
                                 lng={lng}
-                                providerIds={values}
-                                setProviderIds={setValues}
                                 providers={unchooseProviders}
                             />
                         </>
@@ -147,7 +127,9 @@ const RightNowActivityOrderProviderSignUp = memo(
                                     <RightNowActivityOrderSignUpCard
                                         customClass={`${index !== rejectedProviders.length - 1 && "mb-[15px]"}`}
                                         lng={lng}
+                                        isCashPay={isCashPay}
                                         providerCardData={data}
+                                        openProviderCarouselModal={openProviderCarouselModal}
                                     />
                                 </div>
                             ))}
@@ -155,8 +137,6 @@ const RightNowActivityOrderProviderSignUp = memo(
                         <RightNowActivityOrderProviderCarouselModal
                             ref={chooseProviderCarouseModalRef}
                             lng={lng}
-                            providerIds={values}
-                            setProviderIds={setValues}
                             providers={rejectedProviders}
                         />
                     </>
@@ -188,7 +168,6 @@ const RightNowActivityOrderProviderSignUp = memo(
                     ref={paymentConfirmModalRef}
                     lng={lng}
                     providers={providers}
-                    providerIds={values}
                     orderID={orderID}
                     paymentMethod={paymentMethod}
                 />

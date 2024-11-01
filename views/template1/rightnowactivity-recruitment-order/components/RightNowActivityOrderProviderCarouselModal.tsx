@@ -22,7 +22,7 @@ import { Icon } from "@iconify/react";
 /**
  * 選擇服務商彈窗 ui
  */
-const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(({ lng, providers, providerIds, setProviderIds }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; providerIds?: string[] | void; setProviderIds: Function }, ref: any) => {
+const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(({ lng, providers }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[] }, ref: any) => {
     const { t } = useTranslation(lng, "main");
     const [open, setOpen] = useState(false);
     useImperativeHandle(ref, () => ({

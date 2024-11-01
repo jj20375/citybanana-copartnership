@@ -92,8 +92,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const displayOrderPaymentKeys = ["column-requiredProviderCount", "column-price", "column-duration", "column-paymentMethod"];
     // 報名服務商
     const [providers, setProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
-    // 選擇服務商資料
-    const [chooseValues, setChooseValues] = useState([]);
     // 判斷是否等待服務商報名中
     const [isWaitProviderApply, setIsWaitProviderApply] = useState(true);
     // 判斷是否顯示連同已經確認的服務商一般訂單一起取消的選擇框
@@ -104,6 +102,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const [countDownSecond, setCountDownSecond] = useState<number>(0);
     // 設定付款方式
     const [paymentMethod, setPaymentMethod] = useState<string>("");
+    // 選擇報名服務商名單
+    const chooseProviders = useAppSelector((state) => state.orderStore.chooseProviders);
 
     const [recruitmentContent, setRecruitmentContent] = useState(
         <RightNowActivityOrderLogoAnimation
@@ -229,7 +229,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     // 職業
                     const findJob = Array.isArray(item.user!.occupation) && item.user!.occupation.length > 0 ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
                     // 判斷是否為快閃皇后
-                    const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
+                    const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 1) !== undefined : false;
                     // 評論
                     const comments: RightNowActivityOrderProviderCommentInterface[] | null = Array.isArray(item.user?.dating_reviews)
                         ? item.user.dating_reviews.map((data) => {
@@ -243,7 +243,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         : null;
 
                     return {
-                        id: item.id!,
+                        id: String(item.id)!,
+                        banana_id: item.user!.banana_id,
                         name: item.user!.name!,
                         cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
                         rate: item.user!.rating_score!,
@@ -347,8 +348,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     providers={providers}
                     checkedProviders={checkedProviders}
                     providerRequiredCount={order.provider_required}
-                    parentValues={chooseValues}
-                    setParentValues={setChooseValues}
                     paymentMethod={paymentMethod}
                 />
             );

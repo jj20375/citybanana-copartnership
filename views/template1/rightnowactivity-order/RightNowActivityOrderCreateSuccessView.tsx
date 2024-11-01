@@ -146,10 +146,11 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 setIsShowCancelAcceptedOrderConfirm(res.enrollers.some((item) => item.status === rightNowActivityOrderEnrollersStatusEnum.Confirmed));
 
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
-                    const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 0) !== undefined : false;
+                    const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 1) !== undefined : false;
                     console.log("item.user!.occupation =>", item.user!.occupation);
                     return {
-                        id: item.id!,
+                        id: String(item.id!),
+                        banana_id: item.user!.banana_id!,
                         name: item.user!.name!,
                         cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
                         rate: item.user!.rating_score!,

@@ -14,7 +14,8 @@ export interface RightNowActivityOrderDetailTopContentInterface {
  * 即刻快閃服務商報名卡片樣式資料
  */
 export interface RightNowActivityOrderDetailProviderSigupCardInterface {
-    id: number | string;
+    id: string;
+    banana_id: string;
     name: string;
     // 封面圖
     cover: string;
