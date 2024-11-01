@@ -344,6 +344,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
             setRecruitmentContent(
                 <RightNowActivityOrderProviderSignUp
                     lng={lng}
+                    orderStatus={order.status}
                     orderID={order.demand_id}
                     providers={providers}
                     checkedProviders={checkedProviders}

@@ -8,7 +8,7 @@ import { Checkbox, GetProp, Radio, type RadioChangeEvent } from "antd";
 import RightNowActivityOrderProviderCarouselModal from "./RightNowActivityOrderProviderCarouselModal";
 // 確認付款彈窗
 import RightNowActivityOrderConfirmPaymentModal from "./RightNowActivityOrderConfirmPaymentModal";
-import { rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
+import { rightNowActivityOrderEnrollersStatusEnum, rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/rightnowactivity-order-enum";
 import Image from "next/image";
 import styles from "../styles/RightNowActivityOrderRecruitmentLogoAnimation.module.scss";
 import { tmc } from "@/service/utils";
@@ -18,7 +18,23 @@ import { setChooseProviders } from "@/store-toolkit/stores/orderStore";
  * 服務商申請加入即刻快閃活動區塊 ui
  */
 const RightNowActivityOrderProviderSignUp = memo(
-    ({ lng, orderID, providers, checkedProviders, providerRequiredCount, paymentMethod }: { lng: string; orderID: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; checkedProviders: number; providerRequiredCount: number; paymentMethod: string }) => {
+    ({
+        lng,
+        orderID,
+        orderStatus,
+        providers,
+        checkedProviders,
+        providerRequiredCount,
+        paymentMethod,
+    }: {
+        lng: string;
+        orderID: string;
+        orderStatus: number;
+        providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
+        checkedProviders: number;
+        providerRequiredCount: number;
+        paymentMethod: string;
+    }) => {
         const { t } = useTranslation(lng, "main");
 
         const dispatch = useAppDispatch();
@@ -45,19 +61,73 @@ const RightNowActivityOrderProviderSignUp = memo(
         const [unchooseProviders, setUnchooseProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
         // 被拒絕的服務商
         const [rejectedProviders, setRejectedPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
+        // 已選擇服務商
+        const [virtualChooseProviders, setVirtualChooseProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
+        /**
+         * 只處理現金付款選人時情況
+         */
         useEffect(() => {
-            if (Array.isArray(providers)) {
-                // 取得已接受報名服務商資料
-                const accept = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Confirmed);
+            // 取得已接受報名服務商資料
+            const accept = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Confirmed);
+            // 取得未接受報名服務商資料
+            const unchoose = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.UnConfirmed);
+            // 取得被拒絕的服務商資料
+            const rejected = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Rejected);
+            // 只有現金付款時觸發
+            if (Array.isArray(providers) && paymentMethod === "cash") {
                 setAcceptPrviders(accept);
-                // 取得未接受報名服務商資料
-                const unchoose = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.UnConfirmed);
                 setUnchooseProviders(unchoose);
-                // 取得被拒絕的服務商資料
-                const rejected = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Rejected);
                 setRejectedPrviders(rejected);
+                return;
             }
-        }, [providers]);
+            // 非現金單只在非報名狀態時觸發
+            if (paymentMethod !== "cash" && orderStatus !== rightNowActivityOrderStatusByMemberEnum.Pending) {
+                setAcceptPrviders(accept);
+                setUnchooseProviders(unchoose);
+                setRejectedPrviders(rejected);
+                return;
+            }
+        }, [providers, paymentMethod]);
+
+        /**
+         * 只處理非現金付款時選人時情況
+         * 此機制只在報名狀態時觸發 且 是非現金單情況
+         * 因為需要模擬 『預先選擇服務商列表』 以及『未選擇服務商列表』
+         * 現金單情況使用者狀態 會立即被資料庫更新為以選中
+         */
+        useEffect(() => {
+            // 報名服務商列表非陣列時 不觸發
+            if (!Array.isArray(providers)) {
+                return;
+            }
+            // 等於現金付款時不觸發 因為現金付款時 服務商報名狀態都會被即時更新在資料庫
+            if (paymentMethod === "cash") {
+                return;
+            }
+
+            // 取得已接受報名服務商資料
+            const accept = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Confirmed);
+            // 取得未接受報名服務商資料
+            const unchoose = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.UnConfirmed);
+            // 取得被拒絕的服務商資料
+            const rejected = providers.filter((item) => item.enrollerStatus === rightNowActivityOrderEnrollersStatusEnum.Rejected);
+            // 不等於報名狀態時 不觸發 且 未選中服務商等於報名服務商數量時 代表沒有任何人被選中或被婉拒
+            if (unchoose.length === providers.length) {
+                setUnchooseProviders(unchoose);
+            }
+            // 判斷選中的服務商數量大於 0 時觸發
+            if (chooseProviders.length > 0) {
+                if (Array.isArray(providers)) {
+                    // 虛擬選擇狀態 因為非現金單會是全部選擇完才開單
+                    const virtualChooseProviders = providers.filter((item) => chooseProviders.some((chooseID) => chooseID === item.id));
+                    setVirtualChooseProviders(virtualChooseProviders);
+                    // 虛擬非選擇狀態 因為非現金單會是全部選擇完才開單
+                    const virtualUnChooseProviders = providers.filter((item) => chooseProviders.some((chooseID) => chooseID !== item.id));
+                    setUnchooseProviders(virtualUnChooseProviders);
+                    console.log("virtualChooseProviders =>", virtualChooseProviders.length, virtualUnChooseProviders.length, providers.length);
+                }
+            }
+        }, [chooseProviders, orderStatus, paymentMethod]);
 
         const disabledChooseButton = useMemo(() => {
             return chooseProviders.length === 0;
@@ -73,6 +143,25 @@ const RightNowActivityOrderProviderSignUp = memo(
 
         return (
             <>
+                {/* 已選擇服務商列表(虛擬選擇 還沒走到真正付款選擇)  */}
+                {Array.isArray(virtualChooseProviders) && virtualChooseProviders.length > 0 && (
+                    <div className="mb-5">
+                        <h5 className="text-lg-content font-bold mb-2">
+                            <span className="text-primary">{virtualChooseProviders.length}</span>
+                            {t("rightNowActivityOrderDetail.confirmed-virtualChooseProviders")}
+                        </h5>
+                        {virtualChooseProviders.map((data, index) => (
+                            <RightNowActivityOrderSignUpCard
+                                key={data.id + "-" + "checkedProviders"}
+                                customClass={`${index !== virtualChooseProviders.length - 1 && "mb-[15px]"}`}
+                                lng={lng}
+                                isCashPay={isCashPay}
+                                providerCardData={data}
+                                openProviderCarouselModal={openProviderCarouselModal}
+                            />
+                        ))}
+                    </div>
+                )}
                 {/* 已接受服務商列表  */}
                 {Array.isArray(acceptProviders) && acceptProviders.length > 0 && (
                     <div className="mb-5">

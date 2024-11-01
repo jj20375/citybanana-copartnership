@@ -239,6 +239,7 @@
         "title-success": "您的訂單已成立",
         "title-cancel": "您的訂單已取消",
         "confirmed-acceptProviders": "已接受 {{val}} 位服務商",
+        "confirmed-virtualChooseProviders": "位服務商已選擇",
         "unchoose-providers": "{{val}} 位服務商等待選擇中"
     },
     "rightNowActivityOrderCancel": {
