@@ -22,7 +22,7 @@ import ContactWe from "../components/ContactWe";
 import RightNowActivityOrderTotal from "./components/RightNowActivityOrderTotal";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { type RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "./rightnowactivity-order-interface";
-import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
+import { GetRightNowActivityOrderDetailAPI, GetRightNowActivityOrderPaidAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { getPartnerStoreInfo } from "@/store-toolkit/stores/partnerStore";
 import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum, canCancelRightNowActivityOrderStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
@@ -36,6 +36,7 @@ import RightNowActivityOrderRecruitmentPendingTitle from "./components/RightNowA
 import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 // 信用卡付款按鈕 常駐下方
 import RightNowActivityOrderPaymentByCreditCardFooter from "./components/RightNowActivityOrderPaymentByCreditCardFooter";
+import RightNowActivityOrderConfirmPaymentModal from "./components/RightNowActivityOrderConfirmPaymentModal";
 
 /**
  * 即刻快閃報名訂單詳情
@@ -62,6 +63,13 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     // 開啟修改服務商人數彈窗
     const openChangeRequiredProviderCountModal = () => {
         changeRequiredProviderCountRef.current.openModal();
+    };
+
+    // 付款彈窗 dom
+    const paymentConfirmModalRef = useRef<any>(null);
+    // 開啟付款彈窗
+    const openPaymentConfirmModal = () => {
+        paymentConfirmModalRef.current.openModal();
     };
 
     // 取消活動彈窗 dom
@@ -114,12 +122,17 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         />
     );
 
-    const total = useMemo(() => {
+    // 非等待報名狀態顯示總額
+    const [totalByConfirmations, setTotalByConfirmations] = useState("0");
+
+    // 等待報名中總計
+    const totalByPending = useMemo(() => {
         if (order) {
+            if (order.status !== rightNowActivityOrderStatusByMemberEnum.Pending) {
+                // return await getRightNowActivityOrderPaymentTotal(order.demand_id);
+            }
             const price = order.hourly_pay;
             const duration = order.details.duration;
-            console.log("price =>", price);
-            console.log("duration =>", duration, order);
             if (price === 0) {
                 return t("rightNowActivityOrder.price", { val: price, customPriceByDetail: price });
             }
@@ -201,11 +214,11 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                 setIsWaitProviderApply(false);
             }
             /**
-             * 活動還沒開始狀態 0,1
-             * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中 或 等於 1 報名額滿 時
+             * 活動還沒開始狀態 0
+             * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中
              * 扔然可以讓他取消單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
              */
-            setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending, canCancelRightNowActivityOrderStatusEnum.RegistrationFull].includes(res.status));
+            setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending].includes(res.status));
             setOrder(res);
             // 設定付款方式
             setPaymentMethod(res.paid_by === 1 ? "cash" : "other");
@@ -217,7 +230,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                  * 單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
                  */
                 if (!isShowCancelButton) {
-                    setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
+                    // setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
                 }
                 /**
                  * 判斷是否顯示已經確認的服務商在取消活動時
@@ -278,11 +291,24 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         }
     };
 
+    /**
+     * 取得即刻快閃訂單付款總金額 (只在非報名狀態下取得)
+     */
+    const getRightNowActivityOrderPaymentTotal = async (orderID: string) => {
+        try {
+            const res = await GetRightNowActivityOrderPaidAPI(orderID);
+            setTotalByConfirmations(t("rightNowActivityOrder.price", { val: res.amount }));
+            return res.amount;
+        } catch (err) {
+            console.log("GetRightNowActivityOrderPaidAPI err => ", err);
+            throw err;
+        }
+    };
+
     const fetchData = useCallback(async () => {
         try {
             const [fetchOrder] = await Promise.all([getOrder(orderID)]);
             const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
-            console.log("fetchStore =>", fetchStore);
             if (fetchOrder && fetchStore) {
                 setDisplayOrder({
                     datas: [
@@ -305,6 +331,10 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     ],
                 });
             }
+            // 判斷是非報名狀態時 取得訂單總計
+            if (fetchOrder.status !== rightNowActivityOrderStatusByMemberEnum.Pending) {
+                await getRightNowActivityOrderPaymentTotal(fetchOrder.demand_id);
+            }
         } catch (err) {
             console.log("fetchData err=>", err);
         }
@@ -322,6 +352,14 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
     const showProviderSignup = useMemo(() => {
         if (order && (order.status < rightNowActivityOrderStatusByMemberEnum.Rejected || (order.status >= rightNowActivityOrderStatusByMemberEnum.Rejected && Array.isArray(order.enrollers) && order.enrollers.length > 0))) {
             return true;
+        }
+        return false;
+    }, [order]);
+
+    // 顯示訂單活動報名結束已確認金額
+    const showTotalByConfirmations = useMemo(() => {
+        if (order) {
+            return order.status !== rightNowActivityOrderStatusByMemberEnum.Pending;
         }
         return false;
     }, [order]);
@@ -389,16 +427,25 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         render={() => recruitmentContent}
                     />
                 )}
-
                 <RightNowActivityOrderPaymentContent
                     lng={lng}
                     values={orderPaymentContent?.datas}
                     customClass="border-b border-gray-light py-[30px] px-5"
                 />
-                {order && (
+                {/* 報名狀態時 訂單總計 */}
+                {order && !showTotalByConfirmations && (
                     <RightNowActivityOrderTotal
                         lng={lng}
-                        total={total}
+                        total={totalByPending}
+                        price={order.hourly_pay}
+                        customClass="px-5"
+                    />
+                )}
+                {/* 非報名狀態時 訂單總計 */}
+                {order && showTotalByConfirmations && (
+                    <RightNowActivityOrderTotal
+                        lng={lng}
+                        total={totalByConfirmations}
                         price={order.hourly_pay}
                         customClass="px-5"
                     />
@@ -437,14 +484,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     ref={changeRequiredProviderCountRef}
                 />
             )}
-            {/* 非現金付款常駐下方付款按鈕 */}
-            {paymentMethod !== "cash" && order && (
-                <RightNowActivityOrderPaymentByCreditCardFooter
-                    lng={lng}
-                    duration={order.details.duration}
-                    providers={providers}
-                />
-            )}
             {/* 取消活動確認彈窗 */}
             {order && (
                 <RightNowActivityOrderCancelModal
@@ -455,6 +494,25 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
                     isShowCancelAcceptedOrderConfirm={isShowCancelAcceptedOrderConfirm}
                     ref={cancelOrderModalRef}
+                />
+            )}
+            {/* 非現金付款常駐下方付款按鈕 */}
+            {paymentMethod !== "cash" && order && isShowCancelButton ? (
+                <RightNowActivityOrderPaymentByCreditCardFooter
+                    lng={lng}
+                    duration={order.details.duration}
+                    providers={providers}
+                    openPaymentConfirmModal={openPaymentConfirmModal}
+                />
+            ) : null}
+            {/* 付款確認彈窗 */}
+            {order && (
+                <RightNowActivityOrderConfirmPaymentModal
+                    ref={paymentConfirmModalRef}
+                    lng={lng}
+                    providers={providers}
+                    orderID={order.demand_id}
+                    paymentMethod={paymentMethod}
                 />
             )}
         </>

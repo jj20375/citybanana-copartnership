@@ -15,6 +15,7 @@ import styles from "../styles/RightNowActivityOrderChangeRequiredProviderCountMo
 import { Trans } from "react-i18next";
 import { ChangeRightNowActivityProviderRequiredAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { ChangeRightNowActivityProviderRequiredAPIReqInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
+import { showApiErrorMethod } from "@/service/utils";
 const { Option } = Select;
 
 /**
@@ -28,6 +29,9 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
         };
     };
     const { t } = useTranslation(lng, "main");
+    // 錯誤語系檔
+    const errorMessageLang = useAppSelector((state) => state.utilityStore.errorMessageLang);
+
     const [loading, setLoading] = useState(false);
     const state = useAppSelector((state) => state.orderStore);
     const [open, setOpen] = useState(false);
@@ -114,6 +118,12 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
             setOpen(false);
             onNextStepButtonClick();
         } catch (err) {
+            showApiErrorMethod({
+                apiErr: err,
+                errorMessageLang,
+                lng: lng === "zh-TW" ? "tw" : "en",
+                globalErrMessage: t("global.apiError"),
+            });
             console.log("ChangeRightNowActivityProviderRequiredAPI err =>", err);
             throw err;
         } finally {
@@ -162,7 +172,6 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
                             {t("global.cancel")}
                         </button>
                         <ButtonBorderGradient
-                            onClick={onSubmit}
                             buttonText={t("global.confirm")}
                             outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
                             insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}

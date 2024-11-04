@@ -52,19 +52,12 @@ const RightNowActivityOrderProviderSignUp = memo(
             chooseProviderCarouseModalRef.current.openModal();
         };
 
-        // 付款彈窗 dom
-        const paymentConfirmModalRef = useRef<any>(null);
-        // 開啟付款彈窗
-        const openPaymentConfirmModal = () => {
-            paymentConfirmModalRef.current.openModal();
-        };
-
         // 已接受報名服務商
         const [acceptProviders, setAcceptPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
         // 未選擇報名服務商
         const [unchooseProviders, setUnchooseProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
         // 被拒絕的服務商
-        const [rejectedProviders, setRejectedPrviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
+        const [rejectedProviders, setRejectedProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>();
         // 已選擇服務商
         const [virtualChooseProviders, setVirtualChooseProviders] = useState<RightNowActivityOrderDetailProviderSigupCardInterface[]>([]);
         /**
@@ -81,14 +74,15 @@ const RightNowActivityOrderProviderSignUp = memo(
             if (Array.isArray(providers) && paymentMethod === "cash") {
                 setAcceptPrviders(accept);
                 setUnchooseProviders(unchoose);
-                setRejectedPrviders(rejected);
+                setRejectedProviders(rejected);
                 return;
             }
             // 非現金單只在非報名狀態時觸發
             if (paymentMethod !== "cash" && orderStatus !== rightNowActivityOrderStatusByMemberEnum.Pending) {
                 setAcceptPrviders(accept);
                 setUnchooseProviders(unchoose);
-                setRejectedPrviders(rejected);
+                console.log("rejected =>", rejected);
+                setRejectedProviders(rejected);
                 return;
             }
         }, [providers, paymentMethod, orderStatus]);
@@ -147,6 +141,13 @@ const RightNowActivityOrderProviderSignUp = memo(
             return false;
         }, [paymentMethod]);
 
+        // 顯示等待報名中 icon 與描述
+        const showWaitingProviderSignup = useMemo(() => {
+            return orderStatus === rightNowActivityOrderStatusByMemberEnum.Pending;
+        }, [orderStatus]);
+
+        // ��示報名按���
+
         // 選擇服務商-非現金支付方式 (呼叫子組件)
         const chooseProviderByOtherPayMethod = (providerID: string) => {
             if (signupCardRef) {
@@ -157,7 +158,8 @@ const RightNowActivityOrderProviderSignUp = memo(
         const RenderChooseProviderButtonByOtherPayment = (proderID: string) => (
             <button
                 onClick={() => chooseProviderByOtherPayMethod(proderID)}
-                className="bg-primary text-white rounded w-[78px] h-[25px] ml-2"
+                className="bg-primary text-white rounded w-[78px] h-[25px] ml-2 DisabledBg"
+                disabled={chooseProviders.length === providerRequiredCount}
             >
                 {t("global.choose")}
             </button>
@@ -241,7 +243,10 @@ const RightNowActivityOrderProviderSignUp = memo(
                 {/* 已接受服務商列表(付款完成)  */}
                 {Array.isArray(acceptProviders) && acceptProviders.length > 0 && (
                     <div className="mb-5">
-                        <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.confirmed-acceptProviders", { val: checkedProviders })}</h5>
+                        <h5 className="text-lg-content font-bold mb-2">
+                            <strong className="text-primary">{acceptProviders.length}</strong>
+                            {t("rightNowActivityOrderDetail.confirmed-acceptProviders")}
+                        </h5>
                         {acceptProviders.map((data, index) => (
                             <RightNowActivityOrderSignUpCard
                                 key={data.id + "-" + "checkedProviders"}
@@ -258,9 +263,12 @@ const RightNowActivityOrderProviderSignUp = memo(
                 )}
                 {/* 未選擇服務商列表  */}
                 <div>
-                    {Array.isArray(unchooseProviders) && (
+                    {Array.isArray(unchooseProviders) && unchooseProviders.length > 0 && (
                         <>
-                            <h5 className="text-lg-content font-bold mb-2">{t("rightNowActivityOrderDetail.unchoose-providers", { val: unchooseProviders.length })}</h5>
+                            <h5 className="text-lg-content font-bold mb-2">
+                                <strong className="text-primary">{unchooseProviders.length}</strong>
+                                {t("rightNowActivityOrderDetail.unchoose-providers")}
+                            </h5>
 
                             {unchooseProviders.map((data, index) => (
                                 <div key={data.id + "-" + "more1"}>
@@ -296,8 +304,13 @@ const RightNowActivityOrderProviderSignUp = memo(
                     )}
                 </div>
                 {/* 被婉拒服務商列表  */}
+
                 {Array.isArray(rejectedProviders) && rejectedProviders.length > 0 && (
                     <>
+                        <h5 className="text-lg-content font-bold mb-2">
+                            <strong className="text-primary">{rejectedProviders.length}</strong>
+                            {t("rightNowActivityOrderDetail.rejected-providers")}
+                        </h5>
                         <div className="mb-5">
                             {rejectedProviders.map((data, index) => (
                                 <div
@@ -325,36 +338,19 @@ const RightNowActivityOrderProviderSignUp = memo(
                     </>
                 )}
 
-                <div className="flex items-center justify-center mt-[24px]">
-                    <Image
-                        src="/img/rightNowActivity/waiting-provider-signup.png"
-                        width={30}
-                        height={30}
-                        style={{ width: "30px", height: "auto" }}
-                        alt="Waiting provider signup"
-                        className={tmc(["mr-2", styles.spin])}
-                    />
-                    <p className="font-bold text-gray-primary text-lg-content">{t("rightNowActivityOrderRecruitmentDetail.recruitment.waitingForOtherProviderSignup")}</p>
-                </div>
-                <div
-                    className="my-[15px]"
-                    onClick={openPaymentConfirmModal}
-                >
-                    <button
-                        className="PrimaryGradient h-[45px] w-full rounded-md text-white DisabledGradient"
-                        disabled={disabledChooseButton}
-                    >
-                        {t("global.choose")}
-                    </button>
-                </div>
-
-                <RightNowActivityOrderConfirmPaymentModal
-                    ref={paymentConfirmModalRef}
-                    lng={lng}
-                    providers={providers}
-                    orderID={orderID}
-                    paymentMethod={paymentMethod}
-                />
+                {showWaitingProviderSignup && (
+                    <div className="flex items-center justify-center mt-[24px]">
+                        <Image
+                            src="/img/rightNowActivity/waiting-provider-signup.png"
+                            width={30}
+                            height={30}
+                            style={{ width: "30px", height: "auto" }}
+                            alt="Waiting provider signup"
+                            className={tmc(["mr-2", styles.spin])}
+                        />
+                        <p className="font-bold text-gray-primary text-lg-content">{t("rightNowActivityOrderRecruitmentDetail.recruitment.waitingForOtherProviderSignup")}</p>
+                    </div>
+                )}
             </>
         );
     }
