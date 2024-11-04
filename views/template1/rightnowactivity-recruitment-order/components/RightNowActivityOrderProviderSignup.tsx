@@ -122,12 +122,16 @@ const RightNowActivityOrderProviderSignUp = memo(
             // 判斷選中的服務商數量大於 0 時觸發 且為報名狀態時才觸發
             if (chooseProviders.length > 0 && Array.isArray(providers) && orderStatus === rightNowActivityOrderStatusByMemberEnum.Pending) {
                 // 虛擬選擇狀態 因為非現金單會是全部選擇完才開單
-                const virtualChooseProviders = providers.filter((item) => chooseProviders.some((chooseID) => chooseID === item.id));
+                const virtualChooseProviders = providers.filter((item) => chooseProviders.includes(item.id as never));
                 setVirtualChooseProviders(virtualChooseProviders);
                 // 虛擬非選擇狀態 因為非現金單會是全部選擇完才開單
-                const virtualUnChooseProviders = providers.filter((item) => chooseProviders.some((chooseID) => chooseID !== item.id));
+                const virtualUnChooseProviders = providers.filter((item) => !chooseProviders.includes(item.id as never));
                 setUnchooseProviders(virtualUnChooseProviders);
-                console.log("virtualChooseProviders =>", virtualChooseProviders.length, virtualUnChooseProviders.length, providers.length);
+            }
+            //判斷當沒有選擇服務商時(未付款但是為選擇狀態) 且為報名狀態時觸發
+            if (chooseProviders.length === 0 && orderStatus === rightNowActivityOrderStatusByMemberEnum.Pending) {
+                // 清空已選擇服務商(未付款但是為選擇狀態)
+                setVirtualChooseProviders([]);
             }
         }, [chooseProviders, orderStatus, paymentMethod]);
 
@@ -343,6 +347,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                         {t("global.choose")}
                     </button>
                 </div>
+
                 <RightNowActivityOrderConfirmPaymentModal
                     ref={paymentConfirmModalRef}
                     lng={lng}

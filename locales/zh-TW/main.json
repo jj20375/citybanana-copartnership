@@ -30,7 +30,8 @@
         "count": "次",
         "sendMessage": "傳送訊息",
         "apiError": "系統內部錯誤",
-        "viewOrder": "查看訂單"
+        "viewOrder": "查看訂單",
+        "confirmPayment": "確認付款"
     },
     "footer": {
         "menus": {

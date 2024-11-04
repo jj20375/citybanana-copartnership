@@ -34,6 +34,8 @@ import { firebaseDbCollection } from "@/lib/firebase/firebase-hooks";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 import RightNowActivityOrderRecruitmentPendingTitle from "./components/RightNowActivityOrderRecruitmentPendingTitle";
 import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
+// 信用卡付款按鈕 常駐下方
+import RightNowActivityOrderPaymentByCreditCardFooter from "./components/RightNowActivityOrderPaymentByCreditCardFooter";
 
 /**
  * 即刻快閃報名訂單詳情
@@ -433,6 +435,14 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     currentProviderCount={order.provider_required}
                     getOrder={getOrder}
                     ref={changeRequiredProviderCountRef}
+                />
+            )}
+            {/* 非現金付款常駐下方付款按鈕 */}
+            {paymentMethod !== "cash" && order && (
+                <RightNowActivityOrderPaymentByCreditCardFooter
+                    lng={lng}
+                    duration={order.details.duration}
+                    providers={providers}
                 />
             )}
             {/* 取消活動確認彈窗 */}

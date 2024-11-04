@@ -68,6 +68,8 @@ const RightNowActivityOrderSignUpCard = forwardRef(
          * @returns
          */
         const otherPayMethodUnchooseProvider = (prodviderID: string) => {
+            const filterProviders = chooseProviders.filter((provider) => provider !== prodviderID);
+            dispatch(setChooseProviders(filterProviders));
             return;
         };
         /**
