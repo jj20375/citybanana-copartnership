@@ -140,7 +140,6 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                     const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 1) !== undefined : false;
                     return {
                         id: String(item.id!),
-                        banana_id: item.user!.banana_id,
                         name: item.user!.name!,
                         cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
                         rate: item.user!.rating_score!,

@@ -244,7 +244,6 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
 
                     return {
                         id: String(item.id)!,
-                        banana_id: item.user!.banana_id,
                         name: item.user!.name!,
                         cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
                         rate: item.user!.rating_score!,

@@ -191,6 +191,7 @@ const CreditCardForm = forwardRef(({ lng, required, customClass, orderID }: { ln
 
     useImperativeHandle(ref, () => ({
         onSubmit: async () => {
+            // 觸發表單驗證
             const result = await trigger();
             if (result) {
                 await createRightNowActivityOrderUseNewCreditCard();

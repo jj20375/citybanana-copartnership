@@ -2,7 +2,6 @@
 import { useState, useMemo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import type { OrderLisItemtInterface, RightNowActivityOrderListItemInterface } from "../rightnowactivity-order-list-interface";
-import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "../../rightnowactivity-recruitment-order/rightnowactivity-order-interface";
 import Image from "next/image";
 import { tmc } from "@/service/utils";
 import { Icon } from "@iconify/react/dist/iconify.js";

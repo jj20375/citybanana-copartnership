@@ -189,7 +189,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
     const chooseCreditCardCreateOrder = async (data: RightNowActivityOrderCreateByCreditCardAPIReqInterface) => {
         try {
             const res = await RightNowActivityOrderCreateByCreditCardAPI(data);
-            onNextStepButtonClick(res.demand.demand_id);
+            onNextStepButtonClick(data.demand_id);
             console.log("RightNowActivityOrderCreateByCreditCardAPI => ", res);
         } catch (err) {
             showApiErrorMethod({

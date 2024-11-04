@@ -3,7 +3,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { RightNowActivityOrderListItem, OrderListItem } from "./components/RightNowActivityOrderListItem";
 import type { RightNowActivityOrderListItemInterface, OrderLisItemtInterface } from "./rightnowactivity-order-list-interface";
-import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "../rightnowactivity-recruitment-order/rightnowactivity-order-interface";
 import { tmc } from "@/service/utils";
 import { GetRightNowActivityOrderListAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import dayjs from "dayjs";

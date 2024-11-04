@@ -14,8 +14,8 @@ export interface RightNowActivityOrderDetailTopContentInterface {
  * 即刻快閃服務商報名卡片樣式資料
  */
 export interface RightNowActivityOrderDetailProviderSigupCardInterface {
+    // enrolls 表 id 用來取得即刻快閃報名服務商對應資料
     id: string;
-    banana_id: string;
     name: string;
     // 封面圖
     cover: string;
@@ -49,7 +49,7 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     description: string;
     // 服務商被選擇狀態 status = 0 未選擇 status = 1 已選擇
     enrollerStatus: number;
-    // 服務商 ID
+    // 服務商 banana_id
     providerID?: string;
     // 一般訂單 ID
     orderID?: string;

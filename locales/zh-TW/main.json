@@ -25,10 +25,12 @@
         "height": "公分",
         "weight": "公斤",
         "choose": "選擇",
+        "cancelChoose": "取消選擇",
         "moneyUnit": "元",
         "count": "次",
         "sendMessage": "傳送訊息",
-        "apiError": "系統內部錯誤"
+        "apiError": "系統內部錯誤",
+        "viewOrder": "查看訂單"
     },
     "footer": {
         "menus": {
