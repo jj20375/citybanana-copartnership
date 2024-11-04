@@ -16,6 +16,8 @@ export interface RightNowActivityOrderDetailTopContentInterface {
 export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     // enrolls 表 id 用來取得即刻快閃報名服務商對應資料
     id: string;
+    // 判斷服務商是否有一般預訂單
+    haveDating: boolean;
     name: string;
     // 封面圖
     cover: string;

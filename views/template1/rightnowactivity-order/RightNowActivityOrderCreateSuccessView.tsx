@@ -150,6 +150,8 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                     console.log("item.user!.occupation =>", item.user!.occupation);
                     return {
                         id: String(item.id!),
+                        // 判斷服務商是否有預訂單
+                        haveDating: item.dating !== null ? true : false,
                         name: item.user!.name!,
                         cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
                         rate: item.user!.rating_score!,

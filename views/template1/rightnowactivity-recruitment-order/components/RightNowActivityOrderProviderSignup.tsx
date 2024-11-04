@@ -208,14 +208,20 @@ const RightNowActivityOrderProviderSignUp = memo(
             }
         };
         // 查看訂單按鈕事件
-        const RenderViewOrderButton = ({ rightNowActivityID, providerID }: OrderDetailViewReqInterface) => (
-            <button
-                onClick={() => viewOrderMethod({ rightNowActivityID, providerID })}
-                className="text-primary ml-2"
-            >
-                {t("global.viewOrder")}
-            </button>
-        );
+        const RenderViewOrderButton = ({ rightNowActivityID, providerID, providerData }: OrderDetailViewReqInterface) => {
+            console.log("providerData?.haveDating =>", providerData?.haveDating);
+            if (providerData?.haveDating) {
+                return (
+                    <button
+                        onClick={() => viewOrderMethod({ rightNowActivityID, providerID })}
+                        className="text-primary ml-2"
+                    >
+                        {t("global.viewOrder")}
+                    </button>
+                );
+            }
+            return <div></div>;
+        };
 
         return (
             <>
@@ -255,7 +261,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                                 isCashPay={isCashPay}
                                 providerCardData={data}
                                 openProviderCarouselModal={openProviderCarouselModal}
-                                renderButton={RenderViewOrderButton({ rightNowActivityID: data.orderID!, providerID: data.providerID! })}
+                                renderButton={RenderViewOrderButton({ rightNowActivityID: data.orderID!, providerID: data.providerID!, providerData: data })}
                                 ref={signupCardRef}
                             />
                         ))}
@@ -324,7 +330,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                                         isCashPay={isCashPay}
                                         providerCardData={data}
                                         openProviderCarouselModal={openProviderCarouselModal}
-                                        renderButton={RenderViewOrderButton({ rightNowActivityID: data.orderID!, providerID: data.providerID! })}
+                                        renderButton={RenderViewOrderButton({ rightNowActivityID: data.orderID!, providerID: data.providerID!, providerData: data })}
                                         ref={signupCardRef}
                                     />
                                 </div>
