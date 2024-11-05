@@ -15,6 +15,7 @@ import type {
     RightNowActivityOrderCreateByCreditCardAPIReqInterface,
     RightNowActivityOrderCreateByCreditCardAPIResInterface,
 } from "./bookingCreditCarAPI-interface";
+import qs from "qs";
 
 /**
  * 現金開立即刻快閃單
@@ -85,11 +86,9 @@ export async function RightNowActivityOrderCancelAPI(orderID: string): Promise<{
  * @returns
  */
 export async function RightNowActivityOrderCancelAndCancelAcceptedOrderAPI(orderID: string): Promise<{ message: string }> {
-    return useMyFetch(`${apiURL}/my/demands/datings/${orderID}`, {
+    const params = { cascade: "1" };
+    return useMyFetch(`${apiURL}/my/demands/datings/${orderID}?${qs.stringify(params)}`, {
         method: "delete",
-        params: {
-            cascade: "1",
-        },
     });
 }
 

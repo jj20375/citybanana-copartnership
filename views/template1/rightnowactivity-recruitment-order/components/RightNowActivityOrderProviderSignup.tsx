@@ -113,13 +113,22 @@ const RightNowActivityOrderProviderSignUp = memo(
             if (unchoose.length === providers.length) {
                 setUnchooseProviders(unchoose);
             }
+            if (accept.length > 0) {
+                setAcceptPrviders(accept);
+            }
+            if (unchoose.length > 0) {
+                setUnchooseProviders(unchoose);
+            }
+            if (rejected.length > 0) {
+                setRejectedProviders(rejected);
+            }
             // 判斷選中的服務商數量大於 0 時觸發 且為報名狀態時才觸發
             if (chooseProviders.length > 0 && Array.isArray(providers) && orderStatus === rightNowActivityOrderStatusByMemberEnum.Pending) {
                 // 虛擬選擇狀態 因為非現金單會是全部選擇完才開單
                 const virtualChooseProviders = providers.filter((item) => chooseProviders.includes(item.id as never));
                 setVirtualChooseProviders(virtualChooseProviders);
                 // 虛擬非選擇狀態 因為非現金單會是全部選擇完才開單
-                const virtualUnChooseProviders = providers.filter((item) => !chooseProviders.includes(item.id as never));
+                const virtualUnChooseProviders = unchoose.filter((item) => !chooseProviders.includes(item.id as never));
                 setUnchooseProviders(virtualUnChooseProviders);
             }
             //判斷當沒有選擇服務商時(未付款但是為選擇狀態) 且為報名狀態時觸發
@@ -209,7 +218,6 @@ const RightNowActivityOrderProviderSignUp = memo(
         };
         // 查看訂單按鈕事件
         const RenderViewOrderButton = ({ rightNowActivityID, providerID, providerData }: OrderDetailViewReqInterface) => {
-            console.log("providerData?.haveDating =>", providerData?.haveDating);
             if (providerData?.haveDating) {
                 return (
                     <button
@@ -234,7 +242,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                         </h5>
                         {virtualChooseProviders.map((data, index) => (
                             <RightNowActivityOrderSignUpCard
-                                key={data.id + "-" + "checkedProviders"}
+                                key={data.id + "-" + "virtualChooseProviders"}
                                 customClass={`${index !== virtualChooseProviders.length - 1 && "mb-[15px]"}`}
                                 lng={lng}
                                 isCashPay={isCashPay}
@@ -247,8 +255,11 @@ const RightNowActivityOrderProviderSignUp = memo(
                     </div>
                 )}
                 {/* 已接受服務商列表(付款完成)  */}
-                {Array.isArray(acceptProviders) && acceptProviders.length > 0 && (
-                    <div className="mb-5">
+                {Array.isArray(acceptProviders) && acceptProviders.length > 0 ? (
+                    <div
+                        className="mb-5"
+                        key="acceptProviders"
+                    >
                         <h5 className="text-lg-content font-bold mb-2">
                             <strong className="text-primary">{acceptProviders.length}</strong>
                             {t("rightNowActivityOrderDetail.confirmed-acceptProviders")}
@@ -261,12 +272,12 @@ const RightNowActivityOrderProviderSignUp = memo(
                                 isCashPay={isCashPay}
                                 providerCardData={data}
                                 openProviderCarouselModal={openProviderCarouselModal}
-                                renderButton={RenderViewOrderButton({ rightNowActivityID: data.orderID!, providerID: data.providerID!, providerData: data })}
+                                renderButton={RenderViewOrderButton({ rightNowActivityID: orderID!, providerID: data.providerID!, providerData: data })}
                                 ref={signupCardRef}
                             />
                         ))}
                     </div>
-                )}
+                ) : null}
                 {/* 未選擇服務商列表  */}
                 <div>
                     {Array.isArray(unchooseProviders) && unchooseProviders.length > 0 && (
@@ -330,7 +341,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                                         isCashPay={isCashPay}
                                         providerCardData={data}
                                         openProviderCarouselModal={openProviderCarouselModal}
-                                        renderButton={RenderViewOrderButton({ rightNowActivityID: data.orderID!, providerID: data.providerID!, providerData: data })}
+                                        renderButton={RenderViewOrderButton({ rightNowActivityID: orderID!, providerID: data.providerID!, providerData: data })}
                                         ref={signupCardRef}
                                     />
                                 </div>

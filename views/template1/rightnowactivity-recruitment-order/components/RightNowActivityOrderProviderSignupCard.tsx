@@ -130,8 +130,6 @@ const RightNowActivityOrderSignUpCard = forwardRef(
                     </div>
                     <div className="flex-1 px-[10px] mt-2 flex-col flex">
                         <div className="mb-[8px]">
-                            {JSON.stringify(chooseProviders)}
-                            {/* <pre>{JSON.stringify(providerCardData, null, 4)}</pre> */}
                             <h5 className="pr-5 text-lg-content font-bold text-gray-primary">{providerCardData.name}</h5>
                             {providerCardData.rate && (
                                 <div className="flex items-start mt-2">

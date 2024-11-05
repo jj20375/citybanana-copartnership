@@ -9,14 +9,15 @@ import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "@/vi
 import RightNowActivityOrderChangeRequiredProviderCountModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderChangeRequiredProviderCountModal";
 // 取消活動彈窗
 import RightNowActivityOrderCancelModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderCancelModal";
-// 聯絡我們 ui
-import ContactWe from "../components/ContactWe";
 import Image from "next/image";
 import type { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
-import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
+import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
+import { getPartnerStoreInfo, usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { canCancelRightNowActivityOrderStatusEnum, rightNowActivityOrderEnrollersStatusEnum, rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/rightnowactivity-order-enum";
+import dayjs from "dayjs";
+import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
+import RightNowActivityOrderByProviderContent from "./components/RightNowActivityOrderByProviderContent";
 
 /**
  * 即刻快閃訂單建立成功詳細資料
@@ -26,6 +27,7 @@ import { canCancelRightNowActivityOrderStatusEnum, rightNowActivityOrderEnroller
 export default function OrderDetailView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     type DisplayOrder = {
         datas: {
@@ -99,6 +101,28 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
             )}
         </div>
     );
+
+    const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
+        return Array.isArray(providers) && orderData
+            ? providers.map((providerData) => (
+                  <RightNowActivityOrderByProviderContent
+                      key={providerData.id}
+                      lng={lng}
+                      providerData={providerData}
+                      orderData={orderData}
+                  />
+              ))
+            : null;
+    };
+
+    /**
+     * 取得店家資料
+     */
+    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
+        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
+        return payload;
+    };
+
     /**
      * 取得訂單資料
      */
@@ -113,22 +137,6 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
             setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending, canCancelRightNowActivityOrderStatusEnum.RegistrationFull].includes(res.status));
 
             setOrder(res);
-            setDisplayOrder({
-                datas: [
-                    // 店家資料
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
-                    // 活動開始時間
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at, column: "column-startDate" },
-                    // 特殊需求備註
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
-                    // 服務商需求數量
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
-                    // 活動時長 時數或天數
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
-                    // 付款方式
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: res.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
-                ],
-            });
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 /**
                  * 當有顯示取消活動按鈕 不執行 否則為以下規則
@@ -171,14 +179,48 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 setProviders(setDatas);
             }
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
+            return res;
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
         }
     }, []);
 
+    const fetchData = useCallback(async () => {
+        try {
+            const [fetchOrder] = await Promise.all([getOrder(orderID)]);
+            const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
+            if (fetchOrder && fetchStore) {
+                setDisplayOrder({
+                    datas: [
+                        // 店家資料
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: fetchStore.merchant.name, column: "column-store" },
+                        // 活動開始時間
+                        {
+                            label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(fetchOrder.started_at).isValid() ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : fetchOrder.started_at,
+                            column: "column-startDate",
+                        },
+                        // 特殊需求備註
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement === null ? "" : fetchOrder.requirement, column: "column-note" },
+                        // 服務商需求數量
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
+                        // 每小時或每天單價(出席鐘點費)
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: fetchOrder.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: fetchOrder.hourly_pay }), column: "column-price" },
+                        // 活動時長 時數或天數
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
+                        // 付款方式
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
+                    ],
+                });
+            }
+        } catch (err) {
+            console.log("fetchData err=>", err);
+        }
+    }, []);
+
     useEffect(() => {
-        getOrder(orderID);
+        fetchData();
     }, []);
 
     useEffect(() => {
@@ -206,6 +248,7 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}
+                    renderContent={RenderContent({ providers, orderData: order })}
                     renderButton={RenderButton()}
                     providers={acceptProviders}
                     displayOrder={displayOrder}
@@ -229,7 +272,6 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
                 confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
                 ref={cancelOrderModalRef}
             />
-            <ContactWe lng={lng} />
         </div>
     );
 }

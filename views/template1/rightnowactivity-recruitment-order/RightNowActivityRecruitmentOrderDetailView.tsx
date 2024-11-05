@@ -319,13 +319,15 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         // 活動開始時間
                         {
                             label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
-                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : fetchOrder.started_at !== null ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : "",
+                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(fetchOrder.started_at).isValid() ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : fetchOrder.started_at,
                             column: "column-startDate",
                         },
                         // 特殊需求備註
                         { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement === null ? "" : fetchOrder.requirement, column: "column-note" },
                         // 服務商需求數量
                         { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
+                        // 每小時或每天單價(出席鐘點費)
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: fetchOrder.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: fetchOrder.hourly_pay }), column: "column-price" },
                         // 活動時長 時數或天數
                         { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
                         // 付款方式
@@ -429,6 +431,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         render={() => recruitmentContent}
                     />
                 )}
+                {/* 付款方式與活動需求人數區塊 */}
                 <RightNowActivityOrderPaymentContent
                     lng={lng}
                     values={orderPaymentContent?.datas}
@@ -482,7 +485,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     lng={lng}
                     orderID={order.demand_id}
                     currentProviderCount={order.provider_required}
-                    getOrder={getOrder}
+                    getOrder={fetchData}
                     ref={changeRequiredProviderCountRef}
                 />
             )}

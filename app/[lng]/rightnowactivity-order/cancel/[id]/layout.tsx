@@ -1,0 +1,16 @@
+import FooterMenu from "@/layouts/template1/FooterComponents/FooterMenu";
+import { HeaderContent } from "@/layouts/template1/Header";
+export default function Layout({ children, params: { lng, id } }: { children: React.ReactNode; params: { lng: string; id?: string | void } }) {
+    return (
+        <>
+            <HeaderContent lng={lng} />
+            <div>{children}</div>
+            {id && (
+                <FooterMenu
+                    lng={lng}
+                    rightNowActivityPath={`/rightnowactivity-order/${id}`}
+                />
+            )}
+        </>
+    );
+}

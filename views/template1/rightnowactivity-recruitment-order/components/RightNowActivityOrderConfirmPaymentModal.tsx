@@ -206,7 +206,10 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, pay
                 </div>
                 <div className="flex mt-[15px]">
                     <div className="w-full mr-[13px]">
-                        <Spin spinning={loading}>
+                        <Spin
+                            spinning={loading}
+                            wrapperClassName="w-full"
+                        >
                             <button
                                 type="button"
                                 className="w-full text-gray-third border rounded-md h-[45px] border-gray-third"
@@ -217,7 +220,10 @@ const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, pay
                         </Spin>
                     </div>
                     <div className="w-full">
-                        <Spin spinning={loading}>
+                        <Spin
+                            spinning={loading}
+                            wrapperClassName="w-full"
+                        >
                             <ButtonBorderGradient
                                 onClick={handleSubmit(onSubmit, onError)}
                                 buttonText={t("global.confirm")}

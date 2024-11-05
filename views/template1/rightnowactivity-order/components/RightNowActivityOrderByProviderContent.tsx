@@ -48,17 +48,26 @@ const OrderByProviderContent = memo(({ lng, providerData, orderData, customClass
         }
         router.push(`/join-providers-chatroom/${receiverID}`);
     };
+
+    const goToOrderDetail = ({ orderID, providerID }: { orderID: string; providerID: string }) => {
+        return router.push(`/order/${providerID}/${orderID}`);
+    };
     return (
-        <section className={tmc(typeof customClass === "string" && customClass, "flex")}>
-            <Image
-                src={providerData.cover}
-                alt="provider avatar"
-                width={100}
-                height={100}
-                style={{ width: "80px", height: "auto" }}
-                className="rounded-md mr-[12px]"
-            />
-            <div className="flex flex-col flex-1 h-[80px] justify-between">
+        <section className={tmc(typeof customClass === "string" && customClass, "flex justify-center")}>
+            <button
+                onClick={() => goToOrderDetail({ orderID: orderData.demand_id, providerID: providerData.providerID! })}
+                type="button"
+            >
+                <Image
+                    src={providerData.cover}
+                    alt="provider avatar"
+                    width={100}
+                    height={100}
+                    style={{ width: "80px", height: "auto" }}
+                    className="rounded-md mr-[12px]"
+                />
+            </button>
+            {/* <div className="flex flex-col flex-1 h-[80px] justify-between">
                 <h5 className="text-gray-primary font-light text-[15px]">{providerData.name}</h5>
                 <div className="flex mt-2">
                     <Image
@@ -87,7 +96,7 @@ const OrderByProviderContent = memo(({ lng, providerData, orderData, customClass
                 >
                     {t("global.sendMessage")}
                 </button>
-            </div>
+            </div> */}
         </section>
     );
 });

@@ -5,6 +5,7 @@ import { useTranslation } from "@/i18n";
 import { GetSmsLinkByRightNowActivityOrderToGetUserTokenAPI } from "@/api/userAPI/userAPI";
 import dayjs from "dayjs";
 import { setClientToken } from "@/service/actions-client";
+import FooterMenu from "@/layouts/template1/FooterComponents/FooterMenu";
 export default function Page({ params: { lng, id }, searchParams: { token, expiresTime } }: { params: { lng: string; id?: string | void }; searchParams: { token?: string | void; expiresTime?: string | void } }) {
     if (token && expiresTime) {
         setClientToken({ token, expiresTime: Number(expiresTime) });

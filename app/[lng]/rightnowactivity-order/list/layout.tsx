@@ -1,3 +1,4 @@
+import FooterMenu from "@/layouts/template1/FooterComponents/FooterMenu";
 import { HeaderContent } from "@/layouts/template1/Header";
 export default function Layout({ children, params: { lng } }: { children: React.ReactNode; params: { lng: string } }) {
     return (

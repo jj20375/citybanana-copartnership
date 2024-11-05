@@ -16,6 +16,7 @@ import { Trans } from "react-i18next";
 import { ChangeRightNowActivityProviderRequiredAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { ChangeRightNowActivityProviderRequiredAPIReqInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 import { showApiErrorMethod } from "@/service/utils";
+import { Spin } from "antd";
 const { Option } = Select;
 
 /**
@@ -164,20 +165,27 @@ const AddRequiredProviderCountModal = forwardRef(({ lng, currentProviderCount, o
                     onSubmit={handleSubmit(onSubmit, onError)}
                 >
                     <div className="flex w-full">
-                        <button
-                            type="button"
-                            className="w-full  text-gray-third border rounded-md h-[45px] border-gray-third mr-[13px]"
-                            onClick={handleCancel}
-                        >
-                            {t("global.cancel")}
-                        </button>
-                        <ButtonBorderGradient
-                            buttonText={t("global.confirm")}
-                            outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
-                            insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}
-                            isDisabled={false}
-                            buttonType="submit"
-                        />
+                        <div className="mr-[13px] w-full">
+                            <Spin spinning={loading}>
+                                <button
+                                    type="button"
+                                    className="w-full text-gray-third border rounded-md h-[45px] border-gray-third"
+                                    onClick={handleCancel}
+                                >
+                                    {t("global.cancel")}
+                                </button>
+                            </Spin>
+                        </div>
+                        <Spin spinning={loading}>
+                            <ButtonBorderGradient
+                                buttonText={t("global.confirm")}
+                                outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
+                                insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}
+                                isDisabled={false}
+                                onClick={handleSubmit(onSubmit, onError)}
+                                buttonType="button"
+                            />
+                        </Spin>
                     </div>
                 </form>,
             ]}

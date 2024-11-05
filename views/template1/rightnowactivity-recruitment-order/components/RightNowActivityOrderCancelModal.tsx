@@ -232,7 +232,7 @@ const RightNowActivityOrderCancelModal = forwardRef(
                 {isShowCancelAcceptedOrderConfirm && confirmText ? (
                     <Checkbox onChange={onChange}>
                         <p className="text-[13px] text-gray-primary mt-[15px]">{confirmText}</p>
-                        {typeof confirmTextDescription === "string" && <div className="text-primary text-[12px]">{confirmTextDescription}</div>}
+                        {/* {typeof confirmTextDescription === "string" && <div className="text-primary text-[12px]">{confirmTextDescription}</div>} */}
                     </Checkbox>
                 ) : null}
             </Modal>

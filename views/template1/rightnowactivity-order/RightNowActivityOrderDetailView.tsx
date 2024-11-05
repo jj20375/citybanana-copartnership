@@ -16,6 +16,8 @@ import type { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightN
 import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
+import dayjs from "dayjs";
+import RightNowActivityOrderByProviderContent from "./components/RightNowActivityOrderByProviderContent";
 
 /**
  * 即刻快閃訂單詳細資料
@@ -96,6 +98,19 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
         </div>
     );
 
+    const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
+        return Array.isArray(providers) && orderData
+            ? providers.map((providerData) => (
+                  <RightNowActivityOrderByProviderContent
+                      key={providerData.id}
+                      lng={lng}
+                      providerData={providerData}
+                      orderData={orderData}
+                  />
+              ))
+            : null;
+    };
+
     /**
      * 取得訂單資料
      */
@@ -108,11 +123,17 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                     // 店家資料
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
                     // 活動開始時間
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at, column: "column-startDate" },
+                    {
+                        label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                        value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(res.started_at).isValid() ? dayjs(res.started_at).format("YYYY-MM-DD HH:mm") : res.started_at,
+                        column: "column-startDate",
+                    },
                     // 特殊需求備註
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
                     // 服務商需求數量
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
+                    // 每小時或每天單價(出席鐘點費)
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: res.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: res.hourly_pay }), column: "column-price" },
                     // 活動時長 時數或天數
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
                     // 付款方式
@@ -189,6 +210,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}
+                    renderContent={RenderContent({ providers, orderData: order })}
                     renderButton={RenderButton()}
                     providers={providers}
                     displayOrder={displayOrder}

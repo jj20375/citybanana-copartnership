@@ -18,6 +18,7 @@ import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import { message as messagePop } from "antd";
 import { showApiErrorMethod } from "@/service/utils";
+import dayjs from "dayjs";
 
 /**
  * 一般訂單取消詳細資料
@@ -128,6 +129,12 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
         </div>
     );
 
+    const RenderContent = () => (
+        <div>
+            <p className="text-sm-content font-bold">{t("orderDetail.status-cancel.description")}</p>
+        </div>
+    );
+
     /**
      * 取得即刻快閃訂單資料
      */
@@ -140,11 +147,17 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                     // 店家資料
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
                     // 活動開始時間
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"), value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : res.started_at, column: "column-startDate" },
+                    {
+                        label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                        value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(res.started_at).isValid() ? dayjs(res.started_at).format("YYYY-MM-DD HH:mm") : res.started_at,
+                        column: "column-startDate",
+                    },
                     // 特殊需求備註
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
                     // 服務商需求數量
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
+                    // 每小時或每天單價(出席鐘點費)
+                    { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: res.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: res.hourly_pay }), column: "column-price" },
                     // 活動時長 時數或天數
                     { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
                     // 付款方式
@@ -239,6 +252,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}
+                    renderContent={RenderContent()}
                     renderButton={RenderButton()}
                     providers={[provider]}
                     displayOrder={displayOrder}

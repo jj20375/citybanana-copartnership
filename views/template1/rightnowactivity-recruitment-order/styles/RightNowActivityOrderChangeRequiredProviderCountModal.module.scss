@@ -6,5 +6,8 @@
         .ant-select-selector {
             @apply border-gray-primary #{!important};
         }
+        .ant-spin-nested-loading {
+            @apply w-full;
+        }
     }
 }

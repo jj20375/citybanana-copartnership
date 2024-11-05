@@ -235,6 +235,9 @@
     "orderDetail": {
         "cancel": {
             "description": "確定要取消訂單嗎？"
+        },
+        "status-cancel": {
+            "description": "您的活動已取消"
         }
     },
     "rightNowActivityOrderDetail": {
