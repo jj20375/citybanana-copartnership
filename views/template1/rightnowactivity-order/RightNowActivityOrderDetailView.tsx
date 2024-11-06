@@ -13,11 +13,12 @@ import RightNowActivityOrderCancelModal from "../rightnowactivity-recruitment-or
 import ContactWe from "../components/ContactWe";
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import type { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
-import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
-import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
+import { rightNowActivityOrderStatusByMemberEnum, rightNowActivityOrderEnrollersStatusEnum, canCancelRightNowActivityOrderStatusEnum } from "@/status-enum/rightnowactivity-order-enum";
+import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
+import { getPartnerStoreInfo, usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import dayjs from "dayjs";
 import RightNowActivityOrderByProviderContent from "./components/RightNowActivityOrderByProviderContent";
+import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 
 /**
  * 即刻快閃訂單詳細資料
@@ -27,6 +28,7 @@ import RightNowActivityOrderByProviderContent from "./components/RightNowActivit
 export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     // 合作店家資料
     const partnerStore = useAppSelector((state) => state.partnerStore);
@@ -81,65 +83,64 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
         </div>
     );
 
-    const RenderButton = () => (
-        <div className="flex flex-col">
-            <button
-                onClick={openChangeRequiredProviderCountModal}
-                className="border border-primary text-primary h-[45px] w-full mb-[15px]"
-            >
-                {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
-            </button>
-            <button
-                onClick={openCancelOrderModal}
-                className="border border-gray-third text-gray-third h-[45px] w-full"
-            >
-                {t("global.cancel-activity")}
-            </button>
-        </div>
-    );
+    const RenderButton = () => {
+        if (isShowCancelButton) {
+            return (
+                <div className="flex flex-col">
+                    <button
+                        onClick={openChangeRequiredProviderCountModal}
+                        className="border border-primary text-primary h-[45px] w-full mb-[15px]"
+                    >
+                        {t("rightNowActivityOrderRecruitmentDetail.button-addRequiredProviderCount")}
+                    </button>
+                    <button
+                        onClick={openCancelOrderModal}
+                        className="border border-gray-third text-gray-third h-[45px] w-full"
+                    >
+                        {t("global.cancel-activity")}
+                    </button>
+                </div>
+            );
+        }
+        return null;
+    };
 
     const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
-        return Array.isArray(providers) && orderData
-            ? providers.map((providerData) => (
-                  <RightNowActivityOrderByProviderContent
-                      key={providerData.id}
-                      lng={lng}
-                      providerData={providerData}
-                      orderData={orderData}
-                  />
-              ))
-            : null;
+        return Array.isArray(providers) && orderData ? (
+            <div className="grid grid-cols-3 gap-1 content-end">
+                {providers.map((providerData) => (
+                    <RightNowActivityOrderByProviderContent
+                        key={providerData.id}
+                        lng={lng}
+                        providerData={providerData}
+                        orderData={orderData}
+                    />
+                ))}
+            </div>
+        ) : null;
+    };
+
+    /**
+     * 取得店家資料
+     */
+    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
+        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
+        return payload;
     };
 
     /**
      * 取得訂單資料
      */
-    const getOrder = useCallback(async (data: string) => {
+    const getOrder = async (orderID: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: orderID });
             setOrder(res);
-            setDisplayOrder({
-                datas: [
-                    // 店家資料
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
-                    // 活動開始時間
-                    {
-                        label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
-                        value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(res.started_at).isValid() ? dayjs(res.started_at).format("YYYY-MM-DD HH:mm") : res.started_at,
-                        column: "column-startDate",
-                    },
-                    // 特殊需求備註
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
-                    // 服務商需求數量
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
-                    // 每小時或每天單價(出席鐘點費)
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: res.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: res.hourly_pay }), column: "column-price" },
-                    // 活動時長 時數或天數
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
-                    // 付款方式
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: res.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
-                ],
-            });
+            /**
+             * 活動還沒開始狀態 0
+             * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中
+             * 扔然可以讓他取消單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
+             */
+            setIsShowCancelButton([canCancelRightNowActivityOrderStatusEnum.Pending].includes(res.status));
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 /**
                  * 當有顯示取消活動按鈕 不執行 否則為以下規則
@@ -147,7 +148,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                  * 單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
                  */
                 if (!isShowCancelButton) {
-                    setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
+                    // setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
                 }
                 /**
                  * 判斷是否顯示已經確認的服務商在取消活動時
@@ -182,15 +183,49 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                 });
                 setProviders(setDatas);
             }
+            return res;
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
         }
+    };
+
+    const fetchData = useCallback(async (orderID: string) => {
+        try {
+            const [fetchOrder] = await Promise.all([getOrder(orderID)]);
+            const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
+            if (fetchOrder && fetchStore) {
+                setDisplayOrder({
+                    datas: [
+                        // 店家資料
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: fetchStore.merchant.name, column: "column-store" },
+                        // 活動開始時間
+                        {
+                            label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(fetchOrder.started_at).isValid() ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : fetchOrder.started_at,
+                            column: "column-startDate",
+                        },
+                        // 特殊需求備註
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement!, column: "column-note" },
+                        // 服務商需求數量
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
+                        // 每小時或每天單價(出席鐘點費)
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: fetchOrder.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: fetchOrder.hourly_pay }), column: "column-price" },
+                        // 活動時長 時數或天數
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
+                        // 付款方式
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
+                    ],
+                });
+            }
+        } catch (err) {
+            console.log("fetchData err=>", err);
+        }
     }, []);
 
     useEffect(() => {
-        getOrder(orderID);
+        fetchData(orderID);
     }, []);
 
     /**
@@ -209,6 +244,7 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
             {displayOrder && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
+                    labelText={t("orderDetail.paymentAmount")}
                     renderTitle={RenderTitle()}
                     renderContent={RenderContent({ providers, orderData: order })}
                     renderButton={RenderButton()}
@@ -234,7 +270,6 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
                 confirmTextDescription={t("rightNowActivityOrderRecruitmentDetail.cancel.label-checkbox-description", { hour: 24, price: 20 })}
                 ref={cancelOrderModalRef}
             />
-            <ContactWe lng={lng} />
         </div>
     );
 }

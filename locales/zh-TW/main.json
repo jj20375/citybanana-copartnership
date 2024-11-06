@@ -31,7 +31,9 @@
         "sendMessage": "傳送訊息",
         "apiError": "系統內部錯誤",
         "viewOrder": "查看訂單",
-        "confirmPayment": "確認付款"
+        "confirmPayment": "確認付款",
+        "end": "結束",
+        "start": "開始"
     },
     "footer": {
         "menus": {
@@ -233,16 +235,34 @@
         "confirm-3": "按下確定後將進行付款。"
     },
     "orderDetail": {
+        "title-status-0": "未付款",
+        "title-status-1": "等待確認",
+        "title-status-2": "已確認",
+        "title-status-3": "進行中",
+        "title-status-4": "已完成",
+        "title-status-5": "已完成",
+        "title-status-6": "已完成",
+        "title-status--1": "服務商婉拒",
+        "title-status--2": "會員取消",
+        "title-status--3": "會員臨時取消",
+        "title-status--4": "爭議處理中",
+        "paymentAmount": "付款金額",
         "cancel": {
             "description": "確定要取消訂單嗎？"
         },
         "status-cancel": {
             "description": "您的活動已取消"
+        },
+        "status-confirmed": {
+            "travelTime-description": "服務商預計於",
+            "travelTime-description2": "您的活動已確認抵達會面地點",
+            "description": "活動將於"
         }
     },
     "rightNowActivityOrderDetail": {
         "title": "訂單明細",
         "title-success": "您的訂單已成立",
+        "title-success-registrationFull": "招募已截止, 活動順利\n可至訂單查看服務商狀態",
         "title-cancel": "您的訂單已取消",
         "confirmed-acceptProviders": "位已接受服務商",
         "confirmed-virtualChooseProviders": "位服務商已選擇",

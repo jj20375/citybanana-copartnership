@@ -18,6 +18,7 @@ import { canCancelRightNowActivityOrderStatusEnum, rightNowActivityOrderEnroller
 import dayjs from "dayjs";
 import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 import RightNowActivityOrderByProviderContent from "./components/RightNowActivityOrderByProviderContent";
+import { tmc } from "@/service/utils";
 
 /**
  * 即刻快閃訂單建立成功詳細資料
@@ -67,17 +68,21 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
         cancelOrderModalRef.current.openModal();
     };
 
-    const RenderTitle = () => (
+    const RenderTitle = (orderData: GetRightNowActivityOrderDetailAPIResInterface) => (
         <div className="mb-[40px] font-bold">
             <Image
                 src="/img/icons/order-create-success.svg"
                 alt="order create success"
                 width={100}
                 height={100}
-                style={{ width: "50px", height: "auto" }}
+                style={{ width: "80px", height: "auto" }}
                 className="mx-auto"
             />
-            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-success")}</h1>
+            {orderData.provider_accepted === orderData.provider_required ? (
+                <h1 className="text-black w-full text-md-title text-center mt-[30px] whitespace-pre-wrap">{t("rightNowActivityOrderDetail.title-success-registrationFull")}</h1>
+            ) : (
+                <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-success")}</h1>
+            )}
         </div>
     );
 
@@ -103,16 +108,18 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     );
 
     const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
-        return Array.isArray(providers) && orderData
-            ? providers.map((providerData) => (
-                  <RightNowActivityOrderByProviderContent
-                      key={providerData.id}
-                      lng={lng}
-                      providerData={providerData}
-                      orderData={orderData}
-                  />
-              ))
-            : null;
+        return Array.isArray(providers) && orderData ? (
+            <div className={tmc(["grid gap-2 place-items-center", providers.length === 1 ? "grid-cols-1" : "grid-cols-3"])}>
+                {providers.map((providerData) => (
+                    <RightNowActivityOrderByProviderContent
+                        key={providerData.id}
+                        lng={lng}
+                        providerData={providerData}
+                        orderData={orderData}
+                    />
+                ))}
+            </div>
+        ) : null;
     };
 
     /**
@@ -126,9 +133,9 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
     /**
      * 取得訂單資料
      */
-    const getOrder = useCallback(async (data: string) => {
+    const getOrder = async (orderID: string) => {
         try {
-            const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: orderID });
             /**
              * 活動還沒開始狀態 0,1
              * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態等於 0 開放報名中 或 等於 1 報名額滿 時
@@ -184,7 +191,7 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
         }
-    }, []);
+    };
 
     const fetchData = useCallback(async () => {
         try {
@@ -247,8 +254,9 @@ export default function OrderDetailView({ lng, orderID }: { lng: string; orderID
             {displayOrder && acceptProviders && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
-                    renderTitle={RenderTitle()}
-                    renderContent={RenderContent({ providers, orderData: order })}
+                    labelText={t("orderDetail.paymentAmount")}
+                    renderTitle={RenderTitle(order)}
+                    renderContent={RenderContent({ providers: acceptProviders, orderData: order })}
                     renderButton={RenderButton()}
                     providers={acceptProviders}
                     displayOrder={displayOrder}

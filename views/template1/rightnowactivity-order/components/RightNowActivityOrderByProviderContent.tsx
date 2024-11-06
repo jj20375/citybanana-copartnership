@@ -53,7 +53,7 @@ const OrderByProviderContent = memo(({ lng, providerData, orderData, customClass
         return router.push(`/order/${providerID}/${orderID}`);
     };
     return (
-        <section className={tmc(typeof customClass === "string" && customClass, "flex justify-center")}>
+        <section className={tmc(typeof customClass === "string" && customClass, "flex")}>
             <button
                 onClick={() => goToOrderDetail({ orderID: orderData.demand_id, providerID: providerData.providerID! })}
                 type="button"
@@ -63,7 +63,7 @@ const OrderByProviderContent = memo(({ lng, providerData, orderData, customClass
                     alt="provider avatar"
                     width={100}
                     height={100}
-                    style={{ width: "80px", height: "auto" }}
+                    style={{ width: "100px", height: "auto" }}
                     className="rounded-md mr-[12px]"
                 />
             </button>

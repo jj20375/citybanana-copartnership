@@ -162,6 +162,7 @@ const RightNowActivityOrderCancelModal = forwardRef(
             if (Object.keys(errors).length > 0) {
                 return;
             }
+            // 刪除一般預訂單機制
             if (isCancelOrder && orderID) {
                 await cancelOrder(orderID);
                 setOpen(false);

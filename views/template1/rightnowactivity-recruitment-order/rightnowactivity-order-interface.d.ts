@@ -1,4 +1,5 @@
 import type { AreaInterface } from "@/interface/area";
+import type { GetOrderDetailAPIResInterface } from "@/api/orderAPI.ts/orderAPI-interface";
 
 /**
  * 即刻快閃上方區塊
@@ -57,6 +58,8 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     orderID?: string;
     // 服務商評論
     comments?: RightNowActivityOrderProviderCommentInterface[] | void | null | undefined;
+    // 訂單資料
+    datingOrder?: void | GetRightNowActivityOrderDetailAPIResInterface.Enroller.Dating | undefined | null;
 }
 
 /**

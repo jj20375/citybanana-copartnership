@@ -32,7 +32,7 @@ export default function FooterMobileMenu({ lng, rightNowActivityPath }: { lng: s
         },
     ];
     return (
-        <div className="max-w-[500px] mx-auto border-t border-gray-light min-h-[80px] flex items-center">
+        <div className="max-w-[500px] mx-auto border-t border-gray-light min-h-[80px] flex items-center mt-10">
             <ul className="flex flex-1">
                 {menus.map((menu) => (
                     <li

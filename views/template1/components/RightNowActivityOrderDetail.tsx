@@ -35,6 +35,7 @@ export default function RightNowActivityOrderDetail({
     renderTitle,
     renderContent,
     renderButton,
+    labelText,
 }: {
     lng: string;
     providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
@@ -42,7 +43,8 @@ export default function RightNowActivityOrderDetail({
     displayOrder: DisplayOrder;
     renderTitle: React.ReactElement;
     renderContent: React.ReactElement[] | React.ReactElement | null;
-    renderButton: React.ReactElement;
+    renderButton: React.ReactElement | null;
+    labelText: string;
 }) {
     const { t } = useTranslation(lng, "main");
 
@@ -102,6 +104,7 @@ export default function RightNowActivityOrderDetail({
                 lng={lng}
                 total={total}
                 price={orderData.price}
+                labelText={labelText}
             />
             {renderButton}
         </>

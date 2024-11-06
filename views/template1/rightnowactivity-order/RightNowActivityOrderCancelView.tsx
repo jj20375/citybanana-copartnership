@@ -77,16 +77,18 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
     );
 
     const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
-        return Array.isArray(providers) && orderData
-            ? providers.map((providerData) => (
-                  <RightNowActivityOrderByProviderContent
-                      key={providerData.id}
-                      lng={lng}
-                      providerData={providerData}
-                      orderData={orderData}
-                  />
-              ))
-            : null;
+        return Array.isArray(providers) && orderData ? (
+            <div className="grid grid-cols-3 gap-1 content-end">
+                {providers.map((providerData) => (
+                    <RightNowActivityOrderByProviderContent
+                        key={providerData.id}
+                        lng={lng}
+                        providerData={providerData}
+                        orderData={orderData}
+                    />
+                ))}
+            </div>
+        ) : null;
     };
 
     /**
@@ -181,6 +183,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
             {displayOrder && acceptProviders && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}
+                    labelText={t("orderDetail.paymentAmount")}
                     renderTitle={RenderTitle()}
                     renderContent={RenderContent({ providers: acceptProviders, orderData: order })}
                     renderButton={RenderButton()}

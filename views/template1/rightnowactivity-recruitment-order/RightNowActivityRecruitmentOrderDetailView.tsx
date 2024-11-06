@@ -37,6 +37,7 @@ import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partne
 // 信用卡付款按鈕 常駐下方
 import RightNowActivityOrderPaymentByCreditCardFooter from "./components/RightNowActivityOrderPaymentByCreditCardFooter";
 import RightNowActivityOrderConfirmPaymentModal from "./components/RightNowActivityOrderConfirmPaymentModal";
+import { tmc } from "@/service/utils";
 
 /**
  * 即刻快閃報名訂單詳情
@@ -368,6 +369,11 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         return false;
     }, [order]);
 
+    /**
+     * 付款金額描述
+     */
+    const RenderPaymentTotalDescription = () => <p className={tmc(["text-gray-primary text-sm-content mb-[40px]"])}>({t("rightNowActivityOrderRecruitmentDetail.recruitment.totalNote")})</p>;
+
     useEffect(() => {
         fetchData();
     }, [fetchData]);
@@ -443,7 +449,9 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         lng={lng}
                         total={totalByPending}
                         price={order.hourly_pay}
+                        labelText={t("rightNowActivityOrderRecruitmentDetail.expectedPayment")}
                         customClass="px-5"
+                        renderDescription={RenderPaymentTotalDescription()}
                     />
                 )}
                 {/* 非報名狀態時 訂單總計 */}
@@ -452,7 +460,9 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         lng={lng}
                         total={totalByConfirmations}
                         price={order.hourly_pay}
+                        labelText={t("rightNowActivityOrderRecruitmentDetail.expectedPayment")}
                         customClass="px-5"
+                        renderDescription={RenderPaymentTotalDescription()}
                     />
                 )}
                 <div className="flex flex-col px-5">
