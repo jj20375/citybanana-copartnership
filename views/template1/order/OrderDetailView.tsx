@@ -34,6 +34,11 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     // 合作店家名稱
     const partnerStoreName = usePartnerStoreNameSelector(partnerStore);
 
+    // 訂單取消倒數時間
+    const [seconds, setSeconds] = useState(300);
+    // 判斷是否觸發倒數計時
+    const [isCounting, setIsCounting] = useState(false);
+
     type DisplayOrder = {
         datas: {
             label: string;
@@ -60,6 +65,11 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     const [isShowCancelButton, setIsShowCancelButton] = useState(true);
 
     const [provider, setProvider] = useState<RightNowActivityOrderDetailProviderSigupCardInterface>();
+
+    // 跳轉服務商聊天室
+    const goToChatRoom = (id: string) => {
+        router.push(`/join-providers-chatroom/${id}`);
+    };
 
     const RenderTitle = () => {
         let title = "";
@@ -112,7 +122,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                     break;
                 }
                 // 會員臨時取消
-                case orderStatusByMemberEnum.MemberTemporaryCancelled: {
+                case orderStatusByMemberEnum.MemberTemporaryCancellation: {
                     title = t("orderDetail.title-status--3");
                     break;
                 }
@@ -142,10 +152,16 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     const RenderButton = () => (
         <div className="flex flex-col">
             <button
-                onClick={openCancelOrderModal}
-                className="border border-gray-third text-gray-third h-[45px] w-full rounded"
+                onClick={() => goToChatRoom(providerID)}
+                className="text-white bg-primary h-[45px] w-[400px] rounded"
             >
-                {t("global.cancel-order")}
+                {t("rightNowActivityJoinProvidersChatRoom.title")}
+            </button>
+            <button
+                onClick={openCancelOrderModal}
+                className="text-gray-primary mt-[24px] block"
+            >
+                {t("global.cancel-order") + `(${seconds}s)`}
             </button>
         </div>
     );
@@ -162,11 +178,22 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                 }
                 // 等待確認
                 case orderStatusByMemberEnum.WaitingConfirm: {
+                    description = (
+                        <div className="text-center font-bold">
+                            {t("orderDetail.status-unconfirmed.description-1")}
+                            <strong className="text-primary mx-2">{dayjs(orderData.started_at).isValid() ? dayjs(orderData.started_at).format("YYYY-MM-DD HH:mm") : null}</strong>
+                            <div>{t("orderDetail.status-unconfirmed.description-2")}</div>
+                        </div>
+                    );
+                    break;
+                }
+                // 已確認
+                case orderStatusByMemberEnum.Confirmed: {
                     description =
                         orderData.at_any_time && provider ? (
-                            <div className="test-center">
+                            <div className="test-center font-bold">
                                 {t("orderDetail.status-confirmed.travelTime-description")}
-                                <strong className="text-primary">{provider.travelTime ? dayjs().add(provider.travelTime, "minutes").format("YYYY-MM-DD HH:mm") : null}</strong>
+                                <strong className="text-primary mx-2">{provider.travelTime ? dayjs().add(provider.travelTime, "minutes").format("YYYY-MM-DD HH:mm") : null}</strong>
                                 {t("orderDetail.status-confirmed.travelTime-description2")}
                             </div>
                         ) : (
@@ -178,49 +205,73 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                         );
                     break;
                 }
-                // 已確認
-                case orderStatusByMemberEnum.Confirmed: {
-                    description = <div></div>;
-                    break;
-                }
                 // 進行中
                 case orderStatusByMemberEnum.InProgress: {
-                    description = <div></div>;
+                    description = (
+                        <div className="text-center font-bold">
+                            <strong>{t("orderDetail.status-inprogress.description")}</strong>
+                            <strong className="text-primary mx-2">{dayjs(orderData.ended_at).isValid() ? dayjs(orderData.ended_at).format("YYYY-MM-DD HH:mm") : orderData.ended_at}</strong>
+                            <strong>{t("global.end")}</strong>
+                        </div>
+                    );
                     break;
                 }
                 // 已完成
                 case orderStatusByMemberEnum.Completed: {
-                    description = <div></div>;
+                    description = (
+                        <div className="text-center font-bold">
+                            <strong>{t("orderDetail.status-completed.description")}</strong>
+                            <strong className="text-primary mx-2">{dayjs(orderData.ended_at).isValid() ? dayjs(orderData.ended_at).format("YYYY-MM-DD HH:mm") : orderData.ended_at}</strong>
+                        </div>
+                    );
                     break;
                 }
                 // 已完成結案(目前用不到)
                 case orderStatusByMemberEnum.CompletedClose: {
-                    description = <div></div>;
+                    description = (
+                        <div className="text-center font-bold">
+                            <strong>{t("orderDetail.status-completed.description")}</strong>
+                            <strong className="text-primary mx-2">{dayjs(orderData.ended_at).isValid() ? dayjs(orderData.ended_at).format("YYYY-MM-DD HH:mm") : orderData.ended_at}</strong>
+                        </div>
+                    );
                     break;
                 }
                 // 爭議處理完成
                 case orderStatusByMemberEnum.DisputeResolution: {
-                    description = <div></div>;
+                    description = (
+                        <div className="text-center font-bold">
+                            <strong>{t("orderDetail.status-completed.description")}</strong>
+                            <strong className="text-primary mx-2">{dayjs(orderData.ended_at).isValid() ? dayjs(orderData.ended_at).format("YYYY-MM-DD HH:mm") : orderData.ended_at}</strong>
+                        </div>
+                    );
                     break;
                 }
                 // 服務商取消或系統自動取消
                 case orderStatusByMemberEnum.ProviderOrSystemCancelled: {
-                    description = <div></div>;
+                    if (orderData.details.refusedNote !== undefined) {
+                        description = <div className="text-center font-bold">{t("orderDetail.status-provider-or-system-cancelled.description-1")}</div>;
+                        return;
+                    }
+                    if (orderData.recommend_times !== undefined) {
+                        description = <div className="text-center font-bold">{t("orderDetail.status-provider-or-system-cancelled.description-2")}</div>;
+                        return;
+                    }
+                    description = <div className="text-center font-bold">{t("orderDetail.status-provider-or-system-cancelled.description-3")}</div>;
                     break;
                 }
                 // 會員取消
                 case orderStatusByMemberEnum.MemberCancelled: {
-                    description = <div></div>;
+                    description = <div className="text-center font-bold">{t("orderDetail.status-member-cancelled.description")}</div>;
                     break;
                 }
                 // 會員臨時取消
-                case orderStatusByMemberEnum.MemberTemporaryCancelled: {
-                    description = <div></div>;
+                case orderStatusByMemberEnum.MemberTemporaryCancellation: {
+                    description = <div className="text-center font-bold">{t("orderDetail.status-member-temporary-cancellation.description", { val: "24" })}</div>;
                     break;
                 }
                 // 爭議處理中
                 case orderStatusByMemberEnum.DisputePending: {
-                    description = <div></div>;
+                    description = <div className="text-center font-bold">{t("orderDetail.status-dispute-pending.description", { val: "24" })}</div>;
                     break;
                 }
                 default: {
@@ -247,7 +298,10 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
         try {
             const res = await GetRightNowActivityOrderDetailAPI({ orderID: rightNowActivityID });
             setOrder(res);
-
+            // 判斷開始時間大於現在時間 且大於5分鐘時才觸發倒數計時
+            if (dayjs(res.started_at).isValid() && dayjs(res.started_at) > dayjs().add(5, "minutes")) {
+                setIsCounting(true);
+            }
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 /**
                  * 當有顯示取消活動按鈕 不執行 否則為以下規則
@@ -348,8 +402,28 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
         }
     }, [partnerStoreName, displayOrder]);
 
+    useEffect(() => {
+        let intervalID: any = null;
+        if (isCounting) {
+            intervalID = setInterval(() => {
+                setSeconds((prevSeconds) => {
+                    if (prevSeconds <= 1) {
+                        if (intervalID !== null) {
+                            clearInterval(intervalID);
+                        }
+                        setIsCounting(false);
+                        return 0;
+                    }
+                    return prevSeconds - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(intervalID);
+    }, [isCounting]);
+
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
+            {provider?.datingOrder.order_id}
             {displayOrder && provider && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}

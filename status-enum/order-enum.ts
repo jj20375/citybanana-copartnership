@@ -21,7 +21,7 @@ export enum orderStatusByMemberEnum {
     // 會員取消
     MemberCancelled = -2,
     // 會員臨時取消
-    MemberTemporaryCancelled = -3,
+    MemberTemporaryCancellation = -3,
     // 爭議處理中
     DisputePending = -4,
 }

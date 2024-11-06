@@ -105,6 +105,7 @@ export default function RightNowActivityOrderDetail({
                 total={total}
                 price={orderData.price}
                 labelText={labelText}
+                customClass="mb-[30px]"
             />
             {renderButton}
         </>

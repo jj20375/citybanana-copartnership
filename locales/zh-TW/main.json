@@ -253,10 +253,34 @@
         "status-cancel": {
             "description": "您的活動已取消"
         },
+        "status-unconfirmed": {
+            "description-1": "若服務商未於",
+            "description-2": "前同意，系統將取消該訂單"
+        },
         "status-confirmed": {
             "travelTime-description": "服務商預計於",
             "travelTime-description2": "您的活動已確認抵達會面地點",
             "description": "活動將於"
+        },
+        "status-inprogress": {
+            "description": "活動將於"
+        },
+        "status-completed": {
+            "description": "完成時間"
+        },
+        "status-provider-or-system-cancelled": {
+            "description-1": "系統已自動婉拒此訂單",
+            "description-2": "服務商建議改約時間",
+            "description-3": "服務商已婉拒此訂單"
+        },
+        "status-member-cancelled": {
+            "description": "您已取消此訂單"
+        },
+        "status-member-temporary-cancellation": {
+            "description": "您已於活動開始前 {{val}} 小時取消此訂單"
+        },
+        "status-dispute-pending": {
+            "description": "您的訂單正在處理中，請稍候"
         }
     },
     "rightNowActivityOrderDetail": {

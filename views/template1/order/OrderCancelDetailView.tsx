@@ -48,7 +48,9 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
     };
 
     const [seconds, setSeconds] = useState(5);
+    // 判斷是否觸發倒數計時
     const [isCounting, setIsCounting] = useState(false);
+
     const timerRef = useRef<any>(null);
 
     const [order, setOrder] = useState<GetRightNowActivityOrderDetailAPIResInterface>();
