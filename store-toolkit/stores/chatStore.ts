@@ -7,6 +7,7 @@ const initialState: {
     chatReceiver: {
         id: "",
         name: "",
+        avatar: "",
     },
 };
 

@@ -32,13 +32,14 @@ import ChatRoomUpload from "./components/ChatRoomUploadPhoto";
 import SendGPSMessage from "./components/SendGPSMessage";
 import dayjs from "dayjs";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
-import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
-import { firebaseConnectRef, firebaseDbDoc } from "@/lib/firebase/firebase-hooks";
+import { fetchFirebaseLogin, fetchGetFirebaseCustomToken, userBananaIdSelector } from "@/store-toolkit/stores/userStore";
+import { firebaseAuth, firebaseConnectRef, firebaseDbDoc, firebaseMessaging, firebaseOnlineSet, firebaseOnlineSetDetachListeners } from "@/lib/firebase/firebase-hooks";
 import { setChatReceiver } from "@/store-toolkit/stores/chatStore";
 import { UserProfileInterface } from "@/interface/user";
 import type { MessageInterface } from "./RightNowActivityJoinProviderChatRoom-interface";
 import type { ChatReceiverInterface } from "@/interface/chats";
 import { firebaseCheckUserChatRoomEmpty, firebaseGetChatRoomUnReadMessageCountTotal, firebaseMessageReaded, firebaseUpdateUserUnReadMessageCount } from "@/lib/firebase/firebase-chat-hooks";
+import { getCookie } from "cookies-next";
 
 /**
  * 與報名服務商1對1聊天室 ui
@@ -56,6 +57,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
     // 判斷是否 firebase 登入成功
     const isFirebaseAuth = useAppSelector((state) => state.userStore.isFirebaseAuth);
     const userID = userBananaIdSelector(userStore);
+    const user = useAppSelector((state) => state.userStore.user);
     // 聊天對象資料
     const chatReceiver = chatStore.chatReceiver;
 
@@ -173,7 +175,6 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                             return obj;
                         })
                         .reverse();
-                    console.log("messages[0].key =>", messages[0].id);
                     setMessagePaginationKey(messages[messages.length - 1].id);
                     setMessages(messages);
                 }
@@ -186,7 +187,6 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
             if (doc.exists) {
                 const userData: UserProfileInterface = doc.data().userData;
                 if (receiverID === serviceChatID) {
-                    console.log("serviceChatID=>", serviceChatID);
                     dispatch(
                         setChatReceiver({
                             id: userData.banana_id!,
@@ -224,7 +224,6 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     if (!snapshot.exists) {
                         return;
                     }
-                    console.log("work listerUserInfo", snapshot.data().userData);
                     const receiverData = snapshot.data().userData;
                     const setReceiverData: ChatReceiverInterface = {
                         id: receiverData.banana_id!,
@@ -270,6 +269,26 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     console.log(error);
                 }
             );
+        } else {
+            // 判斷有 token 在執行 取得 firebase token
+            if (getCookie("accessToken") && user) {
+                dispatch(fetchGetFirebaseCustomToken()).then((res: any) => {
+                    dispatch(fetchFirebaseLogin(res.payload.token));
+                    firebaseAuth().onAuthStateChanged(async (userData: any) => {
+                        if (userData === null) {
+                            firebaseOnlineSetDetachListeners();
+                        } else {
+                            firebaseOnlineSet(user, user.banana_id!);
+                            firebaseMessaging().onMessage(
+                                (payload: any) => {
+                                    console.log("message fcm client", payload);
+                                },
+                                (e: any) => {}
+                            );
+                        }
+                    });
+                });
+            }
         }
         return () => {
             // 取消監聽聊天對象
@@ -283,17 +302,24 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            <h1 className="text-md-title font-bold text-center">{t("rightNowActivityJoinProvidersChatRoom.title")}</h1>
-            <div className="border border-gray-light rounded-md mt-[40px] px-2">
+            <div className="border border-gray-light rounded-md mt-[40px]">
                 <div className="flex py-[16px] border-b border-b-gray-light items-center">
                     <Icon
                         className="text-3xl cursor-pointer text-gray-third mr-[11px]"
                         icon="iconamoon:arrow-left-2-light"
                         onClick={goToList}
                     />
+                    <Image
+                        src={chatReceiver.avatar}
+                        alt="provider cover"
+                        width={50}
+                        height={50}
+                        style={{ width: "50px", height: "auto" }}
+                        className="rounded-full mr-[13px]"
+                    />
                     <h3 className="text-lg-content font-bold">{chatReceiver.name}</h3>
                 </div>
-                {Array.isArray(messages) && <p className="text-center mt-5 text-gray-third text-[15px]">{dayjs(messages[messages.length - 1].createdAt).format("MM/D")}</p>}
+                {Array.isArray(messages) && <p className="text-center pt-5 bg-gray-50 text-gray-third text-[15px]">{dayjs(messages[messages.length - 1].createdAt).format("MM/D")}</p>}
                 <ul
                     id="scrollableDiv"
                     style={{
@@ -302,7 +328,7 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                         display: "flex",
                         flexDirection: "column-reverse",
                     }}
-                    className="mt-[40px]"
+                    className="pt-[40px] bg-gray-50"
                 >
                     {Array.isArray(messages) && (
                         <InfiniteScroll

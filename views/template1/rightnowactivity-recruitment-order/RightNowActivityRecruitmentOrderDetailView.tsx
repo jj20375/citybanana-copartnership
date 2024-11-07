@@ -399,6 +399,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     checkedProviders={checkedProviders}
                     providerRequiredCount={order.provider_required}
                     paymentMethod={paymentMethod}
+                    openPaymentConfirmModal={openPaymentConfirmModal}
                 />
             );
         } else {

@@ -27,6 +27,7 @@ const RightNowActivityOrderProviderSignUp = memo(
         checkedProviders, // 已付款選擇服務商數量
         providerRequiredCount, // 需求服務商數量
         paymentMethod,
+        openPaymentConfirmModal, // 開啟付款確認彈窗
     }: {
         lng: string;
         orderID: string;
@@ -35,6 +36,7 @@ const RightNowActivityOrderProviderSignUp = memo(
         checkedProviders: number;
         providerRequiredCount: number;
         paymentMethod: string;
+        openPaymentConfirmModal: Function;
     }) => {
         const { t } = useTranslation(lng, "main");
 
@@ -194,6 +196,7 @@ const RightNowActivityOrderProviderSignUp = memo(
         const chooseProviderByCashPayMethod = (providerID: string) => {
             if (signupCardRef) {
                 signupCardRef.current.onCashPayMethodChooseProivder(providerID);
+                openPaymentConfirmModal();
             }
         };
         // 現金付款選擇服務商按鈕事件

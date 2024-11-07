@@ -49,7 +49,8 @@ const RightNowActivityOrderSignUpCard = forwardRef(
          * @returns
          */
         const cashPayMethodChooseProvider = (prodviderID: string) => {
-            dispatch(setChooseProviders([...chooseProviders, prodviderID]));
+            // 使用現金付款方式是選擇單筆服務商就做支付 因此不用過往把已選擇資料塞入
+            dispatch(setChooseProviders([prodviderID]));
             return;
         };
 

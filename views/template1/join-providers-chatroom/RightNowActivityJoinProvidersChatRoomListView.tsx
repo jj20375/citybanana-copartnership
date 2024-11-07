@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import { firebaseDbCollection } from "@/lib/firebase/firebase-hooks";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
-import type { ChatRoomInterface } from "@/interface/chats";
+import type { ChatReceiverInterface, ChatRoomInterface } from "@/interface/chats";
 import { setChatReceiver } from "@/store-toolkit/stores/chatStore";
 // 無限滾動套件
 import InfiniteScroll from "react-infinite-scroll-component";
@@ -62,12 +62,13 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     };
 
     // 導頁去與服務商1對1聊天
-    const goToChatRoom = async ({ id, name }: { id: string; name: string }) => {
+    const goToChatRoom = async ({ id, name, avatar }: ChatReceiverInterface) => {
         // 設定聊天對象資料
         dispatch(
             setChatReceiver({
                 id,
                 name,
+                avatar,
             })
         );
         // 設定聊天對象資料
@@ -261,7 +262,7 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
                                             <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{chatroom.userData.name}</h4>
                                             {typeof chatroom.userData.banana_id === "string" && (
                                                 <button
-                                                    onClick={() => goToChatRoom({ id: chatroom.userData.banana_id!, name: chatroom.userData.name! })}
+                                                    onClick={() => goToChatRoom({ id: chatroom.userData.banana_id!, name: chatroom.userData.name!, avatar: chatroom.userData.avatar! })}
                                                     className="PrimaryGradient h-[40px] min-w-[100px] text-white rounded-md"
                                                 >
                                                     {t("global.sendMessage")}

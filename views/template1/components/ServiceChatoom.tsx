@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import Image from "next/image";
+import { ChatReceiverInterface } from "@/interface/chats";
 
 export default function ServiceChatRoom({ lng, serviceChatID }: { lng: string; serviceChatID: string }) {
     const { t } = useTranslation(lng, "main");
@@ -14,12 +15,13 @@ export default function ServiceChatRoom({ lng, serviceChatID }: { lng: string; s
     const dispatch = useAppDispatch();
 
     // 導頁去與服務商1對1聊天
-    const goToChatRoom = async ({ id, name }: { id: string; name: string }) => {
+    const goToChatRoom = async ({ id, name, avatar }: ChatReceiverInterface) => {
         // 設定聊天對象資料
         dispatch(
             setChatReceiver({
                 id,
                 name,
+                avatar,
             })
         );
 
@@ -76,7 +78,7 @@ export default function ServiceChatRoom({ lng, serviceChatID }: { lng: string; s
                         />
                         <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{serviceChatUserData.userData.name}</h4>
                         <button
-                            onClick={() => goToChatRoom({ id: serviceChatID, name: serviceChatUserData.userData.name })}
+                            onClick={() => goToChatRoom({ id: serviceChatID, name: serviceChatUserData.userData.name, avatar: "/img/logos/logo_type1.svg" })}
                             className="PrimaryGradient h-[40px] min-w-[100px] text-white rounded-md"
                         >
                             {t("global.sendMessage")}

@@ -159,7 +159,8 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
             </button>
             <button
                 onClick={openCancelOrderModal}
-                className="text-gray-primary mt-[24px] block"
+                className="text-gray-primary mt-[24px] block disabled:cursor-not-allowed"
+                disabled={!isCounting}
             >
                 {t("global.cancel-order") + `(${seconds}s)`}
             </button>
@@ -274,9 +275,11 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                     description = <div className="text-center font-bold">{t("orderDetail.status-dispute-pending.description", { val: "24" })}</div>;
                     break;
                 }
-                default: {
-                    description = <div></div>;
-                }
+                default:
+                    {
+                        description = <div></div>;
+                    }
+                    return description;
             }
         }
 
@@ -345,8 +348,8 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                     setProvider(setDatas);
                 }
             }
-            return res;
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
+            return res;
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
@@ -428,7 +431,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                 <RightNowActivityOrderDetail
                     lng={lng}
                     renderTitle={RenderTitle()}
-                    renderContent={RenderContent({ providers: [provider], orderData: order })}
+                    renderContent={RenderContent({ providers: [provider], orderData: order })!}
                     renderButton={RenderButton()}
                     providers={[provider]}
                     displayOrder={displayOrder}

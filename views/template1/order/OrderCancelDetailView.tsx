@@ -110,16 +110,16 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
             <div className="w-full">
                 <Spin spinning={loading}>
                     <ButtonBorderGradient
-                        onClick={onSubmit}
-                        buttonText={t("rightNowActivityOrderCancel.button-uncareful") + ` (${seconds})`}
+                        onClick={handleReCreate}
+                        buttonText={t("rightNowActivityOrderCancel.button-recreate") + ` (${seconds})`}
                         outsideClassName={`p-px rounded-md flex-1 ${!isCounting ? "DisabledGradient" : "PrimaryGradient"}`}
                         insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px] ${!isCounting ? "DisabledGradientByOutlineBtn" : "PrimaryGradient"}`}
                         isDisabled={!isCounting}
-                        buttonType="submit"
+                        buttonType="button"
                     />
                 </Spin>
             </div>
-            <div className="w-full">
+            {/* <div className="w-full">
                 <Spin spinning={loading}>
                     <button
                         type="button"
@@ -129,7 +129,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                         {t("rightNowActivityOrderCancel.button-recreate")}
                     </button>
                 </Spin>
-            </div>
+            </div> */}
         </div>
     );
 
@@ -257,6 +257,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                     if (prevSeconds <= 1) {
                         clearInterval(timerRef.current);
                         setIsCounting(false);
+                        handleReCreate();
                         return 0;
                     }
                     return prevSeconds - 1;
