@@ -15,229 +15,269 @@ import { useAppSelector } from "@/store-toolkit/storeToolkit";
 /**
  * 確認付款彈窗 ui
  */
-const RightNowActivityOrderConfirmPaymentModal = forwardRef(({ lng, orderID, paymentMethod, providers }: { lng: string; orderID: string; paymentMethod: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[] }, ref) => {
-    const router = useRouter();
-    const { t } = useTranslation(lng, "main");
-    const [loading, setLoading] = useState(false);
-    const [open, setOpen] = useState(false);
-
-    const chooseProviders: string[] = useAppSelector((state) => state.orderStore.chooseProviders);
-
-    useImperativeHandle(ref, () => ({
-        openModal: () => {
-            setOpen(true);
-        },
-    }));
-
-    type FormValues = {
-        form: {
-            providerIds: string[];
+const RightNowActivityOrderConfirmPaymentModal = forwardRef(
+    (
+        {
+            lng,
+            orderID, // 即刻快閃 ID
+            paymentMethod, // 付款方式
+            providers, // 報名服務商列表
+            fetchData, // 重抓資料
+        }: {
+            lng: string;
             orderID: string;
-        };
-    };
-
-    const formSchema = {
-        providerIds: yup.array(),
-        orderID: yup.string(),
-    };
-    const [schema, setSchema]: any = useState(
-        yup
-            .object()
-            .shape({
-                form: yup.object().shape(formSchema),
-            })
-            .required()
-    );
-
-    // 選擇服務商名稱
-    const chooseNames = useMemo(() => {
-        if (Array.isArray(chooseProviders) && chooseProviders.length > 0) {
-            return providers
-                .filter((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => chooseProviders.includes(provider.id as string))
-                .map((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => provider.name)
-                .join(", ");
-        }
-        return "";
-    }, [chooseProviders]);
-
-    const {
-        register,
-        control,
-        handleSubmit,
-        watch,
-        getValues,
-        setValue,
-        clearErrors,
-        reset,
-        trigger,
-        formState: { errors },
-    } = useForm<FormValues>({
-        resolver: yupResolver(schema),
-        defaultValues: {
-            form: {
-                providerIds: [],
-                orderID,
-            },
+            paymentMethod: string;
+            providers: RightNowActivityOrderDetailProviderSigupCardInterface[];
+            fetchData: Function;
         },
-    });
+        ref
+    ) => {
+        const router = useRouter();
+        const { t } = useTranslation(lng, "main");
+        const [loading, setLoading] = useState(false);
+        const [open, setOpen] = useState(false);
 
-    const handleCancel = () => {
-        reset();
-        setOpen(false);
-    };
+        const chooseProviders: string[] = useAppSelector((state) => state.orderStore.chooseProviders);
 
-    // 下一步按鈕事件
-    const onNextStepButtonClick = (orderID: string) => {
-        reset();
-        router.push(`/pay-working/${orderID}`);
-        return;
-    };
+        useImperativeHandle(ref, () => ({
+            openModal: () => {
+                setOpen(true);
+            },
+        }));
 
-    const [creditCard3DVerifyForm, setCreditCard3DVerifyForm] = useState("");
+        type FormValues = {
+            form: {
+                providerIds: string[];
+                orderID: string;
+            };
+        };
 
-    /**
-     * 即刻快閃選擇服務商並付款
-     */
-    const handleConfirmPayment = async (ids: string[]) => {
-        setLoading(true);
-        try {
-            const res = await RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI({ ids });
-            console.log("choose providers to payment and create orders API success =>", res);
-            // 判斷使用現金付款方式 不導向金流 3d 驗證
-            console.log("paymentMethod =>", paymentMethod);
-            if (paymentMethod === "cash") {
-                setOpen(false);
+        const formSchema = {
+            providerIds: yup.array(),
+            orderID: yup.string(),
+        };
+        const [schema, setSchema]: any = useState(
+            yup
+                .object()
+                .shape({
+                    form: yup.object().shape(formSchema),
+                })
+                .required()
+        );
+
+        // 選擇服務商名稱
+        const chooseNames = useMemo(() => {
+            if (Array.isArray(chooseProviders) && chooseProviders.length > 0) {
+                return providers
+                    .filter((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => chooseProviders.includes(provider.id as string))
+                    .map((provider: RightNowActivityOrderDetailProviderSigupCardInterface) => provider.name)
+                    .join(", ");
+            }
+            return "";
+        }, [chooseProviders]);
+
+        /**
+         * 判斷是否導頁去付款完成頁面
+         * 因為有個需求，活動需求服務商數量大於 1 時 需留在原本選擇服務商畫面
+         * 直到把服務商選滿時 才導頁去付款完成頁面
+         */
+        const isPaymentRedirect = async (orderID: string) => {
+            const res = await fetchData();
+            console.log("isPaymentRedirect fetchData =>", res);
+            // 當需求人數等於已確認人數時，導頁去付款完成頁面
+            if (res.provider_accepted === res.provider_required) {
+                console.log("redirect to success", res);
+                return router.push(`/rightnowactivity-order/success/${orderID}`);
+            }
+            // 關閉彈窗
+            setOpen(false);
+            return false;
+        };
+
+        const {
+            register,
+            control,
+            handleSubmit,
+            watch,
+            getValues,
+            setValue,
+            clearErrors,
+            reset,
+            trigger,
+            formState: { errors },
+        } = useForm<FormValues>({
+            resolver: yupResolver(schema),
+            defaultValues: {
+                form: {
+                    providerIds: [],
+                    orderID,
+                },
+            },
+        });
+
+        const handleCancel = () => {
+            reset();
+            setOpen(false);
+        };
+
+        // 下一步按鈕事件
+        const onOtherPaymentNextStep = (orderID: string) => {
+            reset();
+            router.push(`/pay-working/${orderID}`);
+            return;
+        };
+
+        // 信用卡 3d 驗證 form
+        const [creditCard3DVerifyForm, setCreditCard3DVerifyForm] = useState("");
+
+        /**
+         * 即刻快閃選擇服務商並付款
+         */
+        const handleConfirmPayment = async (ids: string[]) => {
+            setLoading(true);
+            try {
+                const res = await RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI({ ids });
+                console.log("choose providers to payment and create orders API success =>", res);
+                // 判斷使用現金付款方式 不導向金流 3d 驗證
+                console.log("paymentMethod =>", paymentMethod);
+                if (paymentMethod === "cash") {
+                    setOpen(false);
+                    // 判斷導頁方向，是維持在目前頁面只關閉彈窗，還是導頁去付款完成畫面。
+                    await isPaymentRedirect(orderID);
+                    return;
+                }
+                // 導向金流 3d 驗證
+                setCreditCard3DVerifyForm(res.data.response.Result);
+                // 導頁去等待付款頁面
+                onOtherPaymentNextStep(orderID);
+                return;
+            } catch (err) {
+                console.error("choose providers to payment and create orders API error =>", err);
+                // 處理錯誤
+                throw err;
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        /**
+         * submit 成功時往下一步
+         * @param data
+         */
+        const onSubmit: SubmitHandler<FormValues> = async (data) => {
+            console.log("success form =>", data);
+            if (Object.keys(errors).length > 0) {
                 return;
             }
-            // 導向金流 3d 驗證
-            setCreditCard3DVerifyForm(res.data.response.Result);
-        } catch (err) {
-            console.error("choose providers to payment and create orders API error =>", err);
-            // 處理錯誤
-            throw err;
-        } finally {
-            setLoading(false);
-        }
-    };
+            console.log("data.form. =>", data.form, getValues("form.providerIds"));
+            await handleConfirmPayment(data.form.providerIds);
 
-    /**
-     * submit 成功時往下一步
-     * @param data
-     */
-    const onSubmit: SubmitHandler<FormValues> = async (data) => {
-        console.log("success form =>", data);
-        if (Object.keys(errors).length > 0) {
             return;
-        }
-        console.log("data.form. =>", data.form, getValues("form.providerIds"));
-        await handleConfirmPayment(data.form.providerIds);
-        onNextStepButtonClick(orderID);
-        return;
-    };
+        };
 
-    const onError: SubmitErrorHandler<FormValues> = (errors) => {
-        console.log("error form =>", errors);
-        // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
-    };
+        const onError: SubmitErrorHandler<FormValues> = (errors) => {
+            console.log("error form =>", errors);
+            // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
+        };
 
-    useEffect(() => {
-        if (Array.isArray(chooseProviders)) {
-            setValue("form.providerIds", chooseProviders);
-        }
-    }, [chooseProviders]);
-
-    useEffect(() => {
-        if (creditCard3DVerifyForm !== "" && creditCard3DVerifyForm.length > 2) {
-            // 使用 DOMParser 来解析 HTML 字符串
-            const parser = new DOMParser();
-            const doc = parser.parseFromString(creditCard3DVerifyForm, "text/html");
-            const form = doc.forms[0];
-
-            if (form) {
-                // 透過 js 創建一個 dom 表單
-                const newForm = document.createElement("form");
-                // 表單 action 和 method 設置
-                newForm.action = form.action;
-                newForm.method = form.method;
-
-                // 迴圈添加表單 input
-                const inputs = form.querySelectorAll("input");
-                inputs.forEach((input) => {
-                    const newInput = document.createElement("input");
-                    newInput.type = "hidden";
-                    newInput.name = input.name;
-                    newInput.value = input.value;
-                    newForm.appendChild(newInput);
-                });
-
-                // 将新表单添加到 body 中
-                document.body.appendChild(newForm);
-
-                // 自动提交表单
-                newForm.submit();
-
-                // 清理函数：在组件卸载时移除表单
-                return () => {
-                    document.body.removeChild(newForm);
-                };
+        useEffect(() => {
+            if (Array.isArray(chooseProviders)) {
+                setValue("form.providerIds", chooseProviders);
             }
-        }
-    }, [creditCard3DVerifyForm]);
+        }, [chooseProviders]);
 
-    return (
-        <Modal
-            title={<div></div>}
-            open={open}
-            centered
-            maskClosable
-            onCancel={handleCancel}
-            closable={false}
-            footer={[]}
-        >
-            <form
-                key="form"
-                onSubmit={handleSubmit(onSubmit, onError)}
+        useEffect(() => {
+            if (creditCard3DVerifyForm !== "" && creditCard3DVerifyForm.length > 2) {
+                // 使用 DOMParser 来解析 HTML 字符串
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(creditCard3DVerifyForm, "text/html");
+                const form = doc.forms[0];
+
+                if (form) {
+                    // 透過 js 創建一個 dom 表單
+                    const newForm = document.createElement("form");
+                    // 表單 action 和 method 設置
+                    newForm.action = form.action;
+                    newForm.method = form.method;
+
+                    // 迴圈添加表單 input
+                    const inputs = form.querySelectorAll("input");
+                    inputs.forEach((input) => {
+                        const newInput = document.createElement("input");
+                        newInput.type = "hidden";
+                        newInput.name = input.name;
+                        newInput.value = input.value;
+                        newForm.appendChild(newInput);
+                    });
+
+                    // 将新表单添加到 body 中
+                    document.body.appendChild(newForm);
+
+                    // 自动提交表单
+                    newForm.submit();
+
+                    // 清理函数：在组件卸载时移除表单
+                    return () => {
+                        document.body.removeChild(newForm);
+                    };
+                }
+            }
+        }, [creditCard3DVerifyForm]);
+
+        return (
+            <Modal
+                title={<div></div>}
+                open={open}
+                centered
+                maskClosable
+                onCancel={handleCancel}
+                closable={false}
+                footer={[]}
             >
-                <div className="text-[#1E1E1E] text-[15px]">
-                    <span>{t("paymentConfirm.confirm-1")}</span>
-                    {Array.isArray(chooseProviders) && <strong className="text-primary">「{chooseNames}」</strong>}
-                    <span>{t("paymentConfirm.confirm-2")}</span>
-                    <p>{t("paymentConfirm.confirm-3")}</p>
-                </div>
-                <div className="flex mt-[15px]">
-                    <div className="w-full mr-[13px]">
-                        <Spin
-                            spinning={loading}
-                            wrapperClassName="w-full"
-                        >
-                            <button
-                                type="button"
-                                className="w-full text-gray-third border rounded-md h-[45px] border-gray-third"
-                                onClick={handleCancel}
+                <form
+                    key="form"
+                    onSubmit={handleSubmit(onSubmit, onError)}
+                >
+                    <div className="text-[#1E1E1E] text-[15px]">
+                        <span>{t("paymentConfirm.confirm-1")}</span>
+                        {Array.isArray(chooseProviders) && <strong className="text-primary">「{chooseNames}」</strong>}
+                        <span>{t("paymentConfirm.confirm-2")}</span>
+                        <p>{t("paymentConfirm.confirm-3")}</p>
+                    </div>
+                    <div className="flex mt-[15px]">
+                        <div className="w-full mr-[13px]">
+                            <Spin
+                                spinning={loading}
+                                wrapperClassName="w-full"
                             >
-                                {t("global.cancel")}
-                            </button>
-                        </Spin>
+                                <button
+                                    type="button"
+                                    className="w-full text-gray-third border rounded-md h-[45px] border-gray-third"
+                                    onClick={handleCancel}
+                                >
+                                    {t("global.cancel")}
+                                </button>
+                            </Spin>
+                        </div>
+                        <div className="w-full">
+                            <Spin
+                                spinning={loading}
+                                wrapperClassName="w-full"
+                            >
+                                <ButtonBorderGradient
+                                    buttonText={t("global.confirm")}
+                                    outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
+                                    insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}
+                                    isDisabled={false}
+                                    buttonType="submit"
+                                />
+                            </Spin>
+                        </div>
                     </div>
-                    <div className="w-full">
-                        <Spin
-                            spinning={loading}
-                            wrapperClassName="w-full"
-                        >
-                            <ButtonBorderGradient
-                                onClick={handleSubmit(onSubmit, onError)}
-                                buttonText={t("global.confirm")}
-                                outsideClassName={`PrimaryGradient p-px rounded-md flex-1 DisabledGradient`}
-                                insideClassName={`PrimaryGradient rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px]`}
-                                isDisabled={false}
-                                buttonType="submit"
-                            />
-                        </Spin>
-                    </div>
-                </div>
-            </form>
-        </Modal>
-    );
-});
+                </form>
+            </Modal>
+        );
+    }
+);
 
 export default RightNowActivityOrderConfirmPaymentModal;

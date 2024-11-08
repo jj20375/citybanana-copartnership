@@ -103,8 +103,14 @@ const RightNowActivityOrderCancelModal = forwardRef(
         const cancelOrder = async (id: string) => {
             try {
                 await OrderCancelAPI(id);
-            } catch (err) {
+            } catch (err: any) {
                 console.log("OrderCancelAPI err => ", err);
+                showApiErrorMethod({
+                    apiErr: err,
+                    errorMessageLang,
+                    lng: lng === "zh-TW" ? "tw" : "en",
+                    globalErrMessage: t("global.apiError"),
+                });
                 throw err;
             } finally {
                 setLoading(false);
@@ -166,7 +172,7 @@ const RightNowActivityOrderCancelModal = forwardRef(
             if (isCancelOrder && orderID) {
                 await cancelOrder(orderID);
                 setOpen(false);
-                alert(orderID);
+                // 等待一秒在跳轉否則資料庫狀態未更新
                 router.push(`/order/cancel/${providerID}/${rightNowActivityID}`);
                 return;
             }

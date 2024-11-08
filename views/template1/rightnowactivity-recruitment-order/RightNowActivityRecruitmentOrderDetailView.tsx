@@ -340,6 +340,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
             if (fetchOrder.status !== rightNowActivityOrderStatusByMemberEnum.Pending) {
                 await getRightNowActivityOrderPaymentTotal(fetchOrder.demand_id);
             }
+            return fetchOrder;
         } catch (err) {
             console.log("fetchData err=>", err);
         }
@@ -529,6 +530,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                     providers={providers}
                     orderID={order.demand_id}
                     paymentMethod={paymentMethod}
+                    fetchData={fetchData}
                 />
             )}
         </>

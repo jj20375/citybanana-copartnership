@@ -66,23 +66,20 @@ export default function ServiceChatRoom({ lng, serviceChatID }: { lng: string; s
         <div>
             {serviceChatUserData ? (
                 <>
-                    <h2 className="pl-[15px] mb-[5px]">客服聊天室</h2>
-                    <div className="flex items-center px-[15px]">
+                    <h2 className="pl-[15px] mb-[5px] font-medium">{t("global.serviceChat")}</h2>
+                    <div
+                        onClick={() => goToChatRoom({ id: serviceChatID, name: serviceChatUserData.userData.name, avatar: "/img/logos/logo_type1.svg" })}
+                        className="flex items-center px-[15px] cursor-pointer"
+                    >
                         <Image
                             src="/img/logos/logo_type1.svg"
                             alt="provider-cover"
-                            width={100}
-                            height={100}
-                            style={{ width: "80px", height: "auto" }}
+                            width={50}
+                            height={50}
+                            style={{ width: "50px", height: "auto" }}
                             className="rounded-full w-[50px] h-[50px] mr-[20px]"
                         />
                         <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{serviceChatUserData.userData.name}</h4>
-                        <button
-                            onClick={() => goToChatRoom({ id: serviceChatID, name: serviceChatUserData.userData.name, avatar: "/img/logos/logo_type1.svg" })}
-                            className="PrimaryGradient h-[40px] min-w-[100px] text-white rounded-md"
-                        >
-                            {t("global.sendMessage")}
-                        </button>
                     </div>
                 </>
             ) : null}

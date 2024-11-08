@@ -39,7 +39,7 @@ export async function ChangeRightNowActivityProviderRequiredAPI(data: ChangeRigh
  * 取得即刻快閃列表
  */
 export async function GetRightNowActivityOrderListAPI(params: any): Promise<GetRightNowActivityOrderListAPIResInterface> {
-    return useMyFetch(`${apiURL}/demands/datings-web?${qs.stringify(params)}`, {
+    return useMyFetch(`${apiURL}/my/demands/datings?${qs.stringify(params)}`, {
         method: "get",
     });
 }

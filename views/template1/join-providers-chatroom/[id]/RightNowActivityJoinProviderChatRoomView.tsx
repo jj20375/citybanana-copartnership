@@ -225,12 +225,22 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                         return;
                     }
                     const receiverData = snapshot.data().userData;
-                    const setReceiverData: ChatReceiverInterface = {
-                        id: receiverData.banana_id!,
-                        name: receiverData.name!,
-                        avatar: receiverData.thumbnails ? receiverData.thumbnails?.avatar["360x360"] : "",
-                        readedAt: snapshot.data().readedAt,
-                    };
+                    let setReceiverData: ChatReceiverInterface | null = null;
+                    if (receiverID === serviceChatID) {
+                        setReceiverData = {
+                            id: receiverData.banana_id!,
+                            name: receiverData.name!,
+                            avatar: "/img/logos/logo_type1.svg",
+                            readedAt: snapshot.data().readedAt,
+                        };
+                    } else {
+                        setReceiverData = {
+                            id: receiverData.banana_id!,
+                            name: receiverData.name!,
+                            avatar: receiverData.thumbnails ? receiverData.thumbnails?.avatar["360x360"] : "",
+                            readedAt: snapshot.data().readedAt,
+                        };
+                    }
                     // 判斷有未確認訂單資料時 新增此資料到聊天對像
                     if (snapshot.data().unconfirmedOrder) {
                         setReceiverData.unconfirmedOrder = snapshot.data().unconfirmedOrder;
@@ -300,6 +310,14 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
         };
     }, [userID, isFirebaseAuth]);
 
+    const messagesEndRef = useRef<any>(null);
+
+    const srcollDownMessagesEnd = () => {
+        if (messagesEndRef.current) {
+            messagesEndRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+        }
+    };
+
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
             <div className="border border-gray-light rounded-md mt-[40px]">
@@ -322,14 +340,10 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                 {Array.isArray(messages) && <p className="text-center pt-5 bg-gray-50 text-gray-third text-[15px]">{dayjs(messages[messages.length - 1].createdAt).format("MM/D")}</p>}
                 <ul
                     id="scrollableDiv"
-                    style={{
-                        height: 300,
-                        overflow: "auto",
-                        display: "flex",
-                        flexDirection: "column-reverse",
-                    }}
-                    className="pt-[40px] bg-gray-50"
+                    className="pt-[40px] bg-gray-50 flex flex-col-reverse overflow-auto h-[300px]"
                 >
+                    {/* 用來控制發送訊息後滾至最底部 */}
+                    <div ref={messagesEndRef} />
                     {Array.isArray(messages) && (
                         <InfiniteScroll
                             dataLength={messages.length}
@@ -419,9 +433,16 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     <SendMessage
                         lng={lng}
                         ref={sendMessageRef}
+                        srcollDownMessagesEnd={srcollDownMessagesEnd}
                     />
-                    <ChatRoomUpload lng={lng} />
-                    <SendGPSMessage lng={lng} />
+                    <ChatRoomUpload
+                        lng={lng}
+                        srcollDownMessagesEnd={srcollDownMessagesEnd}
+                    />
+                    <SendGPSMessage
+                        lng={lng}
+                        srcollDownMessagesEnd={srcollDownMessagesEnd}
+                    />
                     <button onClick={onSendMessage}>
                         <Image
                             src="/img/icons/send-message.svg"

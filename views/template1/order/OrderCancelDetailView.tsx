@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import RightNowActivityOrderDetail from "../components/RightNowActivityOrderDetail";
 import { Icon } from "@iconify/react";
@@ -20,6 +20,7 @@ import { message as messagePop } from "antd";
 import { showApiErrorMethod } from "@/service/utils";
 import dayjs from "dayjs";
 import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
+import { orderStatusByMemberEnum } from "@/status-enum/order-enum";
 
 /**
  * 一般訂單取消詳細資料
@@ -56,20 +57,53 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
     const [order, setOrder] = useState<GetRightNowActivityOrderDetailAPIResInterface>();
     // 顯示訂單資料
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
-    // 顯示取消活動按鈕
-    const [isShowCancelButton, setIsShowCancelButton] = useState(true);
 
     const [provider, setProvider] = useState<RightNowActivityOrderDetailProviderSigupCardInterface>();
+
+    /**
+     * 判斷是否顯示重新開單按鈕有兩情境下且都符合才成立
+     * 1. 已報名服務商 datings 的 status 大於等於 0 代表此訂單還沒取消
+     * 2. 需求的服務商等於已確認的服務商人數
+     * @returns
+     */
+
+    const isShowReCreateButton = useMemo(() => {
+        if (order) {
+            // 取得有接受報名的服務商訂單數量且 status 大於等於 0 代表此訂單還沒取消
+            let isAcceptedOrder = 0;
+
+            if (Array.isArray(order.enrollers) && order.enrollers.length > 0) {
+                // 過濾已報名服務商的訂單狀態 取得是否有已經接受報名的訂單或者未付款得訂單(未付款訂單也代表已選擇服務商)
+                isAcceptedOrder = order.enrollers.filter((enroller) => enroller.dating !== null && enroller.dating && enroller.dating.status >= orderStatusByMemberEnum.Unpaid).length;
+            }
+            // 判斷服務商需求人數是否等於已報名服務商訂單數量
+            const providerRequiredCountEqualAcceptedCount = order.provider_required === order.provider_accepted;
+            // 判斷沒有已接受的訂單或等待付款的訂單 以及 服務商需求人數是否等於已報名服務商數量
+            if (isAcceptedOrder === 0 && providerRequiredCountEqualAcceptedCount) {
+                setIsCounting(true);
+                return true;
+            }
+            return false;
+        }
+
+        return false;
+    }, [order]);
 
     // 重新下訂按鈕事件
     const handleReCreate = () => {
         return router.push("/create-rightnowactivity-order");
     };
 
+    // 跳轉訂單列表
+    const goToOrderList = () => {
+        router.push("/rightnowactivity-order/list/starting");
+    };
+
     /**
      * 反悔取消訂單機制
      */
     const ordcerUndoCancel = async ({ providerID, orderID, rightNowActivityID }: { providerID: string; orderID: string; rightNowActivityID: string }) => {
+        setLoading(true);
         try {
             await OrderUndoCancelAPI(orderID);
             router.push(`/order/${providerID}/${rightNowActivityID}`);
@@ -81,6 +115,8 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                 globalErrMessage: t("global.apiError"),
             });
             throw err;
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -108,16 +144,27 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
     const RenderButton = () => (
         <div className="flex flex-col">
             <div className="w-full">
-                <Spin spinning={loading}>
-                    <ButtonBorderGradient
-                        onClick={handleReCreate}
-                        buttonText={t("rightNowActivityOrderCancel.button-recreate") + ` (${seconds})`}
-                        outsideClassName={`p-px rounded-md flex-1 ${!isCounting ? "DisabledGradient" : "PrimaryGradient"}`}
-                        insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px] ${!isCounting ? "DisabledGradientByOutlineBtn" : "PrimaryGradient"}`}
-                        isDisabled={!isCounting}
-                        buttonType="button"
-                    />
-                </Spin>
+                {isShowReCreateButton ? (
+                    <Spin spinning={loading}>
+                        <ButtonBorderGradient
+                            onClick={handleReCreate}
+                            buttonText={t("rightNowActivityOrderCancel.button-recreate") + ` (${seconds})`}
+                            outsideClassName={`p-px rounded-md flex-1 ${!isCounting ? "DisabledGradient" : "PrimaryGradient"}`}
+                            insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px] ${!isCounting ? "DisabledGradientByOutlineBtn" : "PrimaryGradient"}`}
+                            isDisabled={!isCounting}
+                            buttonType="button"
+                        />
+                    </Spin>
+                ) : (
+                    <button
+                        onClick={goToOrderList}
+                        type="button"
+                        className="text-gray-primary border border-gray-primary h-[45px] w-[400px] rounded mt-[24px]"
+                    >
+                        {t("global.back")}
+                        {t("global.orderList")}
+                    </button>
+                )}
             </div>
             {/* <div className="w-full">
                 <Spin spinning={loading}>
@@ -151,15 +198,6 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
             setOrder(res);
 
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
-                /**
-                 * 當有顯示取消活動按鈕 不執行 否則為以下規則
-                 * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態大於或等於2 時 扔然可以讓他取消
-                 * 單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
-                 */
-                if (!isShowCancelButton) {
-                    setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
-                }
-
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface | undefined = res.enrollers
                     .map((item) => {
                         console.log("order cancel =>", item.dating);
@@ -193,7 +231,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                 }
             }
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
-            setIsCounting(true);
+
             return res;
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);

@@ -17,6 +17,7 @@ import * as _ from "lodash";
 import { SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
 import { SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
 import ServiceChatRoom from "../components/ServiceChatoom";
+import { tmc } from "@/service/utils";
 
 /**
  * 待赴約服務商聊天列表 ui
@@ -97,7 +98,7 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
      */
     const listenChatUsers = async () => {
         const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
-        chatUsersRef.onSnapshot((docs: any) => {
+        chatUsersRef.where("confirmedOrder", "!=", null).onSnapshot((docs: any) => {
             docs.docChanges().forEach((change: any) => {
                 // 當有新增資料時會觸發
                 if (change.type === "added") {
@@ -143,6 +144,10 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
         }
     };
 
+    /**
+     * 取得更多聊天對象
+     * @returns
+     */
     const fetchMoreData = async () => {
         const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
         // 判斷最後一頁時不往下執行
@@ -175,10 +180,9 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
         const chatUsersRef = firebaseDbCollection(`chat_rooms/${userID}/users`);
         try {
             // 聊天對象名單 collection
-            let queryUsers: any = await chatUsersRef.orderBy("lastMsgAt", "asc").limit(paginationLimit).get();
-            console.log("work-0");
+            let queryUsers: any = await chatUsersRef.where("confirmedOrder", "!=", null).orderBy("lastMsgAt", "asc").limit(paginationLimit).get();
+            console.log("queryUsers =>", queryUsers);
             if (queryUsers.empty) {
-                console.log("work");
                 setChatRoomsPaginationKey("end");
                 return;
             }
@@ -216,21 +220,15 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
             <h1 className="text-md-title font-bold text-center">{t("rightNowActivityJoinProvidersChatRoom.title")}</h1>
-            <div className="border border-gray-light rounded-md mt-[40px]">
-                <h3 className="text-lg-content font-semibold text-center py-[16px] border-b border-b-gray-light">{t("rightNowActivityJoinProvidersChatRoom.watingProviders")}</h3>
+            <div className="mt-[40px] border-t border-gray-light pt-5">
                 <ServiceChatRoom
                     lng={lng}
                     serviceChatID={serviceChatID!}
                 />
-                <h2 className="pl-[15px] mt-[15px] mb-[5px]">服務商</h2>
+                <h2 className="pl-[15px] mt-[15px] mb-[5px] font-medium">{t("global.provider")}</h2>
                 <ul
                     id="scrollableDiv"
-                    style={{
-                        height: 300,
-                        overflow: "auto",
-                        display: "flex",
-                        flexDirection: "column-reverse",
-                    }}
+                    className={tmc(["flex flex-col-reverse overflow-auto", Array.isArray(chatrooms) && chatrooms.length > 15 ? "h-[300px]" : "h-auto"])}
                 >
                     {Array.isArray(chatrooms) && (
                         <InfiniteScroll
@@ -247,27 +245,24 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
                                     return (
                                         <li
                                             key={chatroom.userData.banana_id}
-                                            className="flex items-center py-[10px] px-[15px]"
+                                            onClick={() => goToChatRoom({ id: chatroom.userData.banana_id!, name: chatroom.userData.name!, avatar: chatroom.userData.avatar! })}
+                                            className="flex items-center py-[10px] px-[15px] cursor-pointer"
                                         >
                                             {typeof chatroom.userData.cover === "string" && (
                                                 <Image
                                                     src={chatroom.userData.cover}
                                                     alt="provider-cover"
-                                                    width={100}
-                                                    height={100}
-                                                    style={{ width: "80px", height: "auto" }}
+                                                    width={50}
+                                                    height={50}
+                                                    style={{ width: "50px", height: "auto" }}
                                                     className="rounded-full w-[50px] h-[50px] mr-[20px]"
                                                 />
                                             )}
-                                            <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{chatroom.userData.name}</h4>
-                                            {typeof chatroom.userData.banana_id === "string" && (
-                                                <button
-                                                    onClick={() => goToChatRoom({ id: chatroom.userData.banana_id!, name: chatroom.userData.name!, avatar: chatroom.userData.avatar! })}
-                                                    className="PrimaryGradient h-[40px] min-w-[100px] text-white rounded-md"
-                                                >
-                                                    {t("global.sendMessage")}
-                                                </button>
-                                            )}
+
+                                            <div>
+                                                <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{chatroom.userData.name}</h4>
+                                                <p className="line-clamp-1 text-gray-third text-sm-content">{chatroom.message}</p>
+                                            </div>
                                         </li>
                                     );
                                 } else {
@@ -278,15 +273,6 @@ export default function RightNowActivityJoinProvidersChatRoomListView({ lng }: {
                     )}
                 </ul>
             </div>
-            <div className="flex flex-col mt-[40px]">
-                <button
-                    onClick={() => goToOrderDetail(orderId)}
-                    className="border border-primary rounded-md text-primary  h-[40px] text-lg-content"
-                >
-                    {t("rightNowActivityJoinProvidersChatRoom.button-seeOrder")}
-                </button>
-            </div>
-            <ContactWe lng={lng} />
         </div>
     );
 }

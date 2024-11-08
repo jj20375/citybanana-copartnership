@@ -48,7 +48,7 @@ const MessageItem = memo(({ lng, message, providerData, index }: { lng: string; 
             <div className="flex items-end">
                 {message.userId !== userID ? (
                     <>
-                        <div className={tmc(["bg-gray-light rounded-md py-[9px] px-[15px] text-gray-primary text-sm mr-[13px]"])}>{message.content}</div>
+                        <div className={tmc(["bg-white rounded-md py-[9px] px-[15px] text-gray-primary text-sm mr-[13px]"])}>{message.content}</div>
                         <div className="text-[12px] text-gray-third">{dayjs(message.createdAt).format("MM/DD HH:mm")}</div>
                     </>
                 ) : (
@@ -57,7 +57,7 @@ const MessageItem = memo(({ lng, message, providerData, index }: { lng: string; 
                             {typeof providerData.readedAt === "number" && providerData.readedAt > message.createdAt && <div>已讀</div>}
                             {dayjs(message.createdAt).format("MM/DD HH:mm")}
                         </div>
-                        <div className={tmc(["PrimaryGradient rounded-md py-[9px] px-[15px] text-white text-sm"])}>{message.content}</div>
+                        <div className={tmc(["bg-gradient-to-b from-blue-600 to-blue-700 text-white rounded-md py-[9px] px-[15px] text-white text-sm"])}>{message.content}</div>
                     </>
                 )}
             </div>

@@ -92,7 +92,7 @@ export default function OrderListView({ lng, status }: { lng: string; status: st
     useEffect(() => {
         // 取得報名中即刻快閃單列表
         if (status === "all") {
-            getRightNowActivityOrderList({ status: ["0"], limit: 100 });
+            getRightNowActivityOrderList({ status: ["0"], limit: 10 });
         }
         // 取得進行中一般訂單列表
         if (status === "starting") {

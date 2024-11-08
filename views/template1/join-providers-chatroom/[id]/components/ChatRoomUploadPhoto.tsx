@@ -9,7 +9,7 @@ import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 
 // 聊天室圖片上傳 ui
-const ChatRoomUpload = memo(({ lng }: { lng: string }) => {
+const ChatRoomUpload = memo(({ lng, srcollDownMessagesEnd }: { lng: string; srcollDownMessagesEnd: Function }) => {
     const userStore = useAppSelector((state) => state.userStore);
     const chatStore = useAppSelector((state) => state.chatStore);
     // 聊天對象資料
@@ -26,7 +26,6 @@ const ChatRoomUpload = memo(({ lng }: { lng: string }) => {
         // 傳送聊天室圖片檔案至後端資料夾
         try {
             const data = await ChatUploadAttachmentsAPI(file);
-            message.success(`${file.name} file uploaded successfully`);
             const sendMessageData = {
                 imageUrl: data.url,
                 loginUserId: loginUserId,
@@ -36,10 +35,11 @@ const ChatRoomUpload = memo(({ lng }: { lng: string }) => {
                 isProvider: false,
                 message: "傳送一張照片",
             };
+            setFileList([]);
             // 發送聊天室訊息
             try {
                 await SendChatImageMessageAPI(sendMessageData);
-                message.success(`${file.name} send message successfully`);
+                srcollDownMessagesEnd();
             } catch (err) {
                 message.error(`${file.name} send message failed.`);
             }

@@ -33,7 +33,11 @@
         "viewOrder": "查看訂單",
         "confirmPayment": "確認付款",
         "end": "結束",
-        "start": "開始"
+        "start": "開始",
+        "back": "返回",
+        "orderList": "訂單列表",
+        "provider": "服務商",
+        "serviceChat": "客服聊天室"
     },
     "footer": {
         "menus": {
@@ -320,6 +324,7 @@
             "message_requiredErrMessage": "請輸入訊息",
             "message_minErrMessage": "最少需要{{val}}個字"
         },
+        "confirmGPS": "確認傳送GPS位置訊息",
         "orderType": {
             "cancelExtendOrderByUser": "取消續約",
             "cancelExtendOrderByProvider": "婉拒續約",

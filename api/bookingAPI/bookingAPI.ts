@@ -96,8 +96,8 @@ export async function RightNowActivityOrderCancelAndCancelAcceptedOrderAPI(order
  * 取消一般預訂單
  */
 export async function OrderCancelAPI(orderID: string): Promise<OrderCancelAPIResInterface> {
-    return useMyFetch(`${apiURL}/partner/demands/datings/${orderID}`, {
-        method: "delete",
+    return useMyFetch(`${apiURL}/datings/${orderID}/cancel`, {
+        method: "post",
     });
 }
 

@@ -32,8 +32,17 @@ export interface GetRightNowActivityOrderDetailAPIResInterface {
     my_enrolled_status: null;
     name: string;
     paid_by: number;
+    /**
+     * 接受服務商報名人數
+     */
     provider_accepted: number;
+    /**
+     * 服務商報名人數
+     */
     provider_enrolled: number;
+    /**
+     * 服務商需求人數
+     */
     provider_required: number;
     /**
      * 需求備註，特殊需求備註
@@ -84,7 +93,7 @@ export interface Merchant {
 
 export interface Enroller {
     created_at?: string;
-    dating?: Dating;
+    dating?: EnrollersDating;
     dating_demand_id?: number;
     dating_id?: null | string;
     hourly_pay?: number;
@@ -96,7 +105,7 @@ export interface Enroller {
     [property: string]: any;
 }
 
-export interface Dating {
+export interface EnrollersDating {
     cash_receivable: number;
     created_at: string;
     cut_due_time: null;

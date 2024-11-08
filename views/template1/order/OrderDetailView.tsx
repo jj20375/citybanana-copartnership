@@ -36,7 +36,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
 
     // 訂單取消倒數時間
     const [seconds, setSeconds] = useState(300);
-    // 判斷是否觸發倒數計時
+    // 判斷是否觸發倒數計時有觸發時顯示取消按鈕
     const [isCounting, setIsCounting] = useState(false);
 
     type DisplayOrder = {
@@ -45,9 +45,6 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
             value: string;
             column: string;
         }[];
-    };
-    const backList = () => {
-        router.push("/rightnowactivity-order/list/starting");
     };
 
     // 取消活動彈窗 dom
@@ -61,14 +58,17 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     const [order, setOrder] = useState<GetRightNowActivityOrderDetailAPIResInterface>();
     // 顯示訂單資料
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
-    // 顯示取消活動按鈕
-    const [isShowCancelButton, setIsShowCancelButton] = useState(true);
 
     const [provider, setProvider] = useState<RightNowActivityOrderDetailProviderSigupCardInterface>();
 
     // 跳轉服務商聊天室
     const goToChatRoom = (id: string) => {
         router.push(`/join-providers-chatroom/${id}`);
+    };
+
+    // 跳轉訂單列表
+    const goToOrderList = () => {
+        router.push("/rightnowactivity-order/list/starting");
     };
 
     const RenderTitle = () => {
@@ -142,7 +142,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                 <Icon
                     className="text-3xl cursor-pointer text-black"
                     icon="iconamoon:arrow-left-2-light"
-                    onClick={backList}
+                    onClick={goToOrderList}
                 />
                 <h1 className="text-black w-full text-md-title text-center">{title}</h1>
             </div>
@@ -153,17 +153,28 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
         <div className="flex flex-col">
             <button
                 onClick={() => goToChatRoom(providerID)}
-                className="text-white bg-primary h-[45px] w-[400px] rounded"
+                className="text-white bg-primary h-[45px] w-[400px] rounded border border-primary"
             >
                 {t("rightNowActivityJoinProvidersChatRoom.title")}
             </button>
-            <button
-                onClick={openCancelOrderModal}
-                className="text-gray-primary mt-[24px] block disabled:cursor-not-allowed"
-                disabled={!isCounting}
-            >
-                {t("global.cancel-order") + `(${seconds}s)`}
-            </button>
+            {isCounting ? (
+                <button
+                    onClick={openCancelOrderModal}
+                    className="text-gray-primary mt-[24px] text-[10px] block disabled:cursor-not-allowed"
+                    disabled={!isCounting}
+                >
+                    {t("global.cancel-order") + `(${seconds}s)`}
+                </button>
+            ) : (
+                <button
+                    onClick={goToOrderList}
+                    type="button"
+                    className="text-gray-primary border border-gray-primary h-[45px] w-[400px] rounded mt-[24px]"
+                >
+                    {t("global.back")}
+                    {t("global.orderList")}
+                </button>
+            )}
         </div>
     );
 
@@ -301,20 +312,8 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
         try {
             const res = await GetRightNowActivityOrderDetailAPI({ orderID: rightNowActivityID });
             setOrder(res);
-            // 判斷開始時間大於現在時間 且大於5分鐘時才觸發倒數計時
-            if (dayjs(res.started_at).isValid() && dayjs(res.started_at) > dayjs().add(5, "minutes")) {
-                setIsCounting(true);
-            }
-            if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
-                /**
-                 * 當有顯示取消活動按鈕 不執行 否則為以下規則
-                 * 設定是否顯示取消訂單按鈕 當有服務商報名時 且訂單狀態大於或等於2 時 扔然可以讓他取消
-                 * 單是需連同一般預訂單一起取消 所以顯示取消活動按鈕
-                 */
-                if (!isShowCancelButton) {
-                    setIsShowCancelButton(res.status >= rightNowActivityOrderStatusByMemberEnum.Rejected);
-                }
 
+            if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface | undefined = res.enrollers
                     .map((item) => {
                         const findJob = Array.isArray(item.user!.occupation) && item.user!.occupation.length > 0 ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
@@ -346,6 +345,21 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                     .find((item) => item.providerID === providerID);
                 if (setDatas !== undefined) {
                     setProvider(setDatas);
+
+                    // 可以進行取消的訂單狀態 (未付款｜等待確認｜已確認)
+                    const canToCancelStatus = () => {
+                        if (setDatas && setDatas.datingOrder && setDatas.datingOrder.status < orderStatusByMemberEnum.InProgress && setDatas.datingOrder.status >= orderStatusByMemberEnum.Unpaid) {
+                            return true;
+                        }
+                        return false;
+                    };
+                    // 判斷開始時間大於現在時間 且大於5分鐘時才觸發倒數計時 取為可以取消的訂單狀態
+                    if (canToCancelStatus() && dayjs(res.started_at).isValid() && dayjs(res.started_at) > dayjs().add(5, "minutes")) {
+                        setIsCounting(true);
+                    } else if (canToCancelStatus() && res.started_at === null) {
+                        // 當為現在時間得即刻快閃單時可以開放取消訂單機制但必須為可以取消的訂單狀態
+                        setIsCounting(true);
+                    }
                 }
             }
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
@@ -426,7 +440,7 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            {provider?.datingOrder.order_id}
+            {provider && provider.datingOrder ? provider.datingOrder.order_id : ""}
             {displayOrder && provider && order ? (
                 <RightNowActivityOrderDetail
                     lng={lng}

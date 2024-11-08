@@ -20,7 +20,7 @@ const { TextArea } = Input;
 /**
  * 發送聊天室訊息 ui
  */
-const SendMessage = forwardRef(({ lng }: { lng: string }, ref: any) => {
+const SendMessage = forwardRef(({ lng, srcollDownMessagesEnd }: { lng: string; srcollDownMessagesEnd: Function }, ref: any) => {
     const { t } = useTranslation(lng, "main");
     const params: { receiverId: string } | null = useParams();
     const userStore = useAppSelector((state) => state.userStore);
@@ -81,6 +81,9 @@ const SendMessage = forwardRef(({ lng }: { lng: string }, ref: any) => {
                     message,
                     isProvider: false,
                 });
+                setValue("message", "");
+                setForm({ message: "" });
+                srcollDownMessagesEnd();
                 reset();
             } catch (err) {
                 throw { title: "sendMessageAPI err =>", err };

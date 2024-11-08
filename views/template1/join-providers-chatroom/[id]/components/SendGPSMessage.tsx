@@ -5,10 +5,10 @@ import Image from "next/image";
 import { SendChatGPSMessageAPI } from "@/api/chatAPI/chatAPI";
 import { useAppSelector } from "@/store-toolkit/storeToolkit";
 import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
-import { message, Modal } from "antd";
+import { message, Modal, Spin } from "antd";
 import { useTranslation } from "@/i18n/i18n-client";
 
-const SendGPSMessage = memo(({ lng }: { lng: string }) => {
+const SendGPSMessage = memo(({ lng, srcollDownMessagesEnd }: { lng: string; srcollDownMessagesEnd: Function }) => {
     const { t } = useTranslation(lng, "main");
     const userStore = useAppSelector((state) => state.userStore);
     const chatStore = useAppSelector((state) => state.chatStore);
@@ -39,6 +39,7 @@ const SendGPSMessage = memo(({ lng }: { lng: string }) => {
             });
             setLoading(false);
             setShowDialog(false);
+            srcollDownMessagesEnd();
         } catch (err) {
             console.log("SendChatGPSMessageAPI err => ", err);
             setLoading(false);
@@ -97,10 +98,17 @@ const SendGPSMessage = memo(({ lng }: { lng: string }) => {
                 onCancel={() => setShowDialog(false)}
                 footer={[]}
             >
-                <p>some contents...</p>
-                <p>some contents...</p>
-                <p>some contents...</p>
-                <button onClick={onConfirmGPS}>確認</button>
+                <p className="text-center font-bold mb-2">{t("rightNowActivityJoinProvidersChatRoom.confirmGPS")}</p>
+                <div className="text-center w-full">
+                    <Spin spinning={loading}>
+                        <button
+                            className="bg-primary text-white w-[150px] rounded h-[45px]"
+                            onClick={onConfirmGPS}
+                        >
+                            {t("global.confirm")}
+                        </button>
+                    </Spin>
+                </div>
             </Modal>
         </>
     );

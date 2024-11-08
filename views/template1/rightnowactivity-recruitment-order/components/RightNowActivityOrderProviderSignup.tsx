@@ -6,8 +6,6 @@ import type { RightNowActivityOrderDetailProviderSigupCardInterface, RightNowAct
 import { Checkbox, GetProp, Radio, type RadioChangeEvent } from "antd";
 // 選擇服務商幻燈片彈窗
 import RightNowActivityOrderProviderCarouselModal from "./RightNowActivityOrderProviderCarouselModal";
-// 確認付款彈窗
-import RightNowActivityOrderConfirmPaymentModal from "./RightNowActivityOrderConfirmPaymentModal";
 import { rightNowActivityOrderEnrollersStatusEnum, rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/rightnowactivity-order-enum";
 import Image from "next/image";
 import styles from "../styles/RightNowActivityOrderRecruitmentLogoAnimation.module.scss";
