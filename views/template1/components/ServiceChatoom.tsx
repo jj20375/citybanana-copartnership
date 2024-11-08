@@ -79,7 +79,10 @@ export default function ServiceChatRoom({ lng, serviceChatID }: { lng: string; s
                             style={{ width: "50px", height: "auto" }}
                             className="rounded-full w-[50px] h-[50px] mr-[20px]"
                         />
-                        <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{serviceChatUserData.userData.name}</h4>
+                        <div>
+                            <h4 className="text-gray-primary flex-1 text-lg-content font-semibold">{serviceChatUserData.userData.name}</h4>
+                            <p className="line-clamp-1 text-gray-third text-sm-content">{serviceChatUserData.message}</p>
+                        </div>
                     </div>
                 </>
             ) : null}
