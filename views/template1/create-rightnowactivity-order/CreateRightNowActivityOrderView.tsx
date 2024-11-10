@@ -38,8 +38,9 @@ import { setRightNowActivityDefaultValuesByParams } from "@/service/rightNowActi
 import { RightNowActivityOrderCreateByCashAPI, RightNowActivityOrderCreateByOtherAPI, RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI, RightNowActivityOrderCreateByCreditCardAPI } from "@/api/bookingAPI/bookingAPI";
 import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import { getCookie } from "cookies-next";
+import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 
-function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
+function CreateRightNowActivityOrderForm({ lng, partnerStoreInfo }: { lng: string; partnerStoreInfo: GetPartnerStoreInfoAPIResInterface }) {
     const { t } = useTranslation(lng, "main");
     const token = getCookie("accessToken");
     // 訂單 store
@@ -330,14 +331,17 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                             setValue={setValue}
                             required={true}
                         />
-                        <OrderByRadioTimeType
-                            lng={lng}
-                            register={register}
-                            label="order.timeType"
-                            value={timeTypeValue}
-                            setValue={setValue}
-                            required={true}
-                        />
+                        {partnerStoreInfo && partnerStoreInfo.merchant ? (
+                            <OrderByRadioTimeType
+                                lng={lng}
+                                register={register}
+                                label="order.timeType"
+                                value={timeTypeValue}
+                                setValue={setValue}
+                                required={true}
+                                canChooseTime={partnerStoreInfo ? (partnerStoreInfo.merchant.details ? (partnerStoreInfo.merchant.details.disable_started_future ? true : false) : false) : false}
+                            />
+                        ) : null}
                         {timeTypeValue === "now" && (
                             <div className="text-base-content text-gray-third">
                                 {t("rightNowActivityOrder.radioTimeType.description_start")}：<span className="text-primary mx-1">60</span>
@@ -467,7 +471,7 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
                     <div className="h-[123px] w-full"></div>
                 </div>
             </div>
-            <pre className="flex">{JSON.stringify(order, null, 4)}</pre>
+            {/* <pre className="flex">{JSON.stringify(order, null, 4)}</pre> */}
         </>
     );
 }
@@ -475,11 +479,15 @@ function CreateRightNowActivityOrderForm({ lng }: { lng: string }) {
 export default function CreateRightNowActivityOrderView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const partnerStore = useAppSelector((state) => state.partnerStore);
+    const partnerStoreInfo = useAppSelector((state) => state.partnerStore.partnerStoreInfo);
     const title = usePartnerStoreNameSelector(partnerStore);
     return (
         <>
             <TitleCompoent title={title} />
-            <CreateRightNowActivityOrderForm lng={lng} />
+            <CreateRightNowActivityOrderForm
+                lng={lng}
+                partnerStoreInfo={partnerStoreInfo}
+            />
         </>
     );
 }

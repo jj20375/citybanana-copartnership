@@ -499,7 +499,7 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
                                 <span className="text-primary">*</span>
                             </label>
                             <p className="text-gray-primary text-lg-content">
-                                {userName} {t(`global.gender-${userGender}`)} {JSON.stringify(isVisitor)}
+                                {userName} {t(`global.gender-${userGender}`)}
                             </p>
                         </>
                     )}

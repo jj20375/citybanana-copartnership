@@ -17,7 +17,10 @@ export interface GetPartnerStoreInfoAPIResInterface {
         social?: null | object;
         service?: null | string;
         status: number;
-        details?: null | object;
+        details?: null | {
+            // 判斷是否有可使用指定時間立訂單店家
+            disable_started_future: boolean;
+        };
         created_at: null | string;
     };
     // 店家桌號或包廂
