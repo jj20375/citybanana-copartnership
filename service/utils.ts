@@ -120,3 +120,14 @@ export function showApiErrorMethod({ apiErr, errorMessageLang, lng, globalErrMes
         });
     }
 }
+
+/**
+ * 定義一個函數，接收一個字串和一個正則表達式作為參數
+ * @param inputString 傳入參數
+ * @param pattern 驗證規則
+ * @returns
+ */
+export function checkPattern(inputString: string, pattern: RegExp) {
+    // 使用 pattern.test() 方法檢查字串是否符合正則表達式
+    return pattern.test(inputString);
+}

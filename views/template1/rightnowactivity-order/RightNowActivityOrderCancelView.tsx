@@ -11,10 +11,11 @@ import Image from "next/image";
 import ButtonBorderGradient from "../components/ButtonBorderGradient";
 import type { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
-import { useAppSelector } from "@/store-toolkit/storeToolkit";
-import { usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
+import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
+import { getPartnerStoreInfo, usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import dayjs from "dayjs";
 import RightNowActivityOrderByProviderContent from "./components/RightNowActivityOrderByProviderContent";
+import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 
 /**
  * 即刻快閃訂單取消詳細資料
@@ -24,6 +25,7 @@ import RightNowActivityOrderByProviderContent from "./components/RightNowActivit
 export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: { lng: string; orderID: string }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     type DisplayOrder = {
         datas: {
@@ -50,45 +52,12 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
         return router.push("/create-rightnowactivity-order");
     };
 
-    const RenderTitle = () => (
-        <div className=" mb-[40px] font-bold">
-            <Image
-                src="/img/icons/order-cancel.svg"
-                alt="order create success"
-                width={100}
-                height={100}
-                style={{ width: "50px", height: "auto" }}
-                className="mx-auto"
-            />
-            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-cancel")}</h1>
-        </div>
-    );
-
-    const RenderButton = () => (
-        <div className="flex flex-col">
-            <button
-                type="button"
-                className="w-full mt-[15px] text-primary border rounded-md h-[45px] border-primary mr-[13px]"
-                onClick={handleReCreate}
-            >
-                {t("rightNowActivityOrderCancel.button-recreate")}
-            </button>
-        </div>
-    );
-
-    const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
-        return Array.isArray(providers) && orderData ? (
-            <div className="grid grid-cols-3 gap-1 content-end">
-                {providers.map((providerData) => (
-                    <RightNowActivityOrderByProviderContent
-                        key={providerData.id}
-                        lng={lng}
-                        providerData={providerData}
-                        orderData={orderData}
-                    />
-                ))}
-            </div>
-        ) : null;
+    /**
+     * 取得店家資料
+     */
+    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
+        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
+        return payload;
     };
 
     /**
@@ -98,28 +67,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
         try {
             const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
             setOrder(res);
-            setDisplayOrder({
-                datas: [
-                    // 店家資料
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
-                    // 活動開始時間
-                    {
-                        label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
-                        value: res.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(res.started_at).isValid() ? dayjs(res.started_at).format("YYYY-MM-DD HH:mm") : res.started_at,
-                        column: "column-startDate",
-                    },
-                    // 特殊需求備註
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: res.requirement, column: "column-note" },
-                    // 服務商需求數量
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: res.provider_required }), column: "column-requiredProviderCount" },
-                    // 每小時或每天單價(出席鐘點費)
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: res.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: res.hourly_pay }), column: "column-price" },
-                    // 活動時長 時數或天數
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: res.details.duration }), column: "column-duration" },
-                    // 付款方式
-                    { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: res.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
-                ],
-            });
+
             if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
                 const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface[] = res.enrollers.map((item) => {
                     const findJob = Array.isArray(item.user!.occupation) && item.user!.occupation.length > 0 ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
@@ -148,16 +96,49 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
                 setProviders(setDatas);
             }
             console.log("GetRightNowActivityOrderDetailAPI => ", res);
+            return res;
         } catch (err) {
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
         }
     }, []);
 
-    useEffect(() => {
-        getOrder(orderID);
+    const fetchData = useCallback(async () => {
+        try {
+            const [fetchOrder] = await Promise.all([getOrder(orderID)]);
+            const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
+            if (fetchOrder && fetchStore) {
+                setDisplayOrder({
+                    datas: [
+                        // 店家資料
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: partnerStoreName, column: "column-store" },
+                        // 活動開始時間
+                        {
+                            label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(fetchOrder.started_at).isValid() ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : fetchOrder.started_at,
+                            column: "column-startDate",
+                        },
+                        // 特殊需求備註
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement!, column: "column-note" },
+                        // 服務商需求數量
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
+                        // 每小時或每天單價(出席鐘點費)
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: fetchOrder.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: fetchOrder.hourly_pay }), column: "column-price" },
+                        // 活動時長 時數或天數
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
+                        // 付款方式
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
+                    ],
+                });
+            }
+        } catch (err) {
+            console.log("fetchData err=>", err);
+        }
     }, []);
 
+    useEffect(() => {
+        fetchData();
+    }, []);
     useEffect(() => {
         if (Array.isArray(providers)) {
             // 取得已接受報名服務商資料
@@ -178,6 +159,73 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
         }
     }, [partnerStoreName, displayOrder]);
 
+    // 倒數計時秒數
+    const [seconds, setSeconds] = useState(5);
+    // 判斷是否觸發倒數計時
+    const [isCounting, setIsCounting] = useState(false);
+
+    const RenderTitle = () => (
+        <div className=" mb-[40px] font-bold">
+            <Image
+                src="/img/icons/order-cancel.svg"
+                alt="order create success"
+                width={100}
+                height={100}
+                style={{ width: "50px", height: "auto" }}
+                className="mx-auto"
+            />
+            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-cancel")}</h1>
+        </div>
+    );
+
+    const RenderButton = () => (
+        <div className="flex flex-col">
+            <button
+                type="button"
+                className="w-full mt-[15px] text-primary border rounded-md h-[45px] border-primary mr-[13px]"
+                onClick={handleReCreate}
+            >
+                {t("rightNowActivityOrderCancel.button-recreate") + ` (${seconds})`}
+            </button>
+        </div>
+    );
+
+    const RenderContent = ({ providers, orderData }: { providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; orderData: GetRightNowActivityOrderDetailAPIResInterface }) => {
+        return Array.isArray(providers) && orderData ? (
+            <div className="grid grid-cols-3 gap-1 content-end">
+                {providers.map((providerData) => (
+                    <RightNowActivityOrderByProviderContent
+                        key={providerData.id}
+                        lng={lng}
+                        providerData={providerData}
+                        orderData={orderData}
+                    />
+                ))}
+            </div>
+        ) : null;
+    };
+
+    /**
+     * 倒數計時機制
+     */
+    useEffect(() => {
+        let intervalID: any = null;
+        if (isCounting) {
+            intervalID = setInterval(() => {
+                setSeconds((prevSeconds) => {
+                    if (prevSeconds <= 1) {
+                        if (intervalID !== null) {
+                            clearInterval(intervalID);
+                        }
+                        setIsCounting(false);
+                        return 0;
+                    }
+                    return prevSeconds - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(intervalID);
+    }, [isCounting]);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
             {displayOrder && acceptProviders && order ? (

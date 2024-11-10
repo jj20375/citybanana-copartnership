@@ -5,12 +5,10 @@ export default function Layout({ children, params: { lng, id } }: { children: Re
         <>
             <HeaderContent lng={lng} />
             <div>{children}</div>
-            {id && (
-                <FooterMenu
-                    lng={lng}
-                    rightNowActivityPath={`/rightnowactivity-order/${id}`}
-                />
-            )}
+            <FooterMenu
+                lng={lng}
+                rightNowActivityPath={`/rightnowactivity-order/${id}`}
+            />
         </>
     );
 }

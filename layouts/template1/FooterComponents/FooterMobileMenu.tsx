@@ -3,6 +3,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { useTranslation } from "@/i18n/i18n-client";
 import { tmc } from "@/service/utils";
+import { usePathname } from "next/navigation";
+import { useMemo, useState } from "react";
+// 驗證規則是否符合
+import { checkPattern } from "@/service/utils";
 
 /**
  * 手機版底部選單
@@ -11,7 +15,9 @@ import { tmc } from "@/service/utils";
 export default function FooterMobileMenu({ lng, rightNowActivityPath }: { lng: string; rightNowActivityPath: string }) {
     const { t } = useTranslation(lng, "main");
     const serviceChatID = process.env.NEXT_PUBLIC_SERVICE_CHAT_ID;
-    const menus = [
+    const pathname = usePathname();
+
+    const defaultMenus = [
         {
             label: t("footer.menus.menu_1"),
             img: "/img/footer/menu-1.svg",
@@ -31,6 +37,24 @@ export default function FooterMobileMenu({ lng, rightNowActivityPath }: { lng: s
             isActive: false,
         },
     ];
+    // const [menus, setMenus] = useState();
+
+    const menus = useMemo(() => {
+        const rightNowActivityPath = "rightnowactivity-order";
+        const rightNowActivityRecruitmentOrderPath = "rightnowactivity-recruitment-order";
+        const rightNowActivitySubPaths = ["success", "cancel"];
+        // 即刻快閃報名後頁面選單 驗證規則
+        const rightNowActivityPathRegex = new RegExp(`${lng}/${rightNowActivityPath}/?(${rightNowActivitySubPaths.join("|")})?`);
+        // 即刻快閃報名後中頁面選單 驗證規則
+        const rightNowActivityRrecruitmentOrderPathRegex = new RegExp(`${lng}/${rightNowActivityRecruitmentOrderPath}/?`);
+        if (pathname) {
+            const activeRightNowActivityMenu = checkPattern(pathname, rightNowActivityPathRegex);
+            const activeRightNowActivityRecruitmentMenu = checkPattern(pathname, rightNowActivityRrecruitmentOrderPathRegex);
+            console.log("activeRightNowActivityMenu =>", activeRightNowActivityMenu);
+            console.log("activeRightNowActivityRecruitmentMenu =>", activeRightNowActivityRecruitmentMenu);
+        }
+        return defaultMenus;
+    }, [pathname]);
     return (
         <div className="max-w-[500px] mx-auto border-t border-gray-light min-h-[80px] flex items-center mt-10">
             <ul className="flex flex-1">

@@ -1,6 +1,6 @@
-import FooterMenu from "@/layouts/template1/FooterComponents/FooterMenu";
 import { HeaderContent } from "@/layouts/template1/Header";
-export default function Layout({ children, params: { lng, id } }: { children: React.ReactNode; params: { lng: string; id?: string | void } }) {
+import FooterMenu from "@/layouts/template1/FooterComponents/FooterMenu";
+export default function Layout({ children, params: { lng, id } }: { children: React.ReactNode; params: { lng: string; id: string } }) {
     return (
         <>
             <HeaderContent lng={lng} />

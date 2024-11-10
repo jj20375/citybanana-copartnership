@@ -8,6 +8,7 @@ import FooterMobileMenu from "./FooterMobileMenu";
  */
 export default function FooterMenu({ lng, rightNowActivityPath }: { lng: string; rightNowActivityPath: string }) {
     const isMobile = useWidowResizeStore((state) => state.isMobile);
+
     if (isMobile) {
         return (
             <FooterMobileMenu

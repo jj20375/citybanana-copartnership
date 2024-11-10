@@ -7,15 +7,11 @@ import { ReadonlyURLSearchParams, usePathname, useRouter, useSearchParams } from
 import type { RightNowActivityOrderDetailProviderSigupCardInterface } from "@/views/template1/rightnowactivity-recruitment-order/rightnowactivity-order-interface";
 // 取消活動彈窗
 import RightNowActivityOrderCancelModal from "../rightnowactivity-recruitment-order/components/RightNowActivityOrderCancelModal";
-// 聯絡我們 ui
-import ContactWe from "../components/ContactWe";
 import { GetRightNowActivityOrderDetailAPI } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI";
 import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowActivityOrderAPI/rightNowActivityOrderAPI-interface";
-import { rightNowActivityOrderStatusByMemberEnum } from "@/status-enum/rightnowactivity-order-enum";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { getPartnerStoreInfo, usePartnerStoreNameSelector } from "@/store-toolkit/stores/partnerStore";
 import dayjs from "dayjs";
-import RightNowActivityOrderByProviderContent from "../rightnowactivity-order/components/RightNowActivityOrderByProviderContent";
 import { orderStatusByMemberEnum } from "@/status-enum/order-enum";
 import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 
@@ -33,11 +29,6 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     const partnerStore = useAppSelector((state) => state.partnerStore);
     // 合作店家名稱
     const partnerStoreName = usePartnerStoreNameSelector(partnerStore);
-
-    // 訂單取消倒數時間
-    const [seconds, setSeconds] = useState(300);
-    // 判斷是否觸發倒數計時有觸發時顯示取消按鈕
-    const [isCounting, setIsCounting] = useState(false);
 
     type DisplayOrder = {
         datas: {
@@ -70,6 +61,133 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     const goToOrderList = () => {
         router.push("/rightnowactivity-order/list/starting");
     };
+
+    /**
+     * 取得店家資料
+     */
+    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
+        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
+        return payload;
+    };
+
+    /**
+     * 取得即刻快閃訂單資料
+     */
+    const getRightNowActivityOrder = async (rightNowActivityID: string) => {
+        try {
+            const res = await GetRightNowActivityOrderDetailAPI({ orderID: rightNowActivityID });
+            setOrder(res);
+
+            if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
+                const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface | undefined = res.enrollers
+                    .map((item) => {
+                        const findJob = Array.isArray(item.user!.occupation) && item.user!.occupation.length > 0 ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
+                        const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 1) !== undefined : false;
+                        return {
+                            id: String(item.id!),
+                            // 判斷服務商是否有預訂單
+                            haveDating: item.dating !== null ? true : false,
+                            name: item.user!.name!,
+                            cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
+                            rate: item.user!.rating_score!,
+                            unit: res.details.unit!,
+                            height: item.user!.height!,
+                            weight: item.user!.weight!,
+                            travelTime: item.travel_time!,
+                            isNowTime: res.at_any_time!,
+                            price: item.hourly_pay!,
+                            authentication: true,
+                            isQueen,
+                            area: item.user!.district!,
+                            enrollerStatus: item.status,
+                            job: findJob,
+                            providerID: item.user!.banana_id,
+                            orderID: item.dating !== null && item.dating !== undefined ? item.dating.order_id : "",
+                            // 一般預訂單資料
+                            datingOrder: item.dating ? item.dating : null,
+                        };
+                    })
+                    .find((item) => item.providerID === providerID);
+                if (setDatas !== undefined) {
+                    setProvider(setDatas);
+
+                    // 可以進行取消的訂單狀態 (未付款｜等待確認｜已確認)
+                    const canToCancelStatus = () => {
+                        if (setDatas && setDatas.datingOrder && setDatas.datingOrder.status < orderStatusByMemberEnum.InProgress && setDatas.datingOrder.status >= orderStatusByMemberEnum.Unpaid) {
+                            return true;
+                        }
+                        return false;
+                    };
+                    // 判斷開始時間大於現在時間 且大於5分鐘時才觸發倒數計時 取為可以取消的訂單狀態
+                    if (canToCancelStatus() && dayjs(res.started_at).isValid() && dayjs(res.started_at) > dayjs().add(5, "minutes")) {
+                        setIsCounting(true);
+                    } else if (canToCancelStatus() && res.started_at === null) {
+                        // 當為現在時間得即刻快閃單時可以開放取消訂單機制但必須為可以取消的訂單狀態
+                        setIsCounting(true);
+                    }
+                }
+            }
+            console.log("GetRightNowActivityOrderDetailAPI => ", res);
+            return res;
+        } catch (err) {
+            console.log("GetRightNowActivityOrderDetailAPI err => ", err);
+            throw err;
+        }
+    };
+
+    const fetchData = useCallback(async (rightNowActivityID: string) => {
+        try {
+            const [fetchOrder] = await Promise.all([getRightNowActivityOrder(rightNowActivityID)]);
+            const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
+            if (fetchOrder && fetchStore) {
+                setDisplayOrder({
+                    datas: [
+                        // 店家資料
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: fetchStore.merchant.name, column: "column-store" },
+                        // 活動開始時間
+                        {
+                            label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
+                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(fetchOrder.started_at).isValid() ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : fetchOrder.started_at,
+                            column: "column-startDate",
+                        },
+                        // 特殊需求備註
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement!, column: "column-note" },
+                        // 服務商需求數量
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
+                        // 每小時或每天單價(出席鐘點費)
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: fetchOrder.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: fetchOrder.hourly_pay }), column: "column-price" },
+                        // 活動時長 時數或天數
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
+                        // 付款方式
+                        { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
+                    ],
+                });
+            }
+        } catch (err) {
+            console.log("fetchData err=>", err);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchData(rightNowActivityID);
+    }, []);
+
+    /**
+     * 因為有時候合作店家 api 還沒有載入到資料
+     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
+     */
+    useEffect(() => {
+        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
+            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
+            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
+            setDisplayOrder(newDatas);
+        }
+    }, [partnerStoreName, displayOrder]);
+
+    // 訂單取消倒數時間
+    const [seconds, setSeconds] = useState(300);
+    // 判斷是否觸發倒數計時有觸發時顯示取消按鈕
+    const [isCounting, setIsCounting] = useState(false);
 
     const RenderTitle = () => {
         let title = "";
@@ -298,127 +416,8 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
     };
 
     /**
-     * 取得店家資料
+     * 倒數計時機制
      */
-    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
-        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
-        return payload;
-    };
-
-    /**
-     * 取得即刻快閃訂單資料
-     */
-    const getRightNowActivityOrder = async (rightNowActivityID: string) => {
-        try {
-            const res = await GetRightNowActivityOrderDetailAPI({ orderID: rightNowActivityID });
-            setOrder(res);
-
-            if (Array.isArray(res.enrollers) && res.enrollers.length > 0) {
-                const setDatas: RightNowActivityOrderDetailProviderSigupCardInterface | undefined = res.enrollers
-                    .map((item) => {
-                        const findJob = Array.isArray(item.user!.occupation) && item.user!.occupation.length > 0 ? (item.user!.occupation[0].id === "JOB-OTHERS" ? item.user!.occupation[0].description : item.user!.occupation[0].name) : "";
-                        const isQueen = Array.isArray(item.user!.badges) && item.user!.badges.length > 0 ? item.user!.badges.find((badge) => badge.id === 1) !== undefined : false;
-                        return {
-                            id: String(item.id!),
-                            // 判斷服務商是否有預訂單
-                            haveDating: item.dating !== null ? true : false,
-                            name: item.user!.name!,
-                            cover: item.user!.thumbnails !== undefined && item.user!.thumbnails.cover !== undefined ? item.user!.thumbnails.cover["360x360"] : item.user!.cover!,
-                            rate: item.user!.rating_score!,
-                            unit: res.details.unit!,
-                            height: item.user!.height!,
-                            weight: item.user!.weight!,
-                            travelTime: item.travel_time!,
-                            isNowTime: res.at_any_time!,
-                            price: item.hourly_pay!,
-                            authentication: true,
-                            isQueen,
-                            area: item.user!.district!,
-                            enrollerStatus: item.status,
-                            job: findJob,
-                            providerID: item.user!.banana_id,
-                            orderID: item.dating !== null && item.dating !== undefined ? item.dating.order_id : "",
-                            // 一般預訂單資料
-                            datingOrder: item.dating ? item.dating : null,
-                        };
-                    })
-                    .find((item) => item.providerID === providerID);
-                if (setDatas !== undefined) {
-                    setProvider(setDatas);
-
-                    // 可以進行取消的訂單狀態 (未付款｜等待確認｜已確認)
-                    const canToCancelStatus = () => {
-                        if (setDatas && setDatas.datingOrder && setDatas.datingOrder.status < orderStatusByMemberEnum.InProgress && setDatas.datingOrder.status >= orderStatusByMemberEnum.Unpaid) {
-                            return true;
-                        }
-                        return false;
-                    };
-                    // 判斷開始時間大於現在時間 且大於5分鐘時才觸發倒數計時 取為可以取消的訂單狀態
-                    if (canToCancelStatus() && dayjs(res.started_at).isValid() && dayjs(res.started_at) > dayjs().add(5, "minutes")) {
-                        setIsCounting(true);
-                    } else if (canToCancelStatus() && res.started_at === null) {
-                        // 當為現在時間得即刻快閃單時可以開放取消訂單機制但必須為可以取消的訂單狀態
-                        setIsCounting(true);
-                    }
-                }
-            }
-            console.log("GetRightNowActivityOrderDetailAPI => ", res);
-            return res;
-        } catch (err) {
-            console.log("GetRightNowActivityOrderDetailAPI err => ", err);
-            throw err;
-        }
-    };
-
-    const fetchData = useCallback(async (rightNowActivityID: string) => {
-        try {
-            const [fetchOrder] = await Promise.all([getRightNowActivityOrder(rightNowActivityID)]);
-            const [fetchStore] = await Promise.all([getPartnerStore({ merchantCode: fetchOrder!.details.merchant.merchant_code, venueCode: fetchOrder!.details.merchant.venue_code })]);
-            if (fetchOrder && fetchStore) {
-                setDisplayOrder({
-                    datas: [
-                        // 店家資料
-                        { label: t("rightNowActivityOrderRecruitmentDetail.column-store"), value: fetchStore.merchant.name, column: "column-store" },
-                        // 活動開始時間
-                        {
-                            label: t("rightNowActivityOrderRecruitmentDetail.column-startDate"),
-                            value: fetchOrder.started_at === null ? t("rightNowActivityOrderPayment.startTime-now") : dayjs(fetchOrder.started_at).isValid() ? dayjs(fetchOrder.started_at).format("YYYY-MM-DD HH:mm") : fetchOrder.started_at,
-                            column: "column-startDate",
-                        },
-                        // 特殊需求備註
-                        { label: t("rightNowActivityOrderRecruitmentDetail.column-note"), value: fetchOrder.requirement!, column: "column-note" },
-                        // 服務商需求數量
-                        { label: t("rightNowActivityOrderRecruitmentDetail.column-requiredProviderCount"), value: t("rightNowActivityOrderRecruitmentDetail.value-requiredProviderCount", { val: fetchOrder.provider_required }), column: "column-requiredProviderCount" },
-                        // 每小時或每天單價(出席鐘點費)
-                        { label: t("rightNowActivityOrderRecruitmentDetail.column-price"), value: fetchOrder.hourly_pay === 0 ? t("rightNowActivityOrder.price-0") : t("rightNowActivityOrder.price", { val: fetchOrder.hourly_pay }), column: "column-price" },
-                        // 活動時長 時數或天數
-                        { label: t("rightNowActivityOrderRecruitmentDetail.column-duration"), value: t("rightNowActivityOrderRecruitmentDetail.value-duration", { val: fetchOrder.details.duration }), column: "column-duration" },
-                        // 付款方式
-                        { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
-                    ],
-                });
-            }
-        } catch (err) {
-            console.log("fetchData err=>", err);
-        }
-    }, []);
-
-    useEffect(() => {
-        fetchData(rightNowActivityID);
-    }, []);
-
-    /**
-     * 因為有時候合作店家 api 還沒有載入到資料
-     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
-     */
-    useEffect(() => {
-        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
-            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
-            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
-            setDisplayOrder(newDatas);
-        }
-    }, [partnerStoreName, displayOrder]);
-
     useEffect(() => {
         let intervalID: any = null;
         if (isCounting) {
@@ -465,7 +464,6 @@ export default function OrderDetailView({ lng, providerID, rightNowActivityID }:
                 ref={cancelOrderModalRef}
                 isCancelOrder={true}
             />
-            <ContactWe lng={lng} />
         </div>
     );
 }

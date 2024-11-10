@@ -48,12 +48,6 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
         }[];
     };
 
-    const [seconds, setSeconds] = useState(5);
-    // 判斷是否觸發倒數計時
-    const [isCounting, setIsCounting] = useState(false);
-
-    const timerRef = useRef<any>(null);
-
     const [order, setOrder] = useState<GetRightNowActivityOrderDetailAPIResInterface>();
     // 顯示訂單資料
     const [displayOrder, setDisplayOrder] = useState<DisplayOrder>();
@@ -126,61 +120,6 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
             await ordcerUndoCancel({ providerID, rightNowActivityID: rightNowActivityID, orderID: provider.orderID });
         }
     };
-
-    const RenderTitle = () => (
-        <div className=" mb-[40px] font-bold">
-            <Image
-                src="/img/icons/order-cancel.svg"
-                alt="order create success"
-                width={100}
-                height={100}
-                style={{ width: "50px", height: "auto" }}
-                className="mx-auto"
-            />
-            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-cancel")}</h1>
-        </div>
-    );
-
-    const RenderButton = () => (
-        <div className="flex flex-col">
-            <div className="w-full">
-                {isShowReCreateButton ? (
-                    <Spin spinning={loading}>
-                        <ButtonBorderGradient
-                            onClick={handleReCreate}
-                            buttonText={t("rightNowActivityOrderCancel.button-recreate") + ` (${seconds})`}
-                            outsideClassName={`p-px rounded-md flex-1 ${!isCounting ? "DisabledGradient" : "PrimaryGradient"}`}
-                            insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px] ${!isCounting ? "DisabledGradientByOutlineBtn" : "PrimaryGradient"}`}
-                            isDisabled={!isCounting}
-                            buttonType="button"
-                        />
-                    </Spin>
-                ) : (
-                    <button
-                        onClick={goToOrderList}
-                        type="button"
-                        className="text-gray-primary border border-gray-primary h-[45px] w-[400px] rounded mt-[24px]"
-                    >
-                        {t("global.back")}
-                        {t("global.orderList")}
-                    </button>
-                )}
-            </div>
-            {/* <div className="w-full">
-                <Spin spinning={loading}>
-                    <button
-                        type="button"
-                        className="w-full mt-[15px] text-primary border rounded-md h-[45px] border-primary mr-[13px]"
-                        onClick={handleReCreate}
-                    >
-                        {t("rightNowActivityOrderCancel.button-recreate")}
-                    </button>
-                </Spin>
-            </div> */}
-        </div>
-    );
-
-    const RenderContent = () => <div></div>;
 
     /**
      * 取得店家資料
@@ -288,12 +227,76 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
         }
     }, [partnerStoreName, displayOrder]);
 
+    const RenderTitle = () => (
+        <div className=" mb-[40px] font-bold">
+            <Image
+                src="/img/icons/order-cancel.svg"
+                alt="order create success"
+                width={100}
+                height={100}
+                style={{ width: "50px", height: "auto" }}
+                className="mx-auto"
+            />
+            <h1 className="text-black w-full text-md-title text-center mt-[30px]">{t("rightNowActivityOrderDetail.title-cancel")}</h1>
+        </div>
+    );
+
+    const RenderButton = () => (
+        <div className="flex flex-col">
+            <div className="w-full">
+                {isShowReCreateButton ? (
+                    <Spin spinning={loading}>
+                        <ButtonBorderGradient
+                            onClick={handleReCreate}
+                            buttonText={t("rightNowActivityOrderCancel.button-recreate") + ` (${seconds})`}
+                            outsideClassName={`p-px rounded-md flex-1 ${!isCounting ? "DisabledGradient" : "PrimaryGradient"}`}
+                            insideClassName={`rounded-[calc(0.5rem-3px)] p-2  w-full flex items-center text-white  bg-white justify-center h-[45px] ${!isCounting ? "DisabledGradientByOutlineBtn" : "PrimaryGradient"}`}
+                            isDisabled={!isCounting}
+                            buttonType="button"
+                        />
+                    </Spin>
+                ) : (
+                    <button
+                        onClick={goToOrderList}
+                        type="button"
+                        className="text-gray-primary border border-gray-primary h-[45px] w-[400px] rounded mt-[24px]"
+                    >
+                        {t("global.back")}
+                        {t("global.orderList")}
+                    </button>
+                )}
+            </div>
+            {/* <div className="w-full">
+                <Spin spinning={loading}>
+                    <button
+                        type="button"
+                        className="w-full mt-[15px] text-primary border rounded-md h-[45px] border-primary mr-[13px]"
+                        onClick={handleReCreate}
+                    >
+                        {t("rightNowActivityOrderCancel.button-recreate")}
+                    </button>
+                </Spin>
+            </div> */}
+        </div>
+    );
+
+    const RenderContent = () => <div></div>;
+
+    // 倒數計時秒數
+    const [seconds, setSeconds] = useState(5);
+    // 判斷是否觸發倒數計時
+    const [isCounting, setIsCounting] = useState(false);
+
+    /**
+     * 倒數計時機制
+     */
     useEffect(() => {
+        let intervalID: any = null;
         if (isCounting) {
-            timerRef.current = setInterval(() => {
+            intervalID = setInterval(() => {
                 setSeconds((prevSeconds) => {
                     if (prevSeconds <= 1) {
-                        clearInterval(timerRef.current);
+                        clearInterval(intervalID);
                         setIsCounting(false);
                         handleReCreate();
                         return 0;
@@ -302,7 +305,7 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
                 });
             }, 1000);
         }
-        return () => clearInterval(timerRef.current);
+        return () => clearInterval(intervalID);
     }, [isCounting]);
 
     return (

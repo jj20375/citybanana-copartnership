@@ -5,7 +5,6 @@ import { useTranslation } from "@/i18n/i18n-client";
 import { useRouter } from "next/navigation";
 import { Icon } from "@iconify/react";
 import Image from "next/image";
-import ContactWe from "../../components/ContactWe";
 import styles from "../styles/RightNowActivityJoinProviderChatRoomListView.module.scss";
 import { tmc } from "@/service/utils";
 // 無限滾動套件
@@ -38,7 +37,7 @@ import { setChatReceiver } from "@/store-toolkit/stores/chatStore";
 import { UserProfileInterface } from "@/interface/user";
 import type { MessageInterface } from "./RightNowActivityJoinProviderChatRoom-interface";
 import type { ChatReceiverInterface } from "@/interface/chats";
-import { firebaseCheckUserChatRoomEmpty, firebaseGetChatRoomUnReadMessageCountTotal, firebaseMessageReaded, firebaseUpdateUserUnReadMessageCount } from "@/lib/firebase/firebase-chat-hooks";
+import { firebaseGetChatRoomUnReadMessageCountTotal, firebaseMessageReaded, firebaseUpdateUserUnReadMessageCount } from "@/lib/firebase/firebase-chat-hooks";
 import { getCookie } from "cookies-next";
 
 /**
@@ -465,7 +464,6 @@ export default function RightNowActivityJoinProviderChatRoomView({ lng, receiver
                     </button>
                 </div>
             ) : null}
-            <ContactWe lng={lng} />
         </div>
     );
 }
