@@ -215,18 +215,6 @@ export default function OrderCancelDetailView({ lng, providerID, rightNowActivit
         fetchData(rightNowActivityID);
     }, []);
 
-    /**
-     * 因為有時候合作店家 api 還沒有載入到資料
-     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
-     */
-    useEffect(() => {
-        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
-            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
-            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
-            setDisplayOrder(newDatas);
-        }
-    }, [partnerStoreName, displayOrder]);
-
     const RenderTitle = () => (
         <div className=" mb-[40px] font-bold">
             <Image

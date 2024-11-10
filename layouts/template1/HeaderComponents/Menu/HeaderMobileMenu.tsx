@@ -9,8 +9,8 @@ import Link from "next/link";
 
 export function HeaderMobileContentMenu({ menus, SubscriptionComponent }: any) {
     const menu = (
-        <menu className="mt-5 w-full flex justify-center">
-            <ul className="mt-5 text-sm text-gray-400">
+        <menu className="mt-20 w-full flex justify-center">
+            <ul className="text-sm text-gray-400">
                 <li>
                     <Link href={{ pathname: "/zh-TW" }}>
                         <Image
@@ -31,8 +31,8 @@ export function HeaderMobileContentMenu({ menus, SubscriptionComponent }: any) {
 }
 export function HeaderMobileIndexMenu({ menus, SubscriptionComponent }: any) {
     const menu = (
-        <menu className="mt-5 w-full flex justify-center">
-            <ul className="mt-5 text-sm text-gray-400">
+        <menu className="mt-20 w-full flex justify-center">
+            <ul className="text-sm text-gray-400">
                 <li>
                     <Link href={{ pathname: "/zh-TW" }}>
                         <Image

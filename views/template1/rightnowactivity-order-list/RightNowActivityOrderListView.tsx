@@ -107,7 +107,7 @@ export default function OrderListView({ lng, status }: { lng: string; status: st
 
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
-            <h1 className="mb-[10px] text-md-title font-bold text-center">{t("rightNowActivityOrderList.title")}</h1>
+            <h1 className="mb-[25px] text-md-title font-bold text-center">{t("rightNowActivityOrderList.title")}</h1>
             <ul className="flex justify-between border-b border-gray-light">
                 {statusTabs.map((tab) => (
                     <li
@@ -119,7 +119,7 @@ export default function OrderListView({ lng, status }: { lng: string; status: st
                     </li>
                 ))}
             </ul>
-            <ul>
+            <ul className="min-h-[70vh]">
                 {Array.isArray(rightNowActivityOrderList) && status === "all"
                     ? rightNowActivityOrderList.map((item) => (
                           <RightNowActivityOrderListItem

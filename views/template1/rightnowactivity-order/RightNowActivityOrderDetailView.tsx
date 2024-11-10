@@ -228,17 +228,6 @@ export default function RightNowActivityOrderDetailView({ lng, orderID }: { lng:
         fetchData(orderID);
     }, []);
 
-    /**
-     * 因為有時候合作店家 api 還沒有載入到資料
-     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
-     */
-    useEffect(() => {
-        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
-            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
-            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
-            setDisplayOrder(newDatas);
-        }
-    }, [partnerStoreName, displayOrder]);
     return (
         <div className="mx-auto max-w-[400px] mt-[40px]">
             {displayOrder && order ? (

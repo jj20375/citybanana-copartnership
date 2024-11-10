@@ -63,7 +63,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
     /**
      * 取得訂單資料
      */
-    const getOrder = useCallback(async (data: string) => {
+    const getOrder = async (data: string) => {
         try {
             const res = await GetRightNowActivityOrderDetailAPI({ orderID: data });
             setOrder(res);
@@ -101,7 +101,12 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
             console.log("GetRightNowActivityOrderDetailAPI err => ", err);
             throw err;
         }
-    }, []);
+    };
+
+    // 倒數計時秒數
+    const [seconds, setSeconds] = useState(5);
+    // 判斷是否觸發倒數計時
+    const [isCounting, setIsCounting] = useState(false);
 
     const fetchData = useCallback(async () => {
         try {
@@ -130,6 +135,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
                         { label: t("rightNowActivityOrderRecruitmentDetail.column-paymentMethod"), value: fetchOrder.paid_by === 1 ? t("global.paymentMethod-cash") : t("rightNowActivityOrderRecruitmentDetail.value-paymentMethod-creditCard"), column: "column-paymentMethod" },
                     ],
                 });
+                setIsCounting(true);
             }
         } catch (err) {
             console.log("fetchData err=>", err);
@@ -138,7 +144,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [fetchData]);
     useEffect(() => {
         if (Array.isArray(providers)) {
             // 取得已接受報名服務商資料
@@ -146,23 +152,6 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
             setAcceptPrviders(accept);
         }
     }, [providers]);
-
-    /**
-     * 因為有時候合作店家 api 還沒有載入到資料
-     * 因此需監聽合作店家名稱有變化時 重新設定 商家名稱
-     */
-    useEffect(() => {
-        if (partnerStoreName !== "" && displayOrder && displayOrder.datas) {
-            const index = displayOrder.datas.findIndex((item) => item.column === "column-store");
-            const newDatas = (displayOrder.datas[index].value = partnerStoreName);
-            setDisplayOrder(newDatas);
-        }
-    }, [partnerStoreName, displayOrder]);
-
-    // 倒數計時秒數
-    const [seconds, setSeconds] = useState(5);
-    // 判斷是否觸發倒數計時
-    const [isCounting, setIsCounting] = useState(false);
 
     const RenderTitle = () => (
         <div className=" mb-[40px] font-bold">
@@ -218,6 +207,7 @@ export default function RightNowActivityOrderCancelDetailView({ lng, orderID }: 
                             clearInterval(intervalID);
                         }
                         setIsCounting(false);
+                        handleReCreate();
                         return 0;
                     }
                     return prevSeconds - 1;

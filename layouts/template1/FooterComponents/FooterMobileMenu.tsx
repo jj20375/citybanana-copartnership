@@ -7,6 +7,9 @@ import { usePathname } from "next/navigation";
 import { useMemo, useState } from "react";
 // 驗證規則是否符合
 import { checkPattern } from "@/service/utils";
+import Menu1 from "@/public/img/footer/menu-1.svg";
+import Menu2 from "@/public/img/footer/menu-2.svg";
+import Menu3 from "@/public/img/footer/menu-3.svg";
 
 /**
  * 手機版底部選單
@@ -20,19 +23,22 @@ export default function FooterMobileMenu({ lng, rightNowActivityPath }: { lng: s
     const defaultMenus = [
         {
             label: t("footer.menus.menu_1"),
-            img: "/img/footer/menu-1.svg",
+            img: () => <Menu1 className="mx-auto" />,
+            key: "rightNowActivityPath",
             path: rightNowActivityPath,
             isActive: false,
         },
         {
             label: t("footer.menus.menu_2"),
-            img: "/img/footer/menu-2.svg",
+            img: () => <Menu2 className="mx-auto" />,
+            key: "chatRoomPath",
             path: "/join-providers-chatroom/" + serviceChatID,
             isActive: false,
         },
         {
             label: t("footer.menus.menu_3"),
-            img: "/img/footer/menu-3.svg",
+            img: () => <Menu3 className="mx-auto" />,
+            key: "rightNowActivityOrderListPath",
             path: "/rightnowactivity-order/list/starting",
             isActive: false,
         },
@@ -40,24 +46,67 @@ export default function FooterMobileMenu({ lng, rightNowActivityPath }: { lng: s
     // const [menus, setMenus] = useState();
 
     const menus = useMemo(() => {
-        const rightNowActivityPath = "rightnowactivity-order";
+        // 即刻快閃訂單頁面路徑
+        const rightNowActivityOrderPath = "rightnowactivity-order";
+        // 即刻快閃報名頁路徑
         const rightNowActivityRecruitmentOrderPath = "rightnowactivity-recruitment-order";
+        // 取消即刻快閃或報名成功子路徑頁面
         const rightNowActivitySubPaths = ["success", "cancel"];
-        // 即刻快閃報名後頁面選單 驗證規則
-        const rightNowActivityPathRegex = new RegExp(`${lng}/${rightNowActivityPath}/?(${rightNowActivitySubPaths.join("|")})?`);
-        // 即刻快閃報名後中頁面選單 驗證規則
+        // 即刻快閃報名後頁面選單 驗證是否為當前畫面規則
+        // (?!list$) 是一个负向前瞻，表示接下来的字符不能是 list，并且后面跟着字符串的结束 $。这确保了 orderId 部分不等于 list。
+        const rightNowActivityPathRegex = new RegExp(`${lng}/${rightNowActivityOrderPath}/?(${rightNowActivitySubPaths.join("|")})?(?!list$)[^\/]+$`);
+        // 即刻快閃報名後中頁面選單 驗證是否為當前畫面規則
         const rightNowActivityRrecruitmentOrderPathRegex = new RegExp(`${lng}/${rightNowActivityRecruitmentOrderPath}/?`);
+        // 聊天室畫面
+        const chatRoomPathRegex = new RegExp(`${lng}/join-providers-chatroom/?`);
+        // 訂單列表頁
+        const rightNowActivityOrderListPathRegex = new RegExp(`${lng}/rightnowactivity-order/list/?`);
+
         if (pathname) {
-            const activeRightNowActivityMenu = checkPattern(pathname, rightNowActivityPathRegex);
+            // 確認是否為即刻快閃訂單頁面
+            const activeRightNowActivityOrderMenu = checkPattern(pathname, rightNowActivityPathRegex);
+            // 確認是否為即刻快閃報名頁面
             const activeRightNowActivityRecruitmentMenu = checkPattern(pathname, rightNowActivityRrecruitmentOrderPathRegex);
-            console.log("activeRightNowActivityMenu =>", activeRightNowActivityMenu);
-            console.log("activeRightNowActivityRecruitmentMenu =>", activeRightNowActivityRecruitmentMenu);
+            // 確認是否為聊天室畫面
+            const activeChatRoomMenu = checkPattern(pathname, chatRoomPathRegex);
+            // 確認是否為訂單列表頁面
+            const activeRightNowActivityOrderListMenu = checkPattern(pathname, rightNowActivityOrderListPathRegex);
+            console.log("activeRightNowActivityOrderMenu =>", activeRightNowActivityOrderMenu, activeRightNowActivityOrderListMenu, pathname);
+
+            // 判斷是否為即刻快閃相關畫面
+            if (activeRightNowActivityOrderMenu || activeRightNowActivityRecruitmentMenu) {
+                return defaultMenus.map((menu) => {
+                    return {
+                        ...menu,
+                        isActive: menu.key === "rightNowActivityPath",
+                    };
+                });
+            }
+            // 判斷是否為聊天室畫面
+            if (activeChatRoomMenu) {
+                return defaultMenus.map((menu) => {
+                    return {
+                        ...menu,
+                        isActive: menu.key === "chatRoomPath",
+                    };
+                });
+            }
+            // 判斷是否為訂單列表畫面
+            if (activeRightNowActivityOrderListMenu) {
+                return defaultMenus.map((menu) => {
+                    return {
+                        ...menu,
+                        isActive: menu.key === "rightNowActivityOrderListPath",
+                    };
+                });
+            }
         }
+        console.log("defaultMenus =>", defaultMenus);
         return defaultMenus;
     }, [pathname]);
     return (
-        <div className="max-w-[500px] mx-auto border-t border-gray-light min-h-[80px] flex items-center mt-10">
-            <ul className="flex flex-1">
+        <div className="md:static fixed bottom-0 mx-auto flex items-center mt-10 justify-center w-full bg-white">
+            <ul className="flex flex-1 mx-auto min-h-[80px] items-center max-w-[500px] border-t border-gray-light justify-center">
                 {menus.map((menu) => (
                     <li
                         key={menu.path}
@@ -68,17 +117,8 @@ export default function FooterMobileMenu({ lng, rightNowActivityPath }: { lng: s
                             className="text-center flex justify-center"
                         >
                             <div>
-                                <div className="w-[80px] h-[30px]">
-                                    <Image
-                                        width={100}
-                                        height={100}
-                                        src={menu.img}
-                                        alt={menu.label}
-                                        className="mx-auto"
-                                        style={{ width: "30px", height: "30px" }}
-                                    />
-                                </div>
-                                <div className={tmc([menu.isActive ? "text-primary" : "text-gray-primary", "text-sm-content"])}>{menu.label}</div>
+                                <div className={tmc(["w-[80px] h-[30px] mx-auto", menu.isActive ? "text-primary" : "text-gray-primary"])}>{menu.img()}</div>
+                                <div className={tmc(["text-sm-content", menu.isActive ? "text-primary" : "text-gray-primary"])}>{menu.label}</div>
                             </div>
                         </Link>
                     </li>

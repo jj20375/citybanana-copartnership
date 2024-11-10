@@ -10,7 +10,7 @@ import Link from "next/link";
 export function HeaderDesktopContentMenu({ menus, SubscriptionComponent }: any) {
     return (
         <>
-            <menu className="w-full">
+            <menu className="w-full mt-20">
                 <ul className="flex items-center text-gray-400 justify-center">
                     <li className="cursor-pointer mr-2">
                         <Link href={{ pathname: "/zh-TW" }}>
@@ -31,7 +31,7 @@ export function HeaderDesktopContentMenu({ menus, SubscriptionComponent }: any) 
 export function HeaderDesktopIndexMenu({ menus, SubscriptionComponent }: any) {
     return (
         <>
-            <menu className="w-full">
+            <menu className="w-full mt-20">
                 <ul className="flex items-center text-gray-400 justify-center">
                     <li className="cursor-pointer mr-2">
                         <Link href={{ pathname: "/zh-TW" }}>

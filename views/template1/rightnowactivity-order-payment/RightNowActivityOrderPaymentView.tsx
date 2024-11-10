@@ -15,7 +15,7 @@ import { isValid } from "date-fns";
 import Image from "next/image";
 import { useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { userNameSelector, userGenderSelector, getUserProfile } from "@/store-toolkit/stores/userStore";
-import { usePartnerStoreCodeSelector, usePartnerStoreNameSelector, usePartnerStoreVenueCodeSelector } from "@/store-toolkit/stores/partnerStore";
+import { getPartnerStoreInfo, usePartnerStoreCodeSelector, usePartnerStoreNameSelector, usePartnerStoreVenueCodeSelector } from "@/store-toolkit/stores/partnerStore";
 import { RightNowActivityOrderFormInterface } from "../create-rightnowactivity-order/components/order/order-interface";
 import ContactWe from "../components/ContactWe";
 import RightNowActivityOrderPaymentContactInput from "./components/RightNowActivityOrderPaymentContactInput";
@@ -30,6 +30,8 @@ import { RightNowActivityOrderCreateByCashAPIReqInterface, RightNowActivityOrder
 import { CreditCardDataInterface } from "@/interface/global";
 import type { RightNowActivityOrderCreateByCreditCardAPIReqInterface } from "@/api/bookingAPI/bookingCreditCarAPI-interface";
 import { message } from "antd";
+import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
+import { getCookie } from "cookies-next";
 export default function RightNowActivityOrderPaymentView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
@@ -343,9 +345,24 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
         return priceValue * durationValue;
     }, [order?.price, order?.duration]);
 
+    /**
+     * 取得店家資料
+     */
+    const getPartnerStore = async ({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> => {
+        const { payload }: any = await dispatch(getPartnerStoreInfo({ merchantCode, venueCode }));
+        return payload;
+    };
+
     useEffect(() => {
         getCreditCardList();
     }, []);
+
+    // 當沒有拿到 店家代碼 且 有存在 cookie 時 重新取得店家資料一次
+    useEffect(() => {
+        if (!partnerStoreCode && getCookie("merchantCode")) {
+            getPartnerStore({ merchantCode: getCookie("merchantCode")!, venueCode: getCookie("venueCode")! });
+        }
+    }, [partnerStoreCode]);
     useEffect(() => {
         // 判斷有網址參數時 需給表單填上預設值
         if (searchParams) {
@@ -546,9 +563,9 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
 
                 <ContactWe lng={lng} />
             </div>
-            <pre>{JSON.stringify(displayOrder, null, 4)}</pre>
+            {/* <pre>{JSON.stringify(displayOrder, null, 4)}</pre>
             <div className="h-[50px]"></div>
-            <pre>{JSON.stringify(order, null, 4)}</pre>
+            <pre>{JSON.stringify(order, null, 4)}</pre> */}
         </>
     );
 }

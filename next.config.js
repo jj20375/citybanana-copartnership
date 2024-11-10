@@ -24,7 +24,7 @@ module.exports = {
         // reacptcha key
         google_recaptcha2Key: process.env.GOOGLE_RECAPTCHA2_KEY,
         // 聊天室客服 id
-        service_chat_id: process.env.NEXT_PUBLIC_SERVICE_CHAT_ID
+        service_chat_id: process.env.NEXT_PUBLIC_SERVICE_CHAT_ID,
     },
     experimental: {
         serverActions: true,
@@ -42,5 +42,12 @@ module.exports = {
         formats: ["image/avif", "image/webp"],
         // 接受外部連結網址
         domains: ["picsum.photos", "cdn-dev.citybanana.com", "banana_api.com"],
+    },
+    webpack(config) {
+        config.module.rules.push({
+            test: /\.svg$/,
+            use: ["@svgr/webpack"],
+        });
+        return config;
     },
 };
