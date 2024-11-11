@@ -42,6 +42,9 @@ export async function GetRightNowActivityOrderListAPI(params: any): Promise<GetR
     return useMyFetch(`${apiURL}/my/demands/datings?${qs.stringify(params)}`, {
         method: "get",
     });
+    // return useMyFetch(`${apiURL}/my/demands/datings?status[]=3`, {
+    //     method: "get",
+    // });
 }
 
 /**

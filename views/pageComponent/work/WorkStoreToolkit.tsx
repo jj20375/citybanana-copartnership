@@ -1,3 +1,4 @@
+"use client";
 import { store, useAppSelector, useAppDispatch } from "@/store-toolkit/storeToolkit";
 import { setAuthState } from "@/store-toolkit/stores/authStore";
 import { getUserProfile } from "@/store-toolkit/stores/userStore";

@@ -28,8 +28,6 @@ export function middleware(req: NextRequest) {
 
     const token = req.cookies.getAll();
 
-    console.log("middletoken token =>", token);
-
     // Redirect if lng in path is not supported
     if (!languages.some((loc) => req.nextUrl.pathname.startsWith(`/${loc}`)) && !req.nextUrl.pathname.startsWith("/_next")) {
         // 判斷圖片路徑 不加上 語系前綴
@@ -51,14 +49,12 @@ export function middleware(req: NextRequest) {
     // 判斷需要導頁時觸發
     if (req.nextUrl.pathname === `/${lang}/rd`) {
         if (req.headers.has("referer")) {
-            console.log("referer =>", req.headers.has("referer"), req.nextUrl.pathname);
             // 設定語系進入 cookie
             setLangInCookies();
         }
         return redirectTypeMiddleware(req, NextResponse, lang);
     }
     if (req.headers.has("referer")) {
-        console.log("work referer");
         // 設定語系進入 cookie
         setLangInCookies();
         return res;

@@ -28,13 +28,13 @@ export default async function PayWorkingView({ lng, orderID }: { lng: string; or
             />
             <h1 className="text-md-title text-gray-primary mt-[30px] font-semibold">{t("payWorking.title")}...</h1>
             <p className="text-[#7c7c7c] text-[20px] mt-[30px] whitespace-pre-wrap">{t("payWorking.description")}</p>
-            <Link
+            {/* <Link
                 href={{
                     pathname: "/rightnowactivity-order/success/1",
                 }}
             >
                 測試下一步
-            </Link>
+            </Link> */}
         </div>
     );
 }

@@ -42,6 +42,7 @@ export default async function Page({ params: { lng }, searchParams }: { params: 
                     }
                 }
                 return {
+                    error: false,
                     id,
                     token: res.jwt,
                     expiresTime: expires,
@@ -49,12 +50,18 @@ export default async function Page({ params: { lng }, searchParams }: { params: 
             } catch (err: any) {
                 console.log("GetSmsLinkByRightNowActivityOrderToGetUserTokenAPI err =>");
                 console.log(JSON.stringify(err));
-                throw err;
+
+                return {
+                    error: true,
+                };
             }
         };
         const res = await getSmsLinkByRightNowActivityOrderToGetUserToken(code);
-        if (res.id && type === "a") {
+        if (res.id && type === "a" && !res.error) {
             return redirect(`/${lng}/rightnowactivity-order/${res.id}/?token=${res.token}&expiresTime=${res.expiresTime}`);
+        } else {
+            console.log("res err =>");
+            redirect(`/${lng}/sms-order/error`);
         }
     }
     // function runClient() {

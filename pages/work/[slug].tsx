@@ -1,3 +1,4 @@
+"use client";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import WorkPage2 from "@/views/pageComponent/work/WorkSlug";
@@ -31,9 +32,10 @@ export default function WorkPage() {
     //     </>
     // );
     return (
-        <ReduxProvider>
-            <WorkPage2 />
-            <WorkStoreToolkit />
-        </ReduxProvider>
+        // <ReduxProvider>
+        //     <WorkPage2 />
+        //     <WorkStoreToolkit />
+        // </ReduxProvider>
+        <div></div>
     );
 }
