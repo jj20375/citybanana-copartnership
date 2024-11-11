@@ -339,7 +339,7 @@ function CreateRightNowActivityOrderForm({ lng, partnerStoreInfo }: { lng: strin
                                 value={timeTypeValue}
                                 setValue={setValue}
                                 required={true}
-                                canChooseTime={partnerStoreInfo ? (partnerStoreInfo.merchant.details ? (partnerStoreInfo.merchant.details.disable_started_future ? true : false) : false) : false}
+                                canChooseTime={partnerStoreInfo ? (partnerStoreInfo.merchant.details ? (!partnerStoreInfo.merchant.details.disable_started_future ? true : false) : false) : false}
                             />
                         ) : null}
                         {timeTypeValue === "now" && (
