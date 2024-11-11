@@ -24,7 +24,7 @@ const styles = {
 
 interface CarouselProps<T> {
     readonly items: T[];
-    readonly renderItem: (props: CarouselRenderItemProps<T>) => React.ReactElement<CarouselItemProps>;
+    readonly renderItem: (props: CarouselRenderItemProps<T>) => React.ReactElement<CarouselItemProps<T>>;
 }
 
 interface CarouselRenderItemProps<T> {
@@ -93,8 +93,9 @@ export const CarouselByProviders = <T extends any>({ items, renderItem }: Carous
     );
 };
 
-interface CarouselItemProps {
+interface CarouselItemProps<T> {
     readonly isSnapPoint: boolean;
+    items: T[];
     readonly index: number;
     readonly children?: React.ReactNode;
 }
@@ -104,11 +105,11 @@ interface CarouselItemProps {
  * @param param0
  * @returns
  */
-export const CarouselByProviderItem = ({ isSnapPoint, index, children }: CarouselItemProps) => (
+export const CarouselByProviderItem = ({ isSnapPoint, items, index, children }: CarouselItemProps<any>) => (
     <motion.li
         initial={{ opacity: 0, y: 150 }}
         whileInView={{ opacity: 1, y: 0 }}
-        className={tmc(isSnapPoint && "snap-center", index === 0 ? "mr-1" : "mx-1", "h-auto snap-normal rounded-lg bg-white shrink-0 w-[calc(100%-3em)]")}
+        className={tmc(isSnapPoint && "snap-center", index === 0 ? "mr-1" : "mx-1", Array.isArray(items) && items.length > 1 ? "w-[calc(100%-3em)]" : "w-[calc(100%)]", "h-auto snap-normal rounded-lg bg-white shrink-0")}
     >
         {children}
     </motion.li>

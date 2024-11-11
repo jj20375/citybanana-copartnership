@@ -76,6 +76,7 @@ const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(
                         <CarouselByProviderItem
                             key={item.id + "-providerInfo"}
                             index={index}
+                            items={providers}
                             isSnapPoint={isSnapPoint}
                         >
                             <>
