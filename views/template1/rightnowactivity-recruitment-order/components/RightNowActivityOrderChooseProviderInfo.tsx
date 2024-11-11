@@ -1,5 +1,5 @@
 "use client";
-import { memo } from "react";
+import { memo, useState } from "react";
 import { useTranslation } from "@/i18n/i18n-client";
 import { RightNowActivityOrderDetailProviderSigupCardInterface, RightNowActivityOrderProviderCommentInterface } from "../rightnowactivity-order-interface";
 import Image from "next/image";
@@ -16,27 +16,27 @@ import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 /**
  * 選擇服務商幻燈片服務商個人介紹資料 ui
  */
-const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface }) => {
+const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData, showChooseButton, buttonText, buttonMethod }: { lng: string; providerData: RightNowActivityOrderDetailProviderSigupCardInterface; showChooseButton: boolean; buttonText?: string | void; buttonMethod?: Function | void }) => {
     const { t } = useTranslation(lng, "main");
     const router = useRouter();
     const userStore = useAppSelector((state) => state.userStore);
     const userID = userBananaIdSelector(userStore);
 
-    const providerInit: string[] = [];
+    const [providerInit, setProviderInit] = useState<string[] | []>([]);
 
     if (providerData.area) {
         if (areasTW[providerData.area]) {
-            providerInit.push(areasTW[providerData.area].name);
+            setProviderInit([areasTW[providerData.area].name]);
         }
     }
-    if (providerData.weight) {
-        providerInit.push(providerData.age + t("global.age"));
+    if (providerData.age) {
+        setProviderInit([...providerInit, providerData.age + t("global.age")]);
     }
     if (providerData.weight) {
-        providerInit.push(providerData.weight + t("global.weight"));
+        setProviderInit([...providerInit, providerData.weight + t("global.weight")]);
     }
     if (providerData.height) {
-        providerInit.push(providerData.height + t("global.height"));
+        setProviderInit([...providerInit, providerData.height + t("global.height")]);
     }
 
     /**
@@ -110,10 +110,7 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
     return (
         <div className="mt-[18px] px-5">
             <div className="flex items-center">
-                <h2 className="text-left text-[20px]">
-                    {providerData.name}
-                    {providerData.id}
-                </h2>
+                <h2 className="text-left text-[20px]">{providerData.name}</h2>
                 <Image
                     src="/img/icons/message.svg"
                     width={10}
@@ -137,7 +134,9 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
             <ProviderLevel />
             <section className="text-left pt-[15px] mt-[15px] border-t border-gray-light">
                 <h5 className="text-sm-content text-gray-third mb-[5px]">{t("provider.us")}</h5>
-                <p className="text-[14px] text-gray-primary">{providerData.description}</p>
+                <div className="min-h-[150px] max-h-[150px] overflow-y-auto">
+                    <p className="text-[14px] text-gray-primary">{providerData.description}</p>
+                </div>
             </section>
             <section className="border-t border-gray-light mt-[15px] pt-[15px] text-left">
                 <div className="mb-[16px] flex items-center">
@@ -154,9 +153,9 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
                         <CarouselByProviderComments
                             items={providerData.comments}
                             key="carouselComments"
-                            renderItem={({ item, isSnapPoint }: { item: RightNowActivityOrderProviderCommentInterface; isSnapPoint: any }) => (
+                            renderItem={({ item, index, isSnapPoint }: { item: RightNowActivityOrderProviderCommentInterface; index: number; isSnapPoint: any }) => (
                                 <CarouselByProviderCommentItem
-                                    key={isSnapPoint + item.name + String(item.content)}
+                                    key={index + item.name + String(item.content)}
                                     isSnapPoint={isSnapPoint}
                                 >
                                     <div className="border border-gray-third p-[9px] rounded-md text-gray-third mr-5">
@@ -177,7 +176,9 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
                                                 defaultValue={item.rate}
                                             />
                                         </div>
-                                        <div className="line-clamp-4">{item.content}</div>
+                                        <div className="min-h-[110px]">
+                                            <div className="line-clamp-4">{item.content}</div>
+                                        </div>
                                     </div>
                                 </CarouselByProviderCommentItem>
                             )}
@@ -197,12 +198,15 @@ const RightNowActivityOrderChooseProviderInfo = memo(({ lng, providerData }: { l
                     {t("provider.responseTime")}：<span className="text-primary">幾小時內</span>
                 </div>
             </section>
-            <button
-                type="submit"
-                className="text-white h-[45px] text-lg-content rounded-md PrimaryGradient block w-full mt-[25px] mb-[30px]"
-            >
-                {t("global.choose")}
-            </button>
+            {showChooseButton && buttonText && buttonMethod ? (
+                <button
+                    type="button"
+                    onClick={(providerID) => buttonMethod(providerID)}
+                    className="text-white h-[45px] text-lg-content rounded-md PrimaryGradient block w-full mt-[25px] mb-[30px]"
+                >
+                    {buttonText}
+                </button>
+            ) : null}
         </div>
     );
 });

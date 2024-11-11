@@ -1,5 +1,5 @@
 "use client";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { Modal, Checkbox } from "antd";
 import { useTranslation } from "@/i18n/i18n-client";
 import ButtonBorderGradient from "../../components/ButtonBorderGradient";
@@ -22,153 +22,106 @@ import { Icon } from "@iconify/react";
 /**
  * 選擇服務商彈窗 ui
  */
-const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(({ lng, providers }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[] }, ref: any) => {
-    const { t } = useTranslation(lng, "main");
-    const [open, setOpen] = useState(false);
-    useImperativeHandle(ref, () => ({
-        openModal: () => {
-            setOpen(true);
-        },
-    }));
-
-    type FormValues = {
-        form: {
-            providerIds: string[];
-        };
-    };
-
-    const formSchema = {
-        providerIds: yup.array(),
-    };
-    const [schema, setSchema]: any = useState(
-        yup
-            .object()
-            .shape({
-                form: yup.object().shape(formSchema),
-            })
-            .required()
-    );
-
-    const {
-        register,
-        control,
-        handleSubmit,
-        watch,
-        getValues,
-        setValue,
-        clearErrors,
-        reset,
-        trigger,
-        formState: { errors },
-    } = useForm<FormValues>({
-        resolver: yupResolver(schema),
-        defaultValues: {
-            form: {
-                providerIds: [],
+const RightNowActivityOrderChooseProviderCarouselModal = forwardRef(
+    ({ lng, providers, showChooseButton, buttonText, buttonMethod }: { lng: string; providers: RightNowActivityOrderDetailProviderSigupCardInterface[]; showChooseButton: boolean; buttonText?: string | void; buttonMethod?: Function | void }, ref: any) => {
+        const { t } = useTranslation(lng, "main");
+        const [open, setOpen] = useState(false);
+        useImperativeHandle(ref, () => ({
+            openModal: () => {
+                setOpen(true);
             },
-        },
-    });
+        }));
 
-    const handleCancel = () => {
-        reset();
-        setOpen(false);
-    };
+        const handleCancel = () => {
+            setOpen(false);
+        };
 
-    /**
-     * submit 成功時往下一步
-     * @param data
-     */
-    const onSubmit: SubmitHandler<FormValues> = (data) => {
-        console.log("success form =>", data);
-        if (Object.keys(errors).length > 0) {
-            return;
-        }
-    };
-
-    const onError: SubmitErrorHandler<FormValues> = (errors) => {
-        console.log("error form =>", errors);
-        // 可以在這裡執行其他操作，比如記錄錯誤、顯示通知等
-    };
-
-    const items = Array.from({ length: 20 }).map((_, i) => ({
-        id: i,
-        src: `https://picsum.photos/500?idx=${i}`,
-    }));
-
-    return (
-        <Modal
-            title={<div></div>}
-            closeIcon={false}
-            open={open}
-            centered
-            maskClosable
-            className={styles["provider-carousel-modal"]}
-            onCancel={handleCancel}
-            footer={
-                [
-                    // <form
-                    //     key="form"
-                    //     className="flex"
-                    //     onSubmit={handleSubmit(onSubmit, onError)}
-                    // >
-                    //     <button
-                    //         type="submit"
-                    //         className="w-full PrimaryGradient text-white rounded-md"
-                    //     >
-                    //         {t("global.choose")}
-                    //     </button>
-                    // </form>,
-                ]
+        const handleButtonMethod = (providerID: string) => {
+            if (buttonMethod) {
+                buttonMethod(providerID);
+                handleCancel();
+                return;
             }
-        >
-            <CarouselByProviders
-                items={providers}
-                key="carouselProviderInfo"
-                renderItem={({ item, index, isSnapPoint }) => (
-                    <CarouselByProviderItem
-                        key={item.id + "-providerInfo"}
-                        index={index}
-                        isSnapPoint={isSnapPoint}
-                    >
-                        <>
-                            <div className="relative">
-                                <Icon
-                                    className="text-5xl cursor-pointer absolute z-10 text-white bg-black rounded-full bg-opacity-50 left-2 top-2"
-                                    icon="iconamoon:arrow-left-2-light"
-                                    onClick={handleCancel}
+        };
+
+        useEffect(() => {
+            if (open) {
+                document.body.style.position = "fixed";
+                document.body.style.overflow = "hidden";
+            } else {
+                document.body.style.position = "";
+                document.body.style.overflow = "";
+            }
+            return () => {
+                document.body.style.position = "";
+                document.body.style.overflow = "";
+            };
+        }, [open]);
+
+        return (
+            <Modal
+                title={<div></div>}
+                closeIcon={false}
+                open={open}
+                centered
+                maskClosable
+                className={styles["provider-carousel-modal"]}
+                onCancel={handleCancel}
+                footer={[]}
+            >
+                <CarouselByProviders
+                    items={providers}
+                    key="carouselProviderInfo"
+                    renderItem={({ item, index, isSnapPoint }) => (
+                        <CarouselByProviderItem
+                            key={item.id + "-providerInfo"}
+                            index={index}
+                            isSnapPoint={isSnapPoint}
+                        >
+                            <>
+                                <div className="relative">
+                                    <Icon
+                                        className="text-5xl cursor-pointer absolute z-10 text-white bg-black rounded-full bg-opacity-50 left-2 top-2"
+                                        icon="iconamoon:arrow-left-2-light"
+                                        onClick={handleCancel}
+                                    />
+                                    <CarouselByProviderPhotos
+                                        items={item.photos!}
+                                        isQueen={item.isQueen}
+                                        key="carouselPhotos"
+                                        renderItem={({ item, isSnapPoint }) => (
+                                            <CarouselByProviderPhotoItem
+                                                key={item}
+                                                isSnapPoint={isSnapPoint}
+                                            >
+                                                <>
+                                                    <Image
+                                                        src={item}
+                                                        className="w-full rounded-t-lg"
+                                                        width={500}
+                                                        height={500}
+                                                        style={{ width: "100%", height: "auto" }}
+                                                        alt="Placeholder"
+                                                    />
+                                                </>
+                                            </CarouselByProviderPhotoItem>
+                                        )}
+                                    />
+                                </div>
+                                <RightNowActivityOrderChooseProviderInfo
+                                    lng={lng}
+                                    showChooseButton={showChooseButton}
+                                    providerData={item}
+                                    buttonText={buttonText}
+                                    buttonMethod={() => handleButtonMethod(item.id)}
                                 />
-                                <CarouselByProviderPhotos
-                                    items={providers}
-                                    key="carouselPhotos"
-                                    renderItem={({ item, isSnapPoint }) => (
-                                        <CarouselByProviderPhotoItem
-                                            key={item.id}
-                                            isSnapPoint={isSnapPoint}
-                                        >
-                                            <>
-                                                <Image
-                                                    src={item.cover}
-                                                    className="w-full rounded-t-lg"
-                                                    width={500}
-                                                    height={500}
-                                                    style={{ width: "100%", height: "auto" }}
-                                                    alt="Placeholder"
-                                                />
-                                            </>
-                                        </CarouselByProviderPhotoItem>
-                                    )}
-                                />
-                            </div>
-                            <RightNowActivityOrderChooseProviderInfo
-                                lng={lng}
-                                providerData={item}
-                            />
-                        </>
-                    </CarouselByProviderItem>
-                )}
-            />
-        </Modal>
-    );
-});
+                            </>
+                        </CarouselByProviderItem>
+                    )}
+                />
+            </Modal>
+        );
+    }
+);
 
 export default RightNowActivityOrderChooseProviderCarouselModal;

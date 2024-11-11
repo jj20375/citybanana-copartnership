@@ -40,8 +40,11 @@ const OrderByStartTimeTimePicker = memo(
         required: boolean;
         startDate: Date | null;
     }) => {
-        console.log("OrderByStartTimeTimePicker redner =>", value);
         const { t } = useTranslation(lng, "main");
+        const DebugMode = process.env.NEXT_PUBLIC_DEBUG;
+
+        const format = DebugMode === "true" ? "MM-dd h:mm aa" : "h:mm aa";
+
         // 設定日期套件語系
         switch (lng) {
             case "zh-TW":
@@ -109,7 +112,7 @@ const OrderByStartTimeTimePicker = memo(
                     maxTime={setHours(setMinutes(new Date(startDate as Date), 60), 23)}
                     timeIntervals={60}
                     timeCaption={t("global.time")}
-                    dateFormat="MM-dd h:mm aa"
+                    dateFormat={format}
                     filterTime={filterPassedTime}
                 />
             </>

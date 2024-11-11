@@ -258,6 +258,8 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                           })
                         : null;
 
+                    // 照片牆資料
+                    const photos = item.user?.thumbnails ? (item.user.thumbnails.photos ? (item.user.thumbnails.photos["720x720"] ? item.user.thumbnails.photos["720x720"].map((item) => item.url) : []) : []) : [];
                     return {
                         id: String(item.id)!,
                         // 判斷服務商是否有預訂單
@@ -279,6 +281,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         providerID: item.user!.banana_id,
                         comments,
                         description: item.user!.description,
+                        photos: item.user ? (item.user.cover ? [item.user.cover, ...photos] : photos) : photos,
                     };
                 });
                 setProviders(setDatas);

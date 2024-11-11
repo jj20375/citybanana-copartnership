@@ -44,6 +44,10 @@ const OrderByDueDateTimeTimePicker = memo(
         dueDate: Date;
     }) => {
         const { t } = useTranslation(lng, "main");
+        const DebugMode = process.env.NEXT_PUBLIC_DEBUG;
+
+        const format = DebugMode === "true" ? "MM-dd h:mm aa" : "h:mm aa";
+
         // 設定日期套件語系
         switch (lng) {
             case "zh-TW":
@@ -121,7 +125,7 @@ const OrderByDueDateTimeTimePicker = memo(
                     minTime={setHours(setMinutes(new Date(), 0), 0)}
                     maxTime={setHours(setMinutes(new Date(), 60), 23)}
                     timeCaption={t("global.time")}
-                    dateFormat="MM-dd h:mm aa"
+                    dateFormat={format}
                     filterTime={filterPassedTime}
                 />
             </>

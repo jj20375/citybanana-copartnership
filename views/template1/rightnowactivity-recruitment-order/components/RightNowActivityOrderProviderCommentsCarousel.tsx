@@ -27,6 +27,7 @@ interface CarouselProps<T> {
 
 interface CarouselRenderItemProps<T> {
     readonly item: T;
+    readonly index: number;
     readonly isSnapPoint: boolean;
 }
 
@@ -46,6 +47,7 @@ export const CarouselByProviderComments = <T extends any>({ items, renderItem }:
                 {items.map((item, i) =>
                     renderItem({
                         item,
+                        index: i,
                         isSnapPoint: snapPointIndexes.has(i),
                     })
                 )}

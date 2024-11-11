@@ -155,8 +155,6 @@ const RightNowActivityOrderProviderSignUp = memo(
             return orderStatus === rightNowActivityOrderStatusByMemberEnum.Pending;
         }, [orderStatus]);
 
-        // ��示報名按���
-
         // 選擇服務商-非現金支付方式 (呼叫子組件)
         const chooseProviderByOtherPayMethod = (providerID: string) => {
             if (signupCardRef) {
@@ -253,6 +251,14 @@ const RightNowActivityOrderProviderSignUp = memo(
                                 ref={signupCardRef}
                             />
                         ))}
+                        <RightNowActivityOrderProviderCarouselModal
+                            ref={chooseProviderCarouseModalRef}
+                            lng={lng}
+                            providers={virtualChooseProviders}
+                            showChooseButton={true}
+                            buttonText={t("global.cancelChoose")}
+                            buttonMethod={unchooseProviderByOtherPayMethod}
+                        />
                     </div>
                 )}
                 {/* 已接受服務商列表(付款完成)  */}
@@ -277,6 +283,12 @@ const RightNowActivityOrderProviderSignUp = memo(
                                 ref={signupCardRef}
                             />
                         ))}
+                        <RightNowActivityOrderProviderCarouselModal
+                            ref={chooseProviderCarouseModalRef}
+                            lng={lng}
+                            providers={acceptProviders}
+                            showChooseButton={false}
+                        />
                     </div>
                 ) : null}
                 {/* 未選擇服務商列表  */}
@@ -313,11 +325,25 @@ const RightNowActivityOrderProviderSignUp = memo(
                                     )}
                                 </div>
                             ))}
-                            <RightNowActivityOrderProviderCarouselModal
-                                ref={chooseProviderCarouseModalRef}
-                                lng={lng}
-                                providers={unchooseProviders}
-                            />
+                            {paymentMethod === "cash" ? (
+                                <RightNowActivityOrderProviderCarouselModal
+                                    ref={chooseProviderCarouseModalRef}
+                                    lng={lng}
+                                    providers={unchooseProviders}
+                                    showChooseButton={true}
+                                    buttonText={t("global.choose")}
+                                    buttonMethod={chooseProviderByCashPayMethod}
+                                />
+                            ) : (
+                                <RightNowActivityOrderProviderCarouselModal
+                                    ref={chooseProviderCarouseModalRef}
+                                    lng={lng}
+                                    providers={unchooseProviders}
+                                    showChooseButton={true}
+                                    buttonText={t("global.choose")}
+                                    buttonMethod={chooseProviderByOtherPayMethod}
+                                />
+                            )}
                         </>
                     )}
                 </div>
@@ -333,7 +359,6 @@ const RightNowActivityOrderProviderSignUp = memo(
                             {rejectedProviders.map((data, index) => (
                                 <div
                                     key={data.id + "-" + "rejectedProviders"}
-                                    onClick={openProviderCarouselModal}
                                     className="cursor-pointer"
                                 >
                                     <RightNowActivityOrderSignUpCard
@@ -352,6 +377,7 @@ const RightNowActivityOrderProviderSignUp = memo(
                             ref={chooseProviderCarouseModalRef}
                             lng={lng}
                             providers={rejectedProviders}
+                            showChooseButton={false}
                         />
                     </>
                 )}

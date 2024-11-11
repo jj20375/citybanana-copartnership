@@ -23,11 +23,13 @@ const styles = {
 
 interface CarouselProps<T> {
     readonly items: T[];
+    readonly isQueen: boolean;
     readonly renderItem: (props: CarouselRenderItemProps<T>) => React.ReactElement<CarouselItemProps>;
 }
 
 interface CarouselRenderItemProps<T> {
     readonly item: T;
+    readonly isQueen: boolean;
     readonly isSnapPoint: boolean;
 }
 
@@ -36,7 +38,7 @@ interface CarouselRenderItemProps<T> {
  * @param param0
  * @returns
  */
-export const CarouselByProviderPhotos = <T extends any>({ items, renderItem }: CarouselProps<T>) => {
+export const CarouselByProviderPhotos = <T extends any>({ items, isQueen, renderItem }: CarouselProps<T>) => {
     const { scrollRef, pages, activePageIndex, prev, next, goTo, snapPointIndexes } = useSnapCarousel();
     return (
         <div className="relative">
@@ -47,19 +49,22 @@ export const CarouselByProviderPhotos = <T extends any>({ items, renderItem }: C
                 {items.map((item, i) =>
                     renderItem({
                         item,
+                        isQueen,
                         isSnapPoint: snapPointIndexes.has(i),
                     })
                 )}
             </ul>
-            <div className="absolute bottom-10 right-[20px]">
-                <Image
-                    alt="queen"
-                    src="/img/icons/queen.svg"
-                    width={100}
-                    height={100}
-                    style={{ width: "150px", height: "auto" }}
-                />
-            </div>
+            {isQueen && (
+                <div className="absolute bottom-10 right-[20px]">
+                    <Image
+                        alt="queen"
+                        src="/img/icons/queen.svg"
+                        width={100}
+                        height={100}
+                        style={{ width: "150px", height: "auto" }}
+                    />
+                </div>
+            )}
             <div
                 aria-hidden
                 className="absolute bottom-2 mx-auto w-full flex justify-center items-center"

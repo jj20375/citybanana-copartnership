@@ -60,6 +60,8 @@ export interface RightNowActivityOrderDetailProviderSigupCardInterface {
     comments?: RightNowActivityOrderProviderCommentInterface[] | void | null | undefined;
     // 訂單資料
     datingOrder?: void | EnrollersDating | undefined | null;
+    // 照片
+    photos?: void | string[];
 }
 
 /**
