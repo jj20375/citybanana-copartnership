@@ -1,0 +1,54 @@
+# 安裝 ubuntu
+FROM ubuntu:22.10 AS nuxt
+# CMD ["env"]
+# 變數名稱 node version
+# ARG NODE_VERSION
+# ARG NVM_DIR
+# ARG NVM_VERSION
+ENV NVM_DIR /usr/local/nvm
+
+# 安裝時區相關套件
+ENV DEBIAN_FRONTEND=noninteractive
+RUN sed -i -e 's/archive.ubuntu.com\|security.ubuntu.com/old-releases.ubuntu.com/g' /etc/apt/sources.list
+
+# 安裝時區相關套件
+RUN apt-get update && apt-get install -y tzdata
+
+# 設置時區環境變數
+ENV TZ=Asia/Shanghai
+
+# 設置容器內部的系統時區
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+
+# Install curl so that we can clone NVM to help
+# us manage multiple versions of node
+RUN apt-get update && \
+    apt-get install -y curl && \
+    apt-get -yqq install ssh && \
+    apt-get -y autoclean
+
+# install python2.7
+RUN apt-get install -y python2.7 && \
+    apt-get install -y  python-pip
+
+#install vim
+# RUN apt-get install -y vim-tiny
+
+# set some environment variables that we'll use
+# a little further down to install NVM and Node
+RUN mkdir -p /usr/local/nvm
+
+# install nvm
+# https://github.com/creationix/nvm#install-script
+RUN curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.37.2/install.sh | bash
+
+# install node and npm
+RUN echo "source $NVM_DIR/nvm.sh && \
+    nvm install v18.18.2 && \
+    nvm alias default v18.18.2 && \
+    nvm use default" | bash
+
+# add node and npm to path so the commands are available
+ENV NODE_PATH $NVM_DIR/versions/node/v18.18.2/lib/node_modules
+ENV PATH      $NVM_DIR/versions/node/v18.18.2/bin:$PATH

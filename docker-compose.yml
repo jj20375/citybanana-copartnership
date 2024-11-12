@@ -1,0 +1,27 @@
+version: "3"
+networks:
+    conpartnership:
+        driver: bridge
+
+services:
+    conpartnership:
+        container_name: conpartnership
+        image: gcr.io/citybanana/citybanana-nextjs-conpartnership:test
+        # build:
+        #   context: .
+        #   dockerfile: ./Dockerfile
+        # args:
+        #   NODE_VERSION: "v14.18.3"
+        #   NVM_DIR: "/usr/local/nvm"
+        #   NVM_VERSION: "0.37.2"
+        volumes:
+            - .env:/www/citybanana/.env
+            # - /var/www/html/api.citybanana.com/storage/app/private/firebase-adminsdk/citybanana-firebase.json:/www/citybanana/server/firebase-admin.json
+
+        ports:
+            - "8004:3000"
+
+        networks:
+            - conpartnership
+        restart: always
+        command: bash -c "yarn run build && yarn run start"
