@@ -16,5 +16,6 @@ WORKDIR /www/citybanana
 
 COPY . .
 
+RUN npm install yarn -g
 RUN yarn install
 RUN yarn run build
