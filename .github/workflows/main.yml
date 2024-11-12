@@ -1,0 +1,31 @@
+name: conpartnership
+
+on:
+  push:
+    branches:
+      - master
+      - test_branch
+
+jobs:
+  curl-jenkins-job:
+    name: "Build"
+    if: ${{ github.ref == 'refs/heads/master' }}
+    runs-on: self-hosted
+    steps:
+      - name: "Call build job"
+        uses: indiesdev/curl@v1.1
+        id: api
+        with:
+          url: "http://${{ secrets.JENKINS }}@34.80.82.174:8080/job/build/job/conpartnership/buildWithParameters?token=github&branch=master&env=prod"
+          method: "POST"
+
+  curl-jenkins-job-build-deploy-dev:
+    name: "Pipeline"
+    runs-on: self-hosted
+    steps:
+      - name: "Call jenkins pipeline job"
+        if: ${{ github.ref == 'refs/heads/test_branch' }}
+        uses: indiesdev/curl@v1.1
+        with:
+          url: "http://${{ secrets.JENKINS }}@34.80.82.174:8080/job/pipeline/job/conpartnership/buildWithParameters?token=github&branch=test_branch&environment=dev"
+          method: "POST"
