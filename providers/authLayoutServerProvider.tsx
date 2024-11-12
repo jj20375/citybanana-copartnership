@@ -14,10 +14,10 @@ export default async function AuthLayoutServerProvider({ children }: { children:
 
     const headersList = headers();
     const url = headersList.get("referer") || headersList.get("host");
-    console.log("have url =>", url);
+    console.log("have url =>", url, headersList.get("x-forwarded-proto"));
 
     // 在 headers 中手动解析 URL 并获取 pathname
-    const pathname = url ? new URL(url).pathname : "";
+    const pathname = url ? new URL(`${headersList.get("x-forwarded-proto")}://${url}`).pathname : "";
 
     console.log("server layout pathname =>", pathname);
 
