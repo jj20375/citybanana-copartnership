@@ -19,6 +19,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 console.log("firebase.apps.length =>", firebase.apps.length);
+console.log("firebaseConfig =>", firebaseConfig);
 let firebase_app: any = !firebase.apps.length ? firebase.initializeApp(firebaseConfig) : firebase.app();
 
 export default firebase_app;
