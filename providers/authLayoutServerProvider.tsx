@@ -14,6 +14,7 @@ export default async function AuthLayoutServerProvider({ children }: { children:
 
     const headersList = headers();
     const url = headersList.get("referer") || headersList.get("host");
+    console.log("have url =>", url);
 
     // 在 headers 中手动解析 URL 并获取 pathname
     const pathname = url ? new URL(url).pathname : "";
