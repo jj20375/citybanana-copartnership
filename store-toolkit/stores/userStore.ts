@@ -130,6 +130,8 @@ export const userSlice = createSlice({
             // 取得 user profile 成功
             .addCase(getUserProfile.fulfilled, (state, action) => {
                 state.user = action.payload;
+                // 驗證是否需要填寫個人資料在開單時
+                state.isVisitor = action.payload.newbie === 1 ? true : false;
             });
     },
 });

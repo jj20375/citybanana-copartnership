@@ -110,6 +110,8 @@ export interface User {
     videos: null;
     wallet: Wallet;
     weight: null;
+    // 判斷 newbie 等於 1 代表新註冊
+    newbie: number;
     [property: string]: any;
 }
 

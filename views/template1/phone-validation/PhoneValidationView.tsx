@@ -22,7 +22,7 @@ import { TWPhoneRegex, SmsValidateCodeRegex } from "@/config/regex.config";
 import type { GetVerificationCodeAPIReqInterface, VerificationSMSCodeAPIReqInterface } from "@/api/authAPI/authAPI-interface";
 import { GetVerificationCodeAPI, VerificationSMSCodeAPI } from "@/api/authAPI/authAPI";
 import { setClientToken } from "@/service/actions-client";
-import { useAppDispatch } from "@/store-toolkit/storeToolkit";
+import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { getUserProfile, setIsVisitor } from "@/store-toolkit/stores/userStore";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
@@ -172,8 +172,6 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             code: validateCodeValue,
             crumb: crumb,
         });
-        dispatch(getUserProfile());
-        onNextStepButtonClick();
     };
 
     const onError: SubmitErrorHandler<FormValues> = (errors) => {
@@ -225,7 +223,9 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             // 因為簡訊驗證碼以驗證成功 再度將驗證碼輸入匡給為 disabled狀態
             setValidateCodeInputDisabled(true);
             // 設定是否為訪客身份(代表首次註冊)
-            setIsVisitor(data.first_visit);
+            setIsVisitor(data.user.newbie === 1);
+            dispatch(getUserProfile());
+            onNextStepButtonClick();
         } catch (err) {
             console.log("VerificationSMSCodeAPI err =>", err);
             throw err;
@@ -305,7 +305,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                             onExpired={onRecaptchaExpired}
                         />
                     </div>
-                    <div>
+                    {/* <div>
                         <p className="text-center">測試倒數計時按鈕</p>
                         <div className="flex justify-center">
                             <button
@@ -321,7 +321,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                                 Cancel Countdown
                             </button>
                         </div>
-                    </div>
+                    </div> */}
                     <div className="mt-[40px] w-full">
                         <div className="flex  max-w-[400px] w-full">
                             <div className="flex-1">
@@ -349,7 +349,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
                     </div>
                 </form>
             </div>
-            <pre>{JSON.stringify(form, null, 4)}</pre>
+            {/* <pre>{JSON.stringify(form, null, 4)}</pre> */}
         </>
     );
 }

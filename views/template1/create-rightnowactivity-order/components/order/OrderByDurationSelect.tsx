@@ -20,7 +20,6 @@ const OrderByDurationSelect = memo(({ lng, register, label, value, setValue, req
     const handleFormChagne = useCallback(
         (event: any) => {
             const { name, value } = event.target;
-            console.log("work=>", value, name);
             setForm(value);
             setValue(label, value);
         },

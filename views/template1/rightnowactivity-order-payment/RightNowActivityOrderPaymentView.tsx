@@ -165,6 +165,11 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
      * 使用現金付款開單
      */
     const orderCreateByCashMethod = async (data: RightNowActivityOrderCreateByCashAPIReqInterface) => {
+        Object.keys(data).forEach((key: string) => {
+            if (isEmpty(data[key])) {
+                delete data[key];
+            }
+        });
         try {
             const res = await RightNowActivityOrderCreateByCashAPI(data);
             // 設定即刻快閃id
@@ -189,6 +194,11 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
      * 使用指定信用卡開單
      */
     const chooseCreditCardCreateOrder = async (data: RightNowActivityOrderCreateByCreditCardAPIReqInterface) => {
+        Object.keys(data).forEach((key: string) => {
+            if (isEmpty(data[key])) {
+                delete data[key];
+            }
+        });
         try {
             const res = await RightNowActivityOrderCreateByCreditCardAPI(data);
             onNextStepButtonClick(data.demand_id);
@@ -226,6 +236,11 @@ export default function RightNowActivityOrderPaymentView({ lng }: { lng: string 
      * 使用非現金付款開單
      */
     const orderCreateByOtherMethod = async (data: RightNowActivityOrderCreateByOtherAPIReqInterface) => {
+        Object.keys(data).forEach((key: string) => {
+            if (isEmpty(data[key])) {
+                delete data[key];
+            }
+        });
         try {
             const res = await RightNowActivityOrderCreateByOtherAPI(data);
             console.log("orderCreateByOtherMethod => ", res);

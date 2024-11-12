@@ -23,7 +23,7 @@ export default async function Page({ params: { lng }, searchParams }: { params: 
                 if (res.jwt) {
                     try {
                         const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000"; // 根據你的環境來決定
-                        const apiUrl = `http://${baseUrl}/api/auth/set-token`;
+                        const apiUrl = `${baseUrl}/api/auth/set-token`;
 
                         // 將 token 設定在伺服器端
                         const response = await fetch(apiUrl, {

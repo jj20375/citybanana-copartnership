@@ -15,6 +15,7 @@ export interface RightNowActivityOrderCreateByCashAPIReqInterface {
     venue_code?: string | null | void; // 店家桌號代號
     requirement?: string; // 特殊需求備註
     is_x: boolean; // 是否為 x 網站開立訂單
+    [property: string]: any;
 }
 // 現金開立即刻快閃單 api 請求參數
 export interface RightNowActivityOrderCreateByOtherAPIReqInterface extends RightNowActivityOrderCreateByCashAPIReqInterface {
