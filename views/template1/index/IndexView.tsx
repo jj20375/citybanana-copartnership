@@ -30,21 +30,23 @@ export default function IndexView({ lng, merchantCode, venueCode }: { lng: strin
     }, [partnerStoreInfo]);
 
     return (
-        <div className="text-white mx-auto md:max-w-[400px] w-full text-center flex flex-col justify-end md:static fixed">
-            <div className="relative top-0 md:w-[400px] w-full z-10">
-                <div className="bg-gradient-to-t from-black to-[hsla(0,12%,52%,0)] absolute z-[10] top-0 w-full h-[92vh]"></div>
-                <div className="absolute z-[5] md:top-52 top-10 w-full overflow-hidden">
-                    <Image
+        <section className="bg-black h-screen md:static fixed w-full">
+            <div className="text-white mx-auto md:max-w-[400px] w-full text-center bg-black">
+                <div
+                    className="w-full overflow-hidden md:max-h-[800px] md:min-h-[800px] h-screen bg-end bg-cover"
+                    style={{ backgroundImage: "url(/img/index/storeBg.png)" }}
+                >
+                    {/* <Image
                         src="/img/index/storeBg.png"
                         width={400}
                         height={400}
                         alt="storeBg"
                         className="mx-auto md:w-[400px] w-full"
-                    />
+                    /> */}
                 </div>
-                <div className="fixed md:bottom-52 bottom-5 z-20 md:w-[400px] w-full">
-                    <h1 className="text-lg-title">{t("index.title")}</h1>
-                    <h2 className="text-lg-title">{t("index.second-title")}</h2>
+                <div className="z-50 md:w-[400px] w-full md:static fixed bottom-[calc(5%)]">
+                    {/* <h1 className="text-lg-title">{t("index.title")}</h1> */}
+                    {/* <h2 className="text-lg-title">{t("index.second-title")}</h2> */}
                     <button
                         onClick={onNextStepButtonClick}
                         disabled={!partnerStoreInfo.merchant}
@@ -54,6 +56,6 @@ export default function IndexView({ lng, merchantCode, venueCode }: { lng: strin
                     </button>
                 </div>
             </div>
-        </div>
+        </section>
     );
 }
