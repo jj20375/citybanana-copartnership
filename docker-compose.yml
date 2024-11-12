@@ -19,7 +19,7 @@ services:
             # - /var/www/html/api.citybanana.com/storage/app/private/firebase-adminsdk/citybanana-firebase.json:/www/citybanana/server/firebase-admin.json
 
         ports:
-            - "8004:3000"
+            - "8004:8600"
 
         networks:
             - conpartnership
