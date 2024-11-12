@@ -32,7 +32,7 @@ export async function generateStaticParams() {
 function Template({ children, lang }: { children: React.ReactNode; lang: string }) {
     const referer = headers().get("host");
 
-    if (referer === process.env.NEXT_PUBLIC_HOST_SITE) {
+    if (referer === process.env.NEXT_PUBLIC_HOST_URL) {
         // 判斷 tmp1 網域 layout
         return <Tmp1RootLayout lang={lang}>{children}</Tmp1RootLayout>;
     } else if (referer === process.env.NEXT_PUBLIC_X_SITE) {

@@ -5,7 +5,7 @@ import { headers } from "next/headers";
 function Template() {
     const referer = headers().get("host");
 
-    if (referer === process.env.NEXT_PUBLIC_HOST_SITE) {
+    if (referer === process.env.NEXT_PUBLIC_HOST_URL) {
         // 判斷 tmp1 網域 layout
         return <ClientExample />;
     } else if (referer === process.env.NEXT_PUBLIC_X_SITE) {

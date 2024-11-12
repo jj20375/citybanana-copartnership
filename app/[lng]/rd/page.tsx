@@ -22,7 +22,7 @@ export default async function Page({ params: { lng }, searchParams }: { params: 
                 const expires = dayjs(res.expires_in).valueOf() ?? dayjs().add(30, "day").valueOf();
                 if (res.jwt) {
                     try {
-                        const baseUrl = process.env.NEXT_PUBLIC_HOST_SITE || "http://localhost:3000"; // 根據你的環境來決定
+                        const baseUrl = process.env.NEXT_PUBLIC_HOST_URL || "http://localhost:3000"; // 根據你的環境來決定
                         const apiUrl = `http://${baseUrl}/api/auth/set-token`;
 
                         // 將 token 設定在伺服器端
