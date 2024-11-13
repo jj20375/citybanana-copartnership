@@ -30,9 +30,13 @@ export async function UpdateUserProfileAPI(data: UpdateUserProfileAPIReqInterfac
     user: UserProfileInterface;
 }> {
     return useMyFetch(`${apiURL}/my/user-profile`, {
-        method: "patch",
+        method: "post",
         body: JSON.stringify(data),
     });
+    // return useMyFetch(`${apiURL}/my/user-profile`, {
+    //     method: "patch",
+    //     body: JSON.stringify(data),
+    // });
 }
 
 /**
