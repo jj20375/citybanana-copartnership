@@ -24,4 +24,4 @@ services:
         networks:
             - conpartnership
         restart: always
-        command: bash -c "yarn run start"
+        command: bash -c "yarn run build && yarn run start"
