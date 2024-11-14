@@ -17,11 +17,11 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
 export async function GetRightNowActivityOrderDetailAPI({ orderID, params }: { orderID: string; params?: GetRightNowActivityOrderDetailAPIReqInterface }): Promise<GetRightNowActivityOrderDetailAPIResInterface> {
     if (params) {
         return useMyFetch(`${apiURL}/my/demands/datings/${orderID}?${qs.stringify(params)}`, {
-            method: "get",
+            method: "GET",
         });
     }
     return useMyFetch(`${apiURL}/my/demands/datings/${orderID}`, {
-        method: "get",
+        method: "GET",
     });
 }
 
@@ -30,7 +30,7 @@ export async function GetRightNowActivityOrderDetailAPI({ orderID, params }: { o
  */
 export async function ChangeRightNowActivityProviderRequiredAPI(data: ChangeRightNowActivityProviderRequiredAPIReqInterface): Promise<ChangeRightNowActivityProviderRequiredAPIResInterface> {
     return useMyFetch(`${apiURL}/partner/demands/datings/${data.orderID}`, {
-        method: "patch",
+        method: "PATCH",
         body: JSON.stringify({ provider_required: data.provider_required }),
     });
 }
@@ -40,10 +40,10 @@ export async function ChangeRightNowActivityProviderRequiredAPI(data: ChangeRigh
  */
 export async function GetRightNowActivityOrderListAPI(params: any): Promise<GetRightNowActivityOrderListAPIResInterface> {
     return useMyFetch(`${apiURL}/my/demands/datings?${qs.stringify(params)}`, {
-        method: "get",
+        method: "GET",
     });
     // return useMyFetch(`${apiURL}/my/demands/datings?status[]=3`, {
-    //     method: "get",
+    //     method: "GET",
     // });
 }
 
@@ -52,6 +52,6 @@ export async function GetRightNowActivityOrderListAPI(params: any): Promise<GetR
  */
 export async function GetRightNowActivityOrderPaidAPI(orderID: string): Promise<GetRightNowActivityOrderPaidAPIResInterface> {
     return useMyFetch(`${apiURL}/my/demands/datings/${orderID}/paid`, {
-        method: "get",
+        method: "GET",
     });
 }

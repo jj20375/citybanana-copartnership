@@ -11,21 +11,21 @@ type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
  * 發送聊天訊息
  */
 export async function SendChatMessageAPI(data: SencChatMessageAPIInterface) {
-    return useMyFetch(`${apiNestJSURL}/chats/send-chat-message`, { method: "post", body: JSON.stringify(data) });
+    return useMyFetch(`${apiNestJSURL}/chats/send-chat-message`, { method: "POST", body: JSON.stringify(data) });
 }
 
 /**
  * 發送聊天室圖片訊息
  */
 export async function SendChatImageMessageAPI(data: SencChatMessageAPIInterface) {
-    return useMyFetch(`${apiNestJSURL}/chats/send-chat-image`, { method: "post", body: JSON.stringify(data) });
+    return useMyFetch(`${apiNestJSURL}/chats/send-chat-image`, { method: "POST", body: JSON.stringify(data) });
 }
 
 /**
  * 發送GPS定位訊息
  */
 export async function SendChatGPSMessageAPI(data: SencChatMessageAPIInterface) {
-    return useMyFetch(`${apiNestJSURL}/chats/send-gps-location`, { method: "post", body: JSON.stringify(data) });
+    return useMyFetch(`${apiNestJSURL}/chats/send-gps-location`, { method: "POST", body: JSON.stringify(data) });
 }
 
 /**
@@ -35,7 +35,7 @@ export async function SendChatGPSMessageAPI(data: SencChatMessageAPIInterface) {
 export async function ChatUploadAttachmentsAPI(file: any): Promise<{ url: string }> {
     let result = new FormData();
     result.append("file", file as FileType);
-    return useMyFetch(`${apiURL}/chat/attachments`, { method: "post", body: result, headers: { isFormData: true } });
+    return useMyFetch(`${apiURL}/chat/attachments`, { method: "POST", body: result, headers: { isFormData: true } });
 }
 // 上傳聊天室圖片路徑
 export const ChatUploadAttachmentsAPIURL = `${apiURL}/chat/attachments`;
@@ -45,5 +45,5 @@ export const ChatUploadAttachmentsAPIURL = `${apiURL}/chat/attachments`;
  */
 export async function SetReceiverChatRoomAPI(data: SetReceiverChatRoomAPIReqInterface) {
     console.log("SetReceiverChatRoomAPI body =>", data);
-    return useMyFetch(`${apiNestJSURL}/chats/send-receiver-chatroom-data`, { method: "post", body: JSON.stringify(data) });
+    return useMyFetch(`${apiNestJSURL}/chats/send-receiver-chatroom-data`, { method: "POST", body: JSON.stringify(data) });
 }

@@ -15,7 +15,7 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
  */
 export async function GetUserProfileAPI(token?: string): Promise<UserProfileInterface> {
     const reqURL = `${apiURL}/auth/user-profile`;
-    const options: { method: string; token?: string } = { method: "get" };
+    const options: { method: string; token?: string } = { method: "GET" };
     if (token) {
         options.token = token;
     }
@@ -30,13 +30,9 @@ export async function UpdateUserProfileAPI(data: UpdateUserProfileAPIReqInterfac
     user: UserProfileInterface;
 }> {
     return useMyFetch(`${apiURL}/my/user-profile`, {
-        method: "post",
+        method: "PATCH",
         body: JSON.stringify(data),
     });
-    // return useMyFetch(`${apiURL}/my/user-profile`, {
-    //     method: "patch",
-    //     body: JSON.stringify(data),
-    // });
 }
 
 /**
@@ -46,7 +42,7 @@ export async function UpdateUserProfileAPI(data: UpdateUserProfileAPIReqInterfac
 export async function LoginUserAPI({ phone, password }: { phone: string; password: string }) {
     // return axios.post(`${apiURL}/auth/login`, { phone, password });
     return useMyFetch(`${apiURL}/auth/login`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify({
             phone,
             password,
@@ -59,7 +55,7 @@ export async function LoginUserAPI({ phone, password }: { phone: string; passwor
  */
 export async function GetFirebaseCustomTokenAPI(token?: string) {
     const reqURL = `${apiURL}/chat/tokens`;
-    const options: { method: string; token?: string } = { method: "post" };
+    const options: { method: string; token?: string } = { method: "POST" };
     if (token) {
         options.token = token;
     }
@@ -68,12 +64,12 @@ export async function GetFirebaseCustomTokenAPI(token?: string) {
 }
 export async function GetIndexAPI() {
     return useMyFetch(`${apiURL}/expo/web/index`, {
-        method: "get",
+        method: "GET",
     });
 }
 export async function GetIndexAPI2() {
     return await useMyFetch(`${apiURL}/expo/web/index`, {
-        method: "get",
+        method: "GET",
     });
 }
 
@@ -83,7 +79,7 @@ export async function GetIndexAPI2() {
  */
 export async function GetCreditCardListAPI(): Promise<UserCreditCardListAPIResInterface> {
     return await useMyFetch(`${apiNestJSURL}/credit-card`, {
-        method: "get",
+        method: "GET",
     });
 }
 
@@ -93,7 +89,7 @@ export async function GetCreditCardListAPI(): Promise<UserCreditCardListAPIResIn
 export async function GetSmsLinkByRightNowActivityOrderToGetUserTokenAPI(verifyCode: string) {
     console.log("verifyCOde =>", verifyCode);
     return await useMyFetch(`${apiURL}/partner/demands/${verifyCode}`, {
-        method: "get",
+        method: "GET",
     });
 }
 
@@ -103,6 +99,6 @@ export async function GetSmsLinkByRightNowActivityOrderToGetUserTokenAPI(verifyC
 export async function ServerGetSmsLinkByRightNowActivityOrderToGetUserTokenAPI(verifyCode: string) {
     console.log("verifyCOde =>", verifyCode);
     return await useMyServerFetch(`${apiURL}/partner/demands/${verifyCode}`, {
-        method: "get",
+        method: "GET",
     });
 }

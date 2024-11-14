@@ -17,6 +17,6 @@ export async function GetPartnerStoreInfoAPI({ merchantCode, venueCode }: { merc
         url = `${url}?${new URLSearchParams(params).toString()}`;
     }
     return useMyFetch(url, {
-        method: "get",
+        method: "GET",
     });
 }

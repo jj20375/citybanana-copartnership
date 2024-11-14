@@ -9,7 +9,7 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
  */
 export async function GetOrderDetailAPI(orderID: string): Promise<GetOrderDetailAPIResInterface> {
     return useMyFetch(`${apiURL}/datings/${orderID}`, {
-        method: "get",
+        method: "GET",
     });
 }
 
@@ -18,6 +18,6 @@ export async function GetOrderDetailAPI(orderID: string): Promise<GetOrderDetail
  */
 export async function GetOrderListAPI(params: any): Promise<GetOrderListAPIResInterface> {
     return useMyFetch(`${apiURL}/my/datings?${qs.stringify(params)}`, {
-        method: "get",
+        method: "GET",
     });
 }

@@ -3,7 +3,7 @@ import type { GetVerificationCodeAPIReqInterface, GetVerificationCodeAPIResInter
 const apiURL = process.env.NEXT_PUBLIC_API_URL;
 
 export async function RefreshTokenAPI(token?: string | null) {
-    const options: { method: string; token?: string } = { method: "post" };
+    const options: { method: string; token?: string } = { method: "POST" };
     if (token) {
         options.token = token;
     }
@@ -28,7 +28,7 @@ export async function GetVerificationCodeAPI({ phone, country_code, client, rese
         }
     });
     return useMyFetch(`${apiURL}/auth/request`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify({ ...body, "g-recaptcha-response": recaptchaToken }),
     });
 }
@@ -50,7 +50,7 @@ export async function VerificationSMSCodeAPI({ phone, country_code, crumb, code,
         }
     });
     return useMyFetch(`${apiURL}/partner/verify`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify(body),
     });
 }

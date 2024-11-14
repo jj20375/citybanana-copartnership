@@ -24,7 +24,7 @@ import qs from "qs";
  */
 export async function RightNowActivityOrderCreateByCashAPI(data: RightNowActivityOrderCreateByCashAPIReqInterface): Promise<RightNowActivityOrderCreateByCashAPIResInterface> {
     return useMyFetch(`${apiURL}/cash/demands/datings`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify(data),
     });
 }
@@ -35,7 +35,7 @@ export async function RightNowActivityOrderCreateByCashAPI(data: RightNowActivit
  */
 export async function RightNowActivityOrderCreateByOtherAPI(data: RightNowActivityOrderCreateByOtherAPIReqInterface): Promise<RightNowActivityOrderCreateByOtherAPIResInterface> {
     return useMyFetch(`${apiURL}/demands/datings`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify(data),
     });
 }
@@ -45,7 +45,7 @@ export async function RightNowActivityOrderCreateByOtherAPI(data: RightNowActivi
  */
 export async function RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPI(data: RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPIReqInterface): Promise<RightNowActivityOrderCreateByCreditCardAndCreateCreditCardAPIResInterface> {
     return useMyFetch(`${apiURL}/partner/credit-cards`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify(data),
     });
 }
@@ -54,7 +54,7 @@ export async function RightNowActivityOrderCreateByCreditCardAndCreateCreditCard
  */
 export async function RightNowActivityOrderCreateByCreditCardAPI(data: RightNowActivityOrderCreateByCreditCardAPIReqInterface): Promise<RightNowActivityOrderCreateByCreditCardAPIResInterface> {
     return useMyFetch(`${apiURL}/partner/credit-cards`, {
-        method: "post",
+        method: "POST",
         body: JSON.stringify(data),
     });
 }
@@ -64,7 +64,7 @@ export async function RightNowActivityOrderCreateByCreditCardAPI(data: RightNowA
  */
 export async function RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPI({ ids }: { ids: string[] }): Promise<RightNowActivityOrderChooseProvidersToPaymentAndCreateOrdersAPIResInterface> {
     return useMyFetch(`${apiURL}/partner/demands/datings/enrollers`, {
-        method: "patch",
+        method: "PATCH",
         body: JSON.stringify({ ids }),
     });
 }
@@ -76,7 +76,7 @@ export async function RightNowActivityOrderChooseProvidersToPaymentAndCreateOrde
  */
 export async function RightNowActivityOrderCancelAPI(orderID: string): Promise<{ message: string }> {
     return useMyFetch(`${apiURL}/my/demands/datings/${orderID}`, {
-        method: "delete",
+        method: "DELETE",
     });
 }
 
@@ -88,7 +88,7 @@ export async function RightNowActivityOrderCancelAPI(orderID: string): Promise<{
 export async function RightNowActivityOrderCancelAndCancelAcceptedOrderAPI(orderID: string): Promise<{ message: string }> {
     const params = { cascade: "1" };
     return useMyFetch(`${apiURL}/my/demands/datings/${orderID}?${qs.stringify(params)}`, {
-        method: "delete",
+        method: "DELETE",
     });
 }
 
@@ -97,7 +97,7 @@ export async function RightNowActivityOrderCancelAndCancelAcceptedOrderAPI(order
  */
 export async function OrderCancelAPI(orderID: string): Promise<OrderCancelAPIResInterface> {
     return useMyFetch(`${apiURL}/datings/${orderID}/cancel`, {
-        method: "post",
+        method: "POST",
     });
 }
 
@@ -106,6 +106,6 @@ export async function OrderCancelAPI(orderID: string): Promise<OrderCancelAPIRes
  */
 export async function OrderUndoCancelAPI(orderID: string): Promise<{ message: string }> {
     return useMyFetch(`${apiURL}/partner/demands/datings/undo-cancel/${orderID}`, {
-        method: "post",
+        method: "POST",
     });
 }

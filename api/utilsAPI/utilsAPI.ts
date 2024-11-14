@@ -8,6 +8,6 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
  */
 export async function GetJobListAPI(): Promise<GetJobListAPIResInterface> {
     return useMyFetch(`${apiURL}/categories/occupations`, {
-        method: "get",
+        method: "GET",
     });
 }
