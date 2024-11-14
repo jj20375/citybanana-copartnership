@@ -17,7 +17,7 @@ export function RightNowActivityOrderListItem({ lng, orderData, customClass }: {
     const router = useRouter();
 
     const goToDetail = (id: string) => {
-        router.push(`/rightnowactivity-order/${id}`);
+        router.push(`/rightnowactivity-recruitment-order/${id}`);
         return;
     };
 

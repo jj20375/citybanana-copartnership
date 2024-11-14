@@ -30,14 +30,15 @@ import { GetRightNowActivityOrderDetailAPIResInterface } from "@/api/rightNowAct
 import { differenceInSeconds } from "date-fns";
 import { usePathname, useRouter } from "next/navigation";
 import dayjs from "dayjs";
-import { firebaseDbCollection } from "@/lib/firebase/firebase-hooks";
-import { userBananaIdSelector } from "@/store-toolkit/stores/userStore";
+import { firebaseAuth, firebaseDbCollection, firebaseMessaging, firebaseOnlineSet, firebaseOnlineSetDetachListeners } from "@/lib/firebase/firebase-hooks";
+import { fetchFirebaseLogin, fetchGetFirebaseCustomToken, userBananaIdSelector } from "@/store-toolkit/stores/userStore";
 import RightNowActivityOrderRecruitmentPendingTitle from "./components/RightNowActivityOrderRecruitmentPendingTitle";
 import { GetPartnerStoreInfoAPIResInterface } from "@/api/partnerStoreAPI/partnerStoreAPI-interface";
 // 信用卡付款按鈕 常駐下方
 import RightNowActivityOrderPaymentByCreditCardFooter from "./components/RightNowActivityOrderPaymentByCreditCardFooter";
 import RightNowActivityOrderConfirmPaymentModal from "./components/RightNowActivityOrderConfirmPaymentModal";
 import { tmc } from "@/service/utils";
+import { getCookie } from "cookies-next";
 
 /**
  * 即刻快閃報名訂單詳情
@@ -53,6 +54,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
 
     // userStore
     const userStore = useAppSelector((state) => state.userStore);
+    const user = useAppSelector((state) => state.userStore.user);
     // 使用者 ID
     const userID = userBananaIdSelector(userStore);
     // 判斷是否 firebase 登入成功
@@ -151,9 +153,9 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
         const notifyRef = firebaseDbCollection(`notification/${userID}/datas`);
         unsuscribeNotify = notifyRef.where("mark", "in", ["a_01", "a_02", "a_03", "a_04"]).onSnapshot(
             (snapshot: any) => {
-                // console.log("work listen notify 2", snapshot);
+                console.log("work listen notify 2", snapshot);
                 snapshot.forEach(async (doc: any) => {
-                    // console.log("work listen notify 3 =>", doc.data());
+                    console.log("work listen notify 3 =>", doc.data());
                 });
                 snapshot.docChanges().forEach(async (change: any) => {
                     if (change.type === "added") {
@@ -164,6 +166,7 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
                         }
                     }
                     if (change.type === "modified") {
+                        console.log("work listen notify 5 =>", change.doc.id);
                         console.log("更改通知: ", change.doc.data());
                     }
                     if (change.type === "removed") {
@@ -179,7 +182,32 @@ export default function RightNowActivityRecruitmentOrderDetailView({ lng, orderI
 
     useEffect(() => {
         if (isFirebaseAuth) {
+            console.log("work listenNotify");
             listenNotify();
+        } else {
+            // 判斷有 token 在執行 取得 firebase token
+            if (getCookie("accessToken") && user) {
+                console.log("client token =>", getCookie("accessToken"));
+                dispatch(fetchGetFirebaseCustomToken()).then((res: any) => {
+                    dispatch(fetchFirebaseLogin(res.payload.token));
+                    firebaseAuth().onAuthStateChanged(async (userData: any) => {
+                        if (userData === null) {
+                            console.log("work firebase auth error", userData);
+                            firebaseOnlineSetDetachListeners();
+                            listenNotify();
+                        } else {
+                            firebaseOnlineSet(user, user.banana_id!);
+                            console.log("firebase userData =>", userData);
+                            firebaseMessaging().onMessage(
+                                (payload: any) => {
+                                    console.log("message fcm client", payload);
+                                },
+                                (e: any) => {}
+                            );
+                        }
+                    });
+                });
+            }
         }
         return () => {
             if (unsuscribeNotify) {

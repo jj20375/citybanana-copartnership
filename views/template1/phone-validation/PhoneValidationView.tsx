@@ -26,6 +26,8 @@ import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { getUserProfile, setIsVisitor } from "@/store-toolkit/stores/userStore";
 import { CreateChatRoomAPIReqInterface, SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
 import { CreateChatRoomAPI, SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
+import { SetDefaultNotificationAPIReqInterface } from "@/api/notificationAPI/notificationAPI-interface";
+import { SetDefaultNotificationAPI } from "@/api/notificationAPI/notificationAPI";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -230,6 +232,8 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             if (data.user.newbie === 1) {
                 // 創建聊天室
                 await createChatRoom({ userData: data.user, needResetChatToBot: true, needSendWelcomeMessage: true });
+                // 設定通知預設資料
+                await setDefaultNotification({ userId: data.user.banana_id });
             }
             dispatch(getUserProfile());
             onNextStepButtonClick();
@@ -248,6 +252,18 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             console.log("SetReceiverChatRoomAPI =>", res);
         } catch (err) {
             console.log("SetReceiverChatRoomAPI err =>", err);
+            throw err;
+        }
+    };
+
+    /**
+     * 設定通知預設資料
+     */
+    const setDefaultNotification = async (data: SetDefaultNotificationAPIReqInterface) => {
+        try {
+            await SetDefaultNotificationAPI(data);
+        } catch (err) {
+            console.log("SetDefaultNotificationAPI err =>", err);
             throw err;
         }
     };

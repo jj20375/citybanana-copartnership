@@ -107,6 +107,7 @@ export function tmc(...inputs: ClassValue[]) {
  * 顯示 api 回應錯誤
  */
 export function showApiErrorMethod({ apiErr, errorMessageLang, lng, globalErrMessage }: { apiErr: any; errorMessageLang: any; lng: string; globalErrMessage: string }) {
+    console.log("errorMessageLang =>", errorMessageLang);
     if (apiErr && apiErr.error && apiErr.error.error && errorMessageLang[apiErr.error.error]) {
         messagePop.open({
             type: "error",
