@@ -9,5 +9,5 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
  * @returns
  */
 export async function SetDefaultNotificationAPI(data: SetDefaultNotificationAPIReqInterface) {
-    return useMyFetch(`${apiURL}/notifications`, { method: "POST", body: JSON.stringify(data) });
+    return useMyFetch(`${apiNestJSURL}/notification/set-default-data`, { method: "POST", body: JSON.stringify(data) });
 }

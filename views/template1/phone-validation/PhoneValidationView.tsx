@@ -238,6 +238,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             dispatch(getUserProfile());
             onNextStepButtonClick();
         } catch (err) {
+            setDisabled(false);
             console.log("VerificationSMSCodeAPI err =>", err);
             throw err;
         }
@@ -251,6 +252,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             const res = await CreateChatRoomAPI(data);
             console.log("SetReceiverChatRoomAPI =>", res);
         } catch (err) {
+            setDisabled(false);
             console.log("SetReceiverChatRoomAPI err =>", err);
             throw err;
         }
@@ -263,6 +265,7 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
         try {
             await SetDefaultNotificationAPI(data);
         } catch (err) {
+            setDisabled(false);
             console.log("SetDefaultNotificationAPI err =>", err);
             throw err;
         }
