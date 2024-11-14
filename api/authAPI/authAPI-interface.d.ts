@@ -52,78 +52,72 @@ export interface VerificationSMSCodeAPIResInterface {
     token_type: string;
     // 用來判斷是否首次註冊帳號 true = 首次註冊 false = 非首次註冊
     first_visit: boolean;
-    user: User;
+    user: {
+        address: null;
+        age: null;
+        apple_user: null;
+        avatar: string;
+        badges: string[];
+        banana_id: string;
+        banking: string;
+        birthday: null;
+        broker_id: null;
+        cover: string;
+        created_at: string;
+        custom_activities: string[];
+        custom_skills: string[];
+        description: null;
+        district: null;
+        email: null;
+        enablePayByCash: number;
+        facebook_user: null;
+        gender: string;
+        google_user: null;
+        government_cert: null;
+        height: null;
+        id: number;
+        line_user: null;
+        locale: string;
+        marketing_notification: number;
+        matrices: {
+            num_of_cancel: number;
+            response_rate: string;
+            response_time: string;
+        };
+        media: string[];
+        name: null;
+        occupation: string[];
+        online: number;
+        phone: string;
+        photos: null;
+        promotee: null;
+        promoter_id: null;
+        ranking: number;
+        rating_score: number;
+        real_name: null;
+        role: number;
+        service_area: null;
+        setting: {
+            enablePayByCash: number;
+        };
+        social: string[];
+        status: number;
+        stealth: number;
+        taboo: null;
+        thumbnails: Thumbnails;
+        timezone: string;
+        updated_at: string;
+        valid_jwt_after: null;
+        videos: null;
+        wallet: {
+            balance: number;
+        };
+        weight: null;
+        // 判斷 newbie 等於 1 代表新註冊
+        newbie: number;
+        [property: string]: any;
+    };
     user_role: number;
-    [property: string]: any;
-}
-
-export interface User {
-    address: null;
-    age: null;
-    apple_user: null;
-    avatar: string;
-    badges: string[];
-    banana_id: string;
-    banking: string;
-    birthday: null;
-    broker_id: null;
-    cover: string;
-    created_at: string;
-    custom_activities: string[];
-    custom_skills: string[];
-    description: null;
-    district: null;
-    email: null;
-    enablePayByCash: number;
-    facebook_user: null;
-    gender: string;
-    google_user: null;
-    government_cert: null;
-    height: null;
-    id: number;
-    line_user: null;
-    locale: string;
-    marketing_notification: number;
-    matrices: Matrices;
-    media: string[];
-    name: null;
-    occupation: string[];
-    online: number;
-    phone: string;
-    photos: null;
-    promotee: null;
-    promoter_id: null;
-    ranking: number;
-    rating_score: number;
-    real_name: null;
-    role: number;
-    service_area: null;
-    setting: Setting;
-    social: string[];
-    status: number;
-    stealth: number;
-    taboo: null;
-    thumbnails: Thumbnails;
-    timezone: string;
-    updated_at: string;
-    valid_jwt_after: null;
-    videos: null;
-    wallet: Wallet;
-    weight: null;
-    // 判斷 newbie 等於 1 代表新註冊
-    newbie: number;
-    [property: string]: any;
-}
-
-export interface Matrices {
-    num_of_cancel: number;
-    response_rate: string;
-    response_time: string;
-    [property: string]: any;
-}
-
-export interface Setting {
-    enablePayByCash: number;
     [property: string]: any;
 }
 
@@ -144,10 +138,5 @@ export interface Avatar {
 export interface Cover {
     "360x360": string;
     "720x720": string;
-    [property: string]: any;
-}
-
-export interface Wallet {
-    balance: number;
     [property: string]: any;
 }

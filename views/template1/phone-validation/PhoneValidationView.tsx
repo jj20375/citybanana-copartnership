@@ -24,6 +24,8 @@ import { GetVerificationCodeAPI, VerificationSMSCodeAPI } from "@/api/authAPI/au
 import { setClientToken } from "@/service/actions-client";
 import { useAppDispatch, useAppSelector } from "@/store-toolkit/storeToolkit";
 import { getUserProfile, setIsVisitor } from "@/store-toolkit/stores/userStore";
+import { CreateChatRoomAPIReqInterface, SetReceiverChatRoomAPIReqInterface } from "@/api/chatAPI/chatAPI-interface";
+import { CreateChatRoomAPI, SetReceiverChatRoomAPI } from "@/api/chatAPI/chatAPI";
 
 export default function PhoneValidationView({ lng }: { lng: string }) {
     const { t } = useTranslation(lng, "main");
@@ -224,10 +226,28 @@ export default function PhoneValidationView({ lng }: { lng: string }) {
             setValidateCodeInputDisabled(true);
             // 設定是否為訪客身份(代表首次註冊)
             setIsVisitor(data.user.newbie === 1);
+            // 首次註冊訪客需創建聊天室
+            if (data.user.newbie === 1) {
+                // 創建聊天室
+                await createChatRoom({ userData: data.user, needResetChatToBot: true, needSendWelcomeMessage: true });
+            }
             dispatch(getUserProfile());
             onNextStepButtonClick();
         } catch (err) {
             console.log("VerificationSMSCodeAPI err =>", err);
+            throw err;
+        }
+    };
+    /**
+     * 創建聊天室基本資料與客服聊天室
+     * @param data
+     */
+    const createChatRoom = async (data: CreateChatRoomAPIReqInterface) => {
+        try {
+            const res = await CreateChatRoomAPI(data);
+            console.log("SetReceiverChatRoomAPI =>", res);
+        } catch (err) {
+            console.log("SetReceiverChatRoomAPI err =>", err);
             throw err;
         }
     };
