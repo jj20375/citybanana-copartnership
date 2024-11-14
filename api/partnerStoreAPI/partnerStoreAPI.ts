@@ -10,7 +10,6 @@ const apiNestJSURL = process.env.NEXT_PUBLIC_API_NESTJS_URL;
  * 取得合作店家資料
  */
 export async function GetPartnerStoreInfoAPI({ merchantCode, venueCode }: { merchantCode: string; venueCode?: string | void }): Promise<GetPartnerStoreInfoAPIResInterface> {
-    console.log("API URL Client Print =>", apiURL, apiNestJSURL);
     let url = `${apiURL}/partner/merchants/${merchantCode}`;
     if (venueCode) {
         const params = { venue: venueCode };

@@ -19,8 +19,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 console.log("firebase.apps.length =>", firebase.apps.length);
-console.log("firebaseConfig =>", firebaseConfig);
-console.log("API URL Server Print =>", process.env.NEXT_PUBLIC_API_URL, process.env.NEXT_PUBLIC_API_NESTJS_URL);
 let firebase_app: any = !firebase.apps.length ? firebase.initializeApp(firebaseConfig) : firebase.app();
 
 export default firebase_app;
